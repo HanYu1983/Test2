@@ -1,0 +1,7 @@
+id	name	description	item	terrian	str	vit	spd	dex	int	luck	characteristic
+ant	螞蟻			plain,wasteland,desert	3	3	2	0	3	0	
+snack	蛇			forest,wasteland,desert	10	5	5	20	1	5	
+bear	熊			forest	20	20	10	10	1	0	
+bird	鳥			plain,forest	10	10	30	20	0	5	
+toxinSnack	毒蛇			desert	40	10	10	20	1	10	
+bigBear	大熊			forest	25	40	15	5	0	0	

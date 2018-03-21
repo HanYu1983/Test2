@@ -1,0 +1,11 @@
+id	name	description	type	skill type	max count	fusion require	skill type require	ability	position	useCount
+grass	草		material	tailor	99					
+wood	木		material	woodworker	10					
+stone	石		material	ironworker	10					
+iron	鉄礦		material	ironworker	10					
+grassHat	草帽		weapon	speed	1	grass_10	tailor_1	def+2	hand	20
+grassBody	布衣		weapon	speed	1	grass_30	tailor_1	def+4	body	20
+grassShoe	草鞋		weapon	speed	1	grass_10	tailor_1	def+2	foot	20
+grassKen	布拳套		weapon	karate	1	grass_10	tailor_1	atk+2	hand	20
+woodSword	木劍		weapon	fencingArt	1	wood_5	woodworker_1	atk+5	head	40
+woodBoat	木伐		material	woodworker	1	wood_10				
