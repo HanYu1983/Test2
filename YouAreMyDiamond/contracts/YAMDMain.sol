@@ -45,14 +45,15 @@ contract YAMDMain {
         data.buy(user, eth, 0, friendLink);
     }
     
-    function getRoundInfo() public view returns (uint,uint,uint,uint,uint){
+    function getRoundInfo() public view returns (uint,uint,uint,uint,uint, YAMDAlg.GameState){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (
             info.rnd,
             info.startTime,
             info.endTime,
             info.remainTime,
-            info.potVault
+            info.potVault,
+            info.state
         );
     }
     

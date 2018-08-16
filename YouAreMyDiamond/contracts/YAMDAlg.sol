@@ -128,8 +128,6 @@ library YAMDAlg {
         return total;
     }
     
-    
-    
     function getKeyPrice() internal pure returns (uint){
         return KeyEthAtStart;
     }
@@ -231,8 +229,6 @@ library YAMDAlg {
         local.gen = value.mul(GenRate).mul(FixPointFactor)/100;
         // 推薦人
         local.fri = value.mul(FriRate).mul(FixPointFactor)/100;
-        
-        
         // 套用分紅
         // 公司
         data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.com);
@@ -263,21 +259,23 @@ library YAMDAlg {
         // 鑽石回饋
         // 不保含這次買的key
         local.totalKey = getTotalKeyAmount(data).sub(local.keyAmount);
-        local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
-        uint genPlus;
-        for(local.i=1; local.i<data.plyrs.length; ++local.i){
-            if(local.i == local.plyrId){
-                // 如果是自己，減掉今次買的。這樣計算才正確
-                local.plyr = data.plyrs[local.i];
-                genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
-                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
-            }else{
-                local.plyr = data.plyrs[local.i];
-                genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
-                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
+        // 第一個買會使totalKey等於0, 略過第一個買的(沒有分紅的對象)
+        if(local.totalKey != 0){
+            local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
+            uint genPlus;
+            for(local.i=1; local.i<data.plyrs.length; ++local.i){
+                if(local.i == local.plyrId){
+                    // 如果是自己，減掉今次買的。這樣計算才正確
+                    local.plyr = data.plyrs[local.i];
+                    genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
+                    data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
+                }else{
+                    local.plyr = data.plyrs[local.i];
+                    genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
+                    data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
+                }
             }
         }
-        
         // 記錄所有的錢
         data.vaults[data.totalVaultId] = data.vaults[data.totalVaultId].add(value);
         
@@ -401,6 +399,7 @@ library YAMDAlg {
         uint endTime;
         uint remainTime;
         uint potVault;
+        GameState state;
     }
     
     function getRoundInfo(Data storage data) internal view returns (RoundInfo){
@@ -413,7 +412,8 @@ library YAMDAlg {
             data.startTime,
             data.endTime,
             remainTime,
-            data.vaults[data.potVaultId]
+            data.vaults[data.potVaultId],
+            data.state
         );
     }
     
