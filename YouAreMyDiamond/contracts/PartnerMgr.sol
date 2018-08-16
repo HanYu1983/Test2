@@ -88,7 +88,7 @@ library PartnerMgr {
         uint fee = projFee(data, proj);
         require(value >= fee, "eth not enougth");
         uint id = getOrNewPartner(data, addr);
-        uint link = now + id;
+        uint link = now + (id << 240);
         
         data.partners[id].addr = addr;
         data.partners[id].proj = proj;

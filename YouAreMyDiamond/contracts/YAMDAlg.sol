@@ -27,10 +27,11 @@ library YAMDAlg {
     
     struct Player{
         uint key;           // 固定點小數
-        uint winVaultId;    // 固定點小數
-        uint genVaultId;    // 固定點小數
-        uint inviteVaultId; // 固定點小數
-        uint parVaultId;    // 固定點小數
+        uint partnerLink;   // 所使用的合夥人連結
+        uint winVaultId;
+        uint genVaultId;
+        uint inviteVaultId;
+        uint parVaultId;
     }
     
     struct History{
@@ -163,6 +164,7 @@ library YAMDAlg {
         // 取得玩家
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
+        local.plyr.partnerLink = partnerLink;
         // 增加鑽石
         local.plyr.key = local.plyr.key.add(local.keyAmount);
         // 套用新資料!
@@ -176,11 +178,11 @@ library YAMDAlg {
         // 處理合夥人
         local.partner = data.partnerMgr.getPartner(partnerLink);
         if(local.partner.proj == PartnerMgr.Project.Unknow){
-            // 如果不是合夥人的下線（用合夥人提供的連結玩遊戲）
+            // 如果不是合夥人的下線
             // 分紅給公司
             local.com = value.mul(ComRate).mul(FixPointFactor)/100;
         }else{
-            // 如果是合夥人的下線
+            // 如果是合夥人的下線（用合夥人提供的連結玩遊戲）
             // 依專案分紅給公司和合夥人
             local.com = value.mul(PartnerMgr.comRate(local.partner.proj)).mul(FixPointFactor)/100;
             local.par = value.mul(PartnerMgr.partRate(local.partner.proj)).mul(FixPointFactor)/100;
