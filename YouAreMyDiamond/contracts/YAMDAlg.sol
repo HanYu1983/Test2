@@ -32,7 +32,7 @@ library YAMDAlg {
         uint friendLink;
         uint winVaultId;
         uint genVaultId;
-        uint inviteVaultId;
+        uint friVaultId;
         uint parVaultId;
     }
     
@@ -97,7 +97,7 @@ library YAMDAlg {
     function assignVaults(Data storage data, Player memory player) internal returns (Player){
         player.winVaultId = genVaultId(data);
         player.genVaultId = genVaultId(data);
-        player.inviteVaultId = genVaultId(data);
+        player.friVaultId = genVaultId(data);
         player.parVaultId = genVaultId(data);
         return player;
     }
@@ -254,18 +254,16 @@ library YAMDAlg {
         local.friendId = data.plyrIdByFriendLink[friendLink];
         if(local.friendId != 0){
             local.plyr = data.plyrs[local.friendId];
-            data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.fri);
+            data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
         } else {
             // 若推薦人不存在就分給公司
             data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
         }
-        // 記錄所有的錢
-        data.vaults[data.totalVaultId] = data.vaults[data.totalVaultId].add(value);
+        
         // 鑽石回饋
         // 不保含這次買的key
         local.totalKey = getTotalKeyAmount(data).sub(local.keyAmount);
         local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
-        
         uint genPlus;
         for(local.i=1; local.i<data.plyrs.length; ++local.i){
             if(local.i == local.plyrId){
@@ -279,6 +277,9 @@ library YAMDAlg {
                 data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
             }
         }
+        
+        // 記錄所有的錢
+        data.vaults[data.totalVaultId] = data.vaults[data.totalVaultId].add(value);
         
         if(data.state == GameState.Idle){
             // 遊戲剛啟動
@@ -300,10 +301,10 @@ library YAMDAlg {
         Player memory plyr = data.plyrs[id];
         uint total = data.vaults[plyr.winVaultId]
             .add(data.vaults[plyr.genVaultId])
-            .add(data.vaults[plyr.inviteVaultId]);
+            .add(data.vaults[plyr.friVaultId]);
         data.vaults[plyr.winVaultId] = 0;
         data.vaults[plyr.genVaultId] = 0;
-        data.vaults[plyr.inviteVaultId] = 0;
+        data.vaults[plyr.friVaultId] = 0;
         return total / FixPointFactor;
     }
  
@@ -430,7 +431,7 @@ library YAMDAlg {
             plyr.key,
             data.vaults[plyr.winVaultId],
             data.vaults[plyr.genVaultId],
-            data.vaults[plyr.inviteVaultId]
+            data.vaults[plyr.friVaultId]
         );
     }
 }
