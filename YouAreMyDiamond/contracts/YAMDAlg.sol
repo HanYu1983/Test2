@@ -1,10 +1,12 @@
 pragma solidity ^0.4.24;
 
 import "./lib/SafeMath.sol";
+import "./lib/KeysCalc.sol";
 import "./PartnerMgr.sol";
 
 library YAMDAlg {
     using SafeMath for *;
+    using KeysCalc for *;
     using PartnerMgr for PartnerMgr.Data;
     
     uint8 constant ComRate = 4;
@@ -28,8 +30,8 @@ library YAMDAlg {
     struct Player{
         address addr;
         uint key;           // 固定點小數
-        uint usedPartnerLink;   // 所使用的合夥人連結
-        uint friendLink;
+        bytes32 usedPartnerLink;   // 所使用的合夥人連結
+        bytes32 friendLink;
         uint winVaultId;
         uint genVaultId;
         uint friVaultId;
@@ -47,7 +49,7 @@ library YAMDAlg {
         uint endTime;
         
         mapping (address=>uint) plyrIdByAddr;
-        mapping (uint=>uint) plyrIdByFriendLink;
+        mapping (bytes32=>uint) plyrIdByFriendLink;
         Player[] plyrs;
         
         GameState state;
@@ -112,7 +114,7 @@ library YAMDAlg {
 
         Player memory plyr;
         plyr = assignVaults(data, plyr);
-        plyr.friendLink = now + (id << 224);
+        plyr.friendLink = bytes32(now + (id << 224));
         
         data.plyrs.push(plyr);
         data.plyrIdByFriendLink[plyr.friendLink] = id;
@@ -128,8 +130,11 @@ library YAMDAlg {
         return total;
     }
     
-    function getKeyPrice() internal pure returns (uint){
-        return KeyEthAtStart;
+    function calcKeyAmount(uint totalValue, uint value) internal pure returns (uint){
+        uint totalEth = totalValue;
+        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
+        uint format = keyAmountWithCalcFixPoint.mul(FixPointFactor)/KeysCalc.fixPointFactor();
+        return format;
     }
     
     function reduceHistory(Data storage data) internal {
@@ -174,7 +179,7 @@ library YAMDAlg {
         PartnerMgr.Partner partner;
     }
     
-    function buy(Data storage data, address addr, uint value, uint partnerLink, uint friendLink) internal returns(uint8) {
+    function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
         // 不能低於最低價
         require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
         buyLocal memory local;
@@ -192,7 +197,7 @@ library YAMDAlg {
             }
         }
         // 買到的鑽石，有小數點
-        local.keyAmount = value.mul(FixPointFactor) / getKeyPrice();
+        local.keyAmount = calcKeyAmount(data.vaults[data.totalVaultId] / FixPointFactor, value);
         // 取得玩家
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
@@ -212,7 +217,7 @@ library YAMDAlg {
         reduceHistory(data);
         
         // 處理合夥人
-        local.partner = data.partnerMgr.getPartner(addr, partnerLink);
+        local.partner = data.partnerMgr.getPartner(addr, local.plyr.usedPartnerLink);
         if(local.partner.proj == PartnerMgr.Project.Unknow){
             // 如果不是合夥人的下線
             // 分紅給公司
@@ -264,13 +269,12 @@ library YAMDAlg {
             local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
             uint genPlus;
             for(local.i=1; local.i<data.plyrs.length; ++local.i){
-                if(local.i == local.plyrId){
+                local.plyr = data.plyrs[local.i];
+                if(local.plyr.addr == addr){
                     // 如果是自己，減掉今次買的。這樣計算才正確
-                    local.plyr = data.plyrs[local.i];
                     genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
                     data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
                 }else{
-                    local.plyr = data.plyrs[local.i];
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                     data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
                 }
@@ -284,12 +288,16 @@ library YAMDAlg {
             data.startTime = now;
             data.endTime = data.startTime + TimeAtStart;
             data.state = GameState.Playing;
+            PartnerMgr.open(data.partnerMgr);
         }
         else if(data.state == GameState.Playing){
-            // 增加時間
-            data.endTime = data.endTime.add(ExtendTime);
-            if(data.endTime > data.startTime + MaxTime){
-                data.endTime = data.startTime + MaxTime;
+            // 買超過1個鑽石才會增加時間
+            if(local.keyAmount / FixPointFactor > 0){
+                // 增加時間
+                data.endTime = data.endTime.add(ExtendTime);
+                if(data.endTime > data.startTime + MaxTime){
+                    data.endTime = data.startTime + MaxTime;
+                }
             }
         }
     }
@@ -421,7 +429,8 @@ library YAMDAlg {
         uint key;
         uint winVault;
         uint genVault;
-        uint inviteVault;
+        uint friVault;
+        uint parVault;
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
@@ -431,7 +440,8 @@ library YAMDAlg {
             plyr.key,
             data.vaults[plyr.winVaultId],
             data.vaults[plyr.genVaultId],
-            data.vaults[plyr.friVaultId]
+            data.vaults[plyr.friVaultId],
+            data.vaults[plyr.parVaultId]
         );
     }
 }

@@ -27,19 +27,24 @@ contract YAMDMain {
         data.partnerMgr.register(user, value, PartnerMgr.Project.Two);
     }
     
+    function getPartnerLink() public view returns (bytes32){
+        address user = msg.sender;
+        return data.partnerMgr.getLink(user);
+    }
+    
     function buy() public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
     }
     
-    function buyWithPartnerLink(uint partnerLink) public payable {
+    function buyWithPartnerLink(bytes32 partnerLink) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, partnerLink, 0);
     }
     
-    function buyWithFriendLink(uint friendLink) public payable {
+    function buyWithFriendLink(bytes32 friendLink) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
@@ -57,13 +62,14 @@ contract YAMDMain {
         );
     }
     
-    function getPlayerInfo() public view returns (uint, uint, uint, uint){
+    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint){
         YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(msg.sender);
         return (
             info.key,
             info.winVault,
             info.genVault,
-            info.inviteVault
+            info.friVault,
+            info.parVault
         );
     }
     

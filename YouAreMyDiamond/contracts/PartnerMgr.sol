@@ -19,13 +19,13 @@ library PartnerMgr {
     struct Partner{
         address addr;
         Project proj;
-        uint link;
+        bytes32 link;
     }
     
     struct Data{
         bool open;
         mapping(address=>uint) partnerIdByAddr;
-        mapping(uint=>uint) partnerIdByLink;
+        mapping(bytes32=>uint) partnerIdByLink;
         Partner[] partners;
     }
     
@@ -81,22 +81,28 @@ library PartnerMgr {
         id = data.partners.length;
         Partner memory part;
         data.partners.push(part);
+        data.partnerIdByAddr[addr] = id;
         return id;
     }
     
     function register(Data storage data, address addr, uint value, Project proj) internal {
         uint fee = projFee(data, proj);
-        require(value >= fee, "eth not enougth");
+        require(value == fee, "eth not enougth");
         uint id = getOrNewPartner(data, addr);
-        uint link = now + (id << 224);
-        
+        bytes32 link = bytes32(now.add(id << 224));
         data.partners[id].addr = addr;
         data.partners[id].proj = proj;
         data.partners[id].link = link;
         data.partnerIdByLink[link] = id;
     }
     
-    function getPartner(Data storage data, address user, uint link) internal view returns (Partner){
+    function getLink(Data storage data, address addr) internal view returns (bytes32){
+        uint id = data.partnerIdByAddr[addr];
+        require(id != 0, "you must register");
+        return data.partners[id].link;
+    }
+    
+    function getPartner(Data storage data, address user, bytes32 link) internal view returns (Partner){
         uint id = data.partnerIdByLink[link];
         Partner memory partner =  data.partners[id];
         // 合夥人不能是自己
