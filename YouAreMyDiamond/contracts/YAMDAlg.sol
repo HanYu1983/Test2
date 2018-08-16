@@ -431,6 +431,7 @@ library YAMDAlg {
         uint genVault;
         uint friVault;
         uint parVault;
+        bytes32 friendLink;
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
@@ -441,7 +442,8 @@ library YAMDAlg {
             data.vaults[plyr.winVaultId],
             data.vaults[plyr.genVaultId],
             data.vaults[plyr.friVaultId],
-            data.vaults[plyr.parVaultId]
+            data.vaults[plyr.parVaultId],
+            plyr.friendLink
         );
     }
 }

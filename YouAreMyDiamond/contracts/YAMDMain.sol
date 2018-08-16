@@ -32,6 +32,11 @@ contract YAMDMain {
         return data.partnerMgr.getLink(user);
     }
     
+    function getFriendLink() public view returns (bytes32){
+        address user = msg.sender;
+        return data.partnerMgr.getLink(user);
+    }
+    
     function buy() public payable {
         address user = msg.sender;
         uint eth = msg.value;
@@ -62,14 +67,15 @@ contract YAMDMain {
         );
     }
     
-    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint){
+    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32){
         YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(msg.sender);
         return (
             info.key,
             info.winVault,
             info.genVault,
             info.friVault,
-            info.parVault
+            info.parVault,
+            info.friendLink
         );
     }
     
