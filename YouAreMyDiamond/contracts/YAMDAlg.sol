@@ -10,13 +10,13 @@ library YAMDAlg {
     uint8 constant ComRate = 4;
     uint8 constant Par1Rate = 2;
     uint8 constant Par2Rate = 4;
-    uint8 constant InvRate = 10;
+    uint8 constant FriRate = 10;
     uint8 constant GenRate = 62;
     uint8 constant PotRate = 20;
     
     uint8 constant PotWinRate = 50;
     uint8 constant PotLastOneRate = 30;
-    uint8 constant PotBelParRate = 10;
+    uint8 constant PotParRate = 10;
     uint8 constant PotPubRate = 10;
     
     uint constant KeyEthAtStart = 100 szabo;
@@ -26,8 +26,10 @@ library YAMDAlg {
     uint constant MaxTime = 24 hours;
     
     struct Player{
+        address addr;
         uint key;           // 固定點小數
-        uint partnerLink;   // 所使用的合夥人連結
+        uint usedPartnerLink;   // 所使用的合夥人連結
+        uint friendLink;
         uint winVaultId;
         uint genVaultId;
         uint inviteVaultId;
@@ -45,6 +47,7 @@ library YAMDAlg {
         uint endTime;
         
         mapping (address=>uint) plyrIdByAddr;
+        mapping (uint=>uint) plyrIdByFriendLink;
         Player[] plyrs;
         
         GameState state;
@@ -68,8 +71,8 @@ library YAMDAlg {
     }
     
     function init(Data storage data) internal {
-        require(ComRate + Par2Rate + InvRate + GenRate + PotRate == 100, "");
-        require(PotWinRate + PotLastOneRate + PotBelParRate + PotPubRate == 100, "");
+        require(ComRate + Par2Rate + FriRate + GenRate + PotRate == 100, "");
+        require(PotWinRate + PotLastOneRate + PotParRate + PotPubRate == 100, "");
         
         data.comVaultId = genVaultId(data);
         data.potVaultId = genVaultId(data);
@@ -109,8 +112,10 @@ library YAMDAlg {
 
         Player memory plyr;
         plyr = assignVaults(data, plyr);
+        plyr.friendLink = now + (id << 224);
         
         data.plyrs.push(plyr);
+        data.plyrIdByFriendLink[plyr.friendLink] = id;
         return id;
     }
   
@@ -123,14 +128,47 @@ library YAMDAlg {
         return total;
     }
     
+    
+    
+    function getKeyPrice() internal pure returns (uint){
+        return KeyEthAtStart;
+    }
+    
+    function reduceHistory(Data storage data) internal {
+        // 最後1%鑽石
+        uint lastOneTotalKeys = getTotalKeyAmount(data)/100;
+        uint currKey = 0;
+        uint i;
+        for(i=data.history.length-1;; --i){
+            // 佔最後1%鑽石的比例
+            currKey += data.history[i].key;
+            if(currKey > lastOneTotalKeys){
+                break;
+            }
+            if(i == 0){
+                break;
+            }
+        }
+        if(i == 0){
+            return;
+        }
+        uint copyStart = i;
+        uint finalLen = data.history.length - i;
+        for(i=0; i<finalLen; ++i){
+            data.history[i] = data.history[i+copyStart];
+        }
+        data.history.length = finalLen;
+    }
+    
     struct buyLocal{
         uint plyrId;
         Player plyr;
+        uint friendId;
         uint com;
         uint pot;
         uint gen;
         uint par;
-        uint res;
+        uint fri;
         uint totalKey;
         uint genPerKey;
         uint i;
@@ -138,11 +176,7 @@ library YAMDAlg {
         PartnerMgr.Partner partner;
     }
     
-    function getKeyPrice() internal pure returns (uint){
-        return KeyEthAtStart;
-    }
-    
-    function buy(Data storage data, address addr, uint value, uint partnerLink) internal returns(uint8) {
+    function buy(Data storage data, address addr, uint value, uint partnerLink, uint friendLink) internal returns(uint8) {
         // 不能低於最低價
         require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
         buyLocal memory local;
@@ -164,7 +198,10 @@ library YAMDAlg {
         // 取得玩家
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
-        local.plyr.partnerLink = partnerLink;
+        local.plyr.addr = addr;
+        if(local.plyr.usedPartnerLink == 0){
+            local.plyr.usedPartnerLink = partnerLink;
+        }
         // 增加鑽石
         local.plyr.key = local.plyr.key.add(local.keyAmount);
         // 套用新資料!
@@ -173,10 +210,11 @@ library YAMDAlg {
         
         // 處理歷史訂單，這裡用來做最後1%鑽石的分紅
         data.history.push(History(local.plyrId, local.keyAmount));
-        // TODO 只保留最後1%的歷史訂單
+        // 只保留最後1%的歷史訂單
+        reduceHistory(data);
         
         // 處理合夥人
-        local.partner = data.partnerMgr.getPartner(partnerLink);
+        local.partner = data.partnerMgr.getPartner(addr, partnerLink);
         if(local.partner.proj == PartnerMgr.Project.Unknow){
             // 如果不是合夥人的下線
             // 分紅給公司
@@ -191,6 +229,9 @@ library YAMDAlg {
         local.pot = value.mul(PotRate).mul(FixPointFactor)/100;
         // 鑽石回饋
         local.gen = value.mul(GenRate).mul(FixPointFactor)/100;
+        // 推薦人
+        local.fri = value.mul(FriRate).mul(FixPointFactor)/100;
+        
         
         // 套用分紅
         // 公司
@@ -198,14 +239,25 @@ library YAMDAlg {
         // 彩池
         data.vaults[data.potVaultId] = data.vaults[data.potVaultId].add(local.pot);
         // 合夥人
-        local.plyrId = data.plyrIdByAddr[local.partner.addr];
-        if(local.plyrId != 0){
-            // 若合夥人存在就分給合夥人
-            local.plyr = data.plyrs[local.plyrId];
-            data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
+        if(local.partner.proj != PartnerMgr.Project.Unknow){
+            local.plyrId = data.plyrIdByAddr[local.partner.addr];
+            if(local.plyrId != 0){
+                // 若合夥人存在就分給合夥人
+                local.plyr = data.plyrs[local.plyrId];
+                data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
+            } else {
+                // 該存在的合夥人不存在就分給公司。合理的情況這裡應該不會運行
+                data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.par);
+            }
+        }
+        // 推薦人
+        local.friendId = data.plyrIdByFriendLink[friendLink];
+        if(local.friendId != 0){
+            local.plyr = data.plyrs[local.friendId];
+            data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.fri);
         } else {
-            // 若合夥人不存在就分給公司。合理的情況這裡應該不會運行
-            data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.par);
+            // 若推薦人不存在就分給公司
+            data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
         }
         // 記錄所有的錢
         data.vaults[data.totalVaultId] = data.vaults[data.totalVaultId].add(value);
@@ -260,12 +312,18 @@ library YAMDAlg {
         uint pot;
         uint win;
         uint winLastOne;
-        uint leadPlyrId;
-        YAMDAlg.Player player;
+        uint lastPlyrId;
+        YAMDAlg.Player lastPlyr;
+        uint plyrId;
+        YAMDAlg.Player plyr;
         uint winLastOnePerKey;
         uint lastOneTotalKeys;
         uint key;
         uint pub;
+        uint par;
+        PartnerMgr.Partner partner;
+        uint currKey;
+        uint occupyKey;
     }
     
     function endRound(Data storage data) internal {
@@ -278,6 +336,8 @@ library YAMDAlg {
         local.win = local.pot.mul(PotWinRate) / 100;
         // 最後1%鑽石的分紅
         local.winLastOne = local.pot.mul(PotLastOneRate) / 100;
+        // 合夥人的分紅
+        local.par = local.pot.mul(PotParRate) / 100;
         // 公益分紅
         local.pub = local.pot.mul(PotPubRate) / 100;
         
@@ -286,16 +346,39 @@ library YAMDAlg {
         
         // 套用分紅
         // 最後1位玩家
-        local.leadPlyrId = data.history[data.history.length-1].plyrId;
-        local.player = data.plyrs[local.leadPlyrId];
-        data.vaults[local.player.winVaultId] = data.vaults[local.player.winVaultId].add(local.win);
+        local.lastPlyrId = data.history[data.history.length-1].plyrId;
+        local.lastPlyr = data.plyrs[local.lastPlyrId];
+        data.vaults[local.lastPlyr.winVaultId] = data.vaults[local.lastPlyr.winVaultId].add(local.win);
         // 最後1%鑽石
-        for(local.i=0; local.i<data.history.length; ++local.i){
-            // TODO 佔最後1%鑽石的比例
-            local.leadPlyrId = data.history[local.i].plyrId;
-            local.key = data.history[local.i].key;
-            local.player = data.plyrs[local.leadPlyrId];
-            data.vaults[local.player.winVaultId] = data.vaults[local.player.winVaultId].add(local.key.mul(local.winLastOnePerKey));
+        local.currKey = 0;
+        for(local.i=data.history.length-1; true; --local.i){
+            // 佔最後1%鑽石的比例
+            local.currKey += data.history[local.i].key;
+            local.occupyKey = data.history[local.i].key;
+            if(local.currKey > local.lastOneTotalKeys){
+                local.occupyKey = local.lastOneTotalKeys.sub(local.currKey.sub(data.history[local.i].key));
+            }
+            local.plyrId = data.history[local.i].plyrId;
+            local.plyr = data.plyrs[local.plyrId];
+            data.vaults[local.plyr.winVaultId] = data.vaults[local.plyr.winVaultId].add(local.occupyKey.mul(local.winLastOnePerKey)/FixPointFactor);
+            if(local.i == 0){
+                break;
+            }
+        }
+        // 合夥人
+        local.partner = data.partnerMgr.getPartner(local.lastPlyr.addr, local.lastPlyr.usedPartnerLink);
+        if(local.partner.proj == PartnerMgr.Project.Unknow){
+            // 如果不是合夥人的下線
+            // 公益
+            data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].add(local.par);
+        }else{
+            // 如果是合夥人的下線（用合夥人提供的連結玩遊戲）
+            // 分紅給合夥人
+            local.plyrId = getPlayerId(data, local.partner.addr);
+            if(local.plyrId != 0){
+                local.plyr = data.plyrs[local.plyrId];
+                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.par);
+            }
         }
         // 公益
         data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].add(local.pub);

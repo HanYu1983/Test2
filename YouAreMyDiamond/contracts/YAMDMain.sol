@@ -30,13 +30,19 @@ contract YAMDMain {
     function buy() public payable {
         address user = msg.sender;
         uint eth = msg.value;
-        data.buy(user, eth, 0);
+        data.buy(user, eth, 0, 0);
     }
     
     function buyWithPartnerLink(uint partnerLink) public payable {
         address user = msg.sender;
         uint eth = msg.value;
-        data.buy(user, eth, partnerLink);
+        data.buy(user, eth, partnerLink, 0);
+    }
+    
+    function buyWithFriendLink(uint friendLink) public payable {
+        address user = msg.sender;
+        uint eth = msg.value;
+        data.buy(user, eth, 0, friendLink);
     }
     
     function getRoundInfo() public view returns (uint,uint,uint,uint,uint){

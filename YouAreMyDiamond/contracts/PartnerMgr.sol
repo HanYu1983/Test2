@@ -88,7 +88,7 @@ library PartnerMgr {
         uint fee = projFee(data, proj);
         require(value >= fee, "eth not enougth");
         uint id = getOrNewPartner(data, addr);
-        uint link = now + (id << 240);
+        uint link = now + (id << 224);
         
         data.partners[id].addr = addr;
         data.partners[id].proj = proj;
@@ -96,9 +96,14 @@ library PartnerMgr {
         data.partnerIdByLink[link] = id;
     }
     
-    function getPartner(Data storage data, uint link) internal view returns (Partner){
+    function getPartner(Data storage data, address user, uint link) internal view returns (Partner){
         uint id = data.partnerIdByLink[link];
-        return data.partners[id];
+        Partner memory partner =  data.partners[id];
+        // 合夥人不能是自己
+        if(partner.addr == user){
+            return data.partners[0];
+        }
+        return partner;
     }
     
     function open(Data storage data) internal {
