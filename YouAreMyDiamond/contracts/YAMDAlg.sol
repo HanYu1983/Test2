@@ -21,6 +21,9 @@ library YAMDAlg {
     uint8 constant PotParRate = 10;
     uint8 constant PotPubRate = 10;
     
+    // 最後?%鑽石的分紅，用來測試用。值應該是1
+    uint8 constant LastWinP = 100;
+    
     uint constant KeyEthAtStart = 100 szabo;
     uint constant FixPointFactor = 1000 wei;
     uint constant ExtendTime = 60 seconds;
@@ -139,7 +142,7 @@ library YAMDAlg {
     
     function reduceHistory(Data storage data) internal {
         // 最後1%鑽石
-        uint lastOneTotalKeys = getTotalKeyAmount(data)/100;
+        uint lastOneTotalKeys = getTotalKeyAmount(data).mul(LastWinP)/100;
         uint currKey = 0;
         uint i;
         for(i=data.history.length-1;; --i){
@@ -191,6 +194,7 @@ library YAMDAlg {
                 local.plyr = data.plyrs[local.plyrId];
                 // 如果時間已結束，直接將使用者花的錢存到錢包中
                 // 就當這次沒買鑽石了
+                // TODO 詢問如何處理
                 data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(value.mul(FixPointFactor));
                 endRound(data);
                 return;
@@ -211,10 +215,13 @@ library YAMDAlg {
         // 很多事情要在這行之後處理!
         data.plyrs[local.plyrId] = local.plyr;
         
-        // 處理歷史訂單，這裡用來做最後1%鑽石的分紅
-        data.history.push(History(local.plyrId, local.keyAmount));
-        // 只保留最後1%的歷史訂單
-        reduceHistory(data);
+        // 買超過1個鑽石才有勝利的機會
+        if(local.keyAmount / FixPointFactor >= 1){
+            // 處理歷史訂單，這裡用來做最後1%鑽石的分紅
+            data.history.push(History(local.plyrId, local.keyAmount));
+            // 只保留最後1%的歷史訂單
+            reduceHistory(data);
+        }
         
         // 處理合夥人
         local.partner = data.partnerMgr.getPartner(addr, local.plyr.usedPartnerLink);
@@ -288,11 +295,10 @@ library YAMDAlg {
             data.startTime = now;
             data.endTime = data.startTime + TimeAtStart;
             data.state = GameState.Playing;
-            PartnerMgr.open(data.partnerMgr);
         }
         else if(data.state == GameState.Playing){
             // 買超過1個鑽石才會增加時間
-            if(local.keyAmount / FixPointFactor > 0){
+            if(local.keyAmount / FixPointFactor >= 1){
                 // 增加時間
                 data.endTime = data.endTime.add(ExtendTime);
                 if(data.endTime > data.startTime + MaxTime){
@@ -338,7 +344,7 @@ library YAMDAlg {
         // 彩池
         local.pot = data.vaults[data.potVaultId];
         // 最後1%的鑽石數(固定點小點)
-        local.lastOneTotalKeys = getTotalKeyAmount(data)/100;
+        local.lastOneTotalKeys = getTotalKeyAmount(data).mul(LastWinP)/100;
         // 最後1位玩家的分紅
         local.win = local.pot.mul(PotWinRate) / 100;
         // 最後1%鑽石的分紅
@@ -358,16 +364,19 @@ library YAMDAlg {
         data.vaults[local.lastPlyr.winVaultId] = data.vaults[local.lastPlyr.winVaultId].add(local.win);
         // 最後1%鑽石
         local.currKey = 0;
-        for(local.i=data.history.length-1; true; --local.i){
+        for(local.i=data.history.length-1;; --local.i){
             // 佔最後1%鑽石的比例
             local.currKey += data.history[local.i].key;
             local.occupyKey = data.history[local.i].key;
             if(local.currKey > local.lastOneTotalKeys){
                 local.occupyKey = local.lastOneTotalKeys.sub(local.currKey.sub(data.history[local.i].key));
             }
-            local.plyrId = data.history[local.i].plyrId;
-            local.plyr = data.plyrs[local.plyrId];
-            data.vaults[local.plyr.winVaultId] = data.vaults[local.plyr.winVaultId].add(local.occupyKey.mul(local.winLastOnePerKey)/FixPointFactor);
+            // 最後1位不分紅
+            if(local.i != data.history.length-1){
+                local.plyrId = data.history[local.i].plyrId;
+                local.plyr = data.plyrs[local.plyrId];
+                data.vaults[local.plyr.winVaultId] = data.vaults[local.plyr.winVaultId].add(local.occupyKey.mul(local.winLastOnePerKey)/FixPointFactor);
+            }
             if(local.i == 0){
                 break;
             }
@@ -384,7 +393,7 @@ library YAMDAlg {
             local.plyrId = getPlayerId(data, local.partner.addr);
             if(local.plyrId != 0){
                 local.plyr = data.plyrs[local.plyrId];
-                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.par);
+                data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
             }
         }
         // 公益
@@ -406,8 +415,11 @@ library YAMDAlg {
         uint startTime;
         uint endTime;
         uint remainTime;
+        uint comVault;
         uint potVault;
+        uint pubVault;
         GameState state;
+        uint lastPlyrId;
     }
     
     function getRoundInfo(Data storage data) internal view returns (RoundInfo){
@@ -415,13 +427,21 @@ library YAMDAlg {
         if(data.endTime >= now){
             remainTime = data.endTime.sub(now);
         }
+        uint lastPlyrId = 0;
+        // 避免error
+        if(data.history.length > 0){
+            lastPlyrId = data.history[data.history.length-1].plyrId;
+        }
         return RoundInfo(
             data.rnd,
             data.startTime,
             data.endTime,
             remainTime,
+            data.vaults[data.comVaultId],
             data.vaults[data.potVaultId],
-            data.state
+            data.vaults[data.pubVaultId],
+            data.state,
+            lastPlyrId
         );
     }
     

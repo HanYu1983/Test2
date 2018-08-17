@@ -8,12 +8,37 @@ contract YAMDMain {
     using PartnerMgr for PartnerMgr.Data;
     
     address owner;
-    YAMDAlg.Data data;
+    modifier onlyOwner(){
+        require(msg.sender == owner, "must owner");
+        _;
+    }
     
     constructor() public {
         owner = msg.sender;
         data.init();
     }
+    // 
+    // 階段
+    //
+    enum Phase {
+        Before, Open
+    }
+    Phase phase;
+    modifier onlyPhase(Phase p){
+        require(phase == p, "phase not correct");
+        _;
+    }
+    
+    function nextPhase() onlyOwner() public {
+        if(phase == Phase.Before){
+            phase = Phase.Open;
+            PartnerMgr.open(data.partnerMgr);
+        }
+    }
+    // 
+    // 主業務
+    //
+    YAMDAlg.Data data;
     
     function reigsterPartnerOne() public payable{
         address user = msg.sender;
@@ -37,33 +62,36 @@ contract YAMDMain {
         return data.partnerMgr.getLink(user);
     }
     
-    function buy() public payable {
+    function buy() onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
     }
     
-    function buyWithPartnerLink(bytes32 partnerLink) public payable {
+    function buyWithPartnerLink(bytes32 partnerLink) onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, partnerLink, 0);
     }
     
-    function buyWithFriendLink(bytes32 friendLink) public payable {
+    function buyWithFriendLink(bytes32 friendLink) onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
     }
     
-    function getRoundInfo() public view returns (uint,uint,uint,uint,uint, YAMDAlg.GameState){
+    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (
             info.rnd,
             info.startTime,
             info.endTime,
             info.remainTime,
+            info.comVault,
             info.potVault,
-            info.state
+            info.pubVault,
+            info.state,
+            info.lastPlyrId
         );
     }
     
@@ -83,5 +111,9 @@ contract YAMDMain {
         address user = msg.sender;
         uint eth = data.withdraw(user);
         user.transfer(eth);
+    }
+    
+    function endRound() onlyOwner() public {
+        data.endRound();
     }
 }

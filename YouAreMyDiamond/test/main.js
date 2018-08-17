@@ -8,21 +8,37 @@ contract('YAMDMain', function(accounts) {
     var marry = accounts[1];
     var john = accounts[2];
     
-    console.log(accounts)
-    
     var startRemainTime = 0
+    var hanPartnerLink;
     
-    it("開盤", function(){
+    it("開盤前", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            console.log("han註冊合夥人")
+            return main.reigsterPartnerTwo({from: han, value: oneEther})
+        }).then(function(){
+            console.log("han註冊成功")
+            return main.getPartnerLink({from: han})
+        }).then(function(link){
+            console.log("han的合夥人連結:", link)
+            hanPartnerLink = link
+        }).then(function(){
+            console.log("開盤")
+            return main.nextPhase()
+        }).then(function(){
+            console.log("開盤成功")
+        })
+    })
+    
+    it("輪起動前", function(){
         return Main.deployed().then(function(ins){
             main = ins;
             return main.getRoundInfo({from: han})
         }).then(function(ret){
             var rnd = ret[0].toNumber()
-            var startTime = ret[1].toNumber()
-            var endTime = ret[2].toNumber()
             var remainTime = ret[3].toNumber()
-            var pot = ret[4].toNumber()
-            var state = ret[5].toNumber()
+            var state = ret[7].toNumber()
             //console.log(rnd, startTime, endTime, remainTime, pot, state)
             
             startRemainTime = remainTime
@@ -42,18 +58,12 @@ contract('YAMDMain', function(accounts) {
         }).then(function(){
             return main.getPlayerInfo({from: han})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
+            logPlayerInfo("han:", ret)
             var friendLink = ret[5]
-            console.log("han:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
             var shouldBuyKey = useMoney/keyPriceAtStart
             //assert.equal(Math.floor(key/fixPointFactor), shouldBuyKey, "買的數量不符")
             
             hanFriendLink = friendLink
-            console.log("han推薦人連結:"+hanFriendLink)
         })
     })
     
@@ -62,15 +72,10 @@ contract('YAMDMain', function(accounts) {
             main = ins;
             return main.getRoundInfo()
         }).then(function(ret){
+            logRoundInfo(ret)
             var rnd = ret[0].toNumber()
-            var startTime = ret[1].toNumber()
-            var endTime = ret[2].toNumber()
             var remainTime = ret[3].toNumber()
-            var pot = ret[4].toNumber()
-            var state = ret[5].toNumber()
-            //console.log(rnd, startTime, endTime, remainTime, pot, state)
-            console.log("彩池"+(pot/oneEther/fixPointFactor))
-            
+            var state = ret[7].toNumber()
             
             var addedTime = remainTime - startRemainTime
             assert.equal(rnd, 0, "輪數必須是0")
@@ -92,58 +97,19 @@ contract('YAMDMain', function(accounts) {
         }).then(function(){
             return main.getRoundInfo()
         }).then(function(ret){
-            var rnd = ret[0].toNumber()
-            var startTime = ret[1].toNumber()
-            var endTime = ret[2].toNumber()
-            var remainTime = ret[3].toNumber()
-            var pot = ret[4].toNumber()
-            var state = ret[5].toNumber()
-            //console.log(rnd, startTime, endTime, remainTime, pot, state)
-            console.log("彩池"+(pot/oneEther/fixPointFactor))
+            logRoundInfo(ret)
         }).then(function(){
             return main.getPlayerInfo({from: han})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
-            console.log("han:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
+            logPlayerInfo("han:", ret)
         }).then(function(){
             return main.getPlayerInfo({from: marry})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
-            console.log("marry:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
+            logPlayerInfo("marry:", ret)
         }).then(function(){
             return main.getPlayerInfo({from: john})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
-            console.log("john:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
-        })
-    })
-    
-    var hanPartnerLink;
-    
-    it("合夥人", function(){
-        var main;
-        return Main.deployed().then(function(ins){
-            main = ins;
-            console.log("han註冊合夥人")
-            return main.reigsterPartnerTwo({from: han, value: 2*oneEther})
-        }).then(function(){
-            console.log("han註冊成功")
-            return main.getPartnerLink({from: han})
-        }).then(function(link){
-            console.log("han的合夥人連結:", link)
-            hanPartnerLink = link
+            logPlayerInfo("john:", ret)
         })
     })
     
@@ -160,12 +126,7 @@ contract('YAMDMain', function(accounts) {
         }).then(function(){
             return main.getPlayerInfo({from: han})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
-            console.log("han:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
+            logPlayerInfo("han:", ret)
         })
     })
     
@@ -182,12 +143,73 @@ contract('YAMDMain', function(accounts) {
         }).then(function(){
             return main.getPlayerInfo({from: han})
         }).then(function(ret){
-            var key = ret[0].toNumber()
-            var win = ret[1].toNumber()
-            var gen = ret[2].toNumber()
-            var fri = ret[3].toNumber()
-            var par = ret[4].toNumber()
-            console.log("han:", key/fixPointFactor, win/oneEther/fixPointFactor, gen/oneEther/fixPointFactor, fri/oneEther/fixPointFactor, par/oneEther/fixPointFactor)
+            logPlayerInfo("han:", ret)
         })
     })
+    
+    it("結束這一輪", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
+            return main.endRound();
+        }).then(function(){
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
+            var rnd = ret[0].toNumber()
+            var remainTime = ret[3].toNumber()
+            var state = ret[7].toNumber()
+            assert.equal(rnd, 1, "輪數必須是1")
+            //assert.equal(addedTime, 60, "剩餘時間必須增加60秒")
+            assert.equal(state, 0, "結束後狀態必須是0")
+            
+            return main.getPlayerInfo({from: john})
+        }).then(function(ret){
+            logPlayerInfo("john:", ret)
+            return main.getPlayerInfo({from: han})
+        }).then(function(ret){
+            logPlayerInfo("han:", ret)
+            return main.getPlayerInfo({from: marry})
+        }).then(function(ret){
+            logPlayerInfo("marry:", ret)
+        })
+    })
+    
+    function logPlayerInfo(tag, ret){
+        var key = ret[0].toNumber()
+        var win = ret[1].toNumber()
+        var gen = ret[2].toNumber()
+        var fri = ret[3].toNumber()
+        var par = ret[4].toNumber()
+        var friendLink = ret[5]
+        console.log(tag+"鑽石:", key/fixPointFactor)
+        console.log(tag+"勝利:", win/oneEther/fixPointFactor)
+        console.log(tag+"分紅:", gen/oneEther/fixPointFactor)
+        console.log(tag+"推薦:", fri/oneEther/fixPointFactor)
+        console.log(tag+"合夥:", par/oneEther/fixPointFactor)
+        console.log(tag+"推薦人連結:"+friendLink)
+    }
+    
+    function logRoundInfo(ret){
+        var rnd = ret[0].toNumber()
+        var startTime = ret[1].toNumber()
+        var endTime = ret[2].toNumber()
+        var remainTime = ret[3].toNumber()
+        var com = ret[4].toNumber()
+        var pot = ret[5].toNumber()
+        var pub = ret[6].toNumber()
+        var state = ret[7].toNumber()
+        var lastPlyrId = ret[8].toNumber()
+        //console.log(rnd, startTime, endTime, remainTime, pot, state)
+        console.log("輪數:", rnd)
+        console.log("時間:", remainTime)
+        console.log("公司:", (com/oneEther/fixPointFactor))
+        console.log("彩池:", (pot/oneEther/fixPointFactor))
+        console.log("公益:", (pub/oneEther/fixPointFactor))
+        console.log("狀態:", state)
+        console.log("最後玩家:", lastPlyrId)
+    }
 });
