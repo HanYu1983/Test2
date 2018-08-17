@@ -2,8 +2,7 @@ var Main = artifacts.require("./YAMDMain.sol");
 
 contract('YAMDMain', function(accounts) {
     var oneEther = 1000000000000000000;
-    var keyPriceAtStart = 100000000000000;
-    var fixPointFactor = 1000;
+    var fixPointFactor = 1000000000;
     var han = accounts[0];
     var marry = accounts[1];
     var john = accounts[2];
@@ -31,6 +30,8 @@ contract('YAMDMain', function(accounts) {
         })
     })
     
+    var oneKeyPrice;
+    
     it("輪起動前", function(){
         return Main.deployed().then(function(ins){
             main = ins;
@@ -44,12 +45,22 @@ contract('YAMDMain', function(accounts) {
             startRemainTime = remainTime
             assert.equal(rnd, 0, "輪數必須是0")
             assert.equal(state, 0, "起始狀態必須是0")
+            
+            return main.getKeyPrice(0.5*fixPointFactor)
+        }).then(function(ret){
+            var price = ret.toNumber()
+            console.log("0.5鑽石價格:"+(price/oneEther))
+            return main.getKeyPrice(1*fixPointFactor)
+        }).then(function(ret){
+            var price = ret.toNumber()
+            console.log("1鑽石價格:"+(price/oneEther))
+            oneKeyPrice = price;
         })
     })
     
     var hanFriendLink;
     it("han買1個鑽石", function(){
-        var useMoney = 1000000000000000000;
+        var useMoney = oneKeyPrice;
         var main;
         return Main.deployed().then(function(ins){
             main = ins;
@@ -59,11 +70,15 @@ contract('YAMDMain', function(accounts) {
             return main.getPlayerInfo({from: han})
         }).then(function(ret){
             logPlayerInfo("han:", ret)
+            var key = ret[0].toNumber()
             var friendLink = ret[5]
-            var shouldBuyKey = useMoney/keyPriceAtStart
-            //assert.equal(Math.floor(key/fixPointFactor), shouldBuyKey, "買的數量不符")
-            
+            var shouldBuyKey = useMoney/oneKeyPrice
+            assert.equal(Math.floor(key/fixPointFactor), shouldBuyKey, "買的數量不符")
             hanFriendLink = friendLink
+            return main.getKeyPrice(1*fixPointFactor)
+        }).then(function(ret){
+            var price = ret.toNumber()
+            console.log("1鑽石價格:"+(price/oneEther))
         })
     })
     
@@ -85,7 +100,7 @@ contract('YAMDMain', function(accounts) {
     })
     
     it("路續買1個鑽石", function(){
-        var useMoney = 1000000000000000000;
+        var useMoney = oneKeyPrice;
         var main;
         return Main.deployed().then(function(ins){
             main = ins;

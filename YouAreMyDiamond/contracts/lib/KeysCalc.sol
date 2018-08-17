@@ -8,7 +8,7 @@ import './SafeMath.sol';
 //=======/======================================================================
 library KeysCalc {
     using SafeMath for *;
-    uint constant FixPointFactor = 1000000000000000000;
+    uint constant FixPointFactor = 1 ether;
     
     function fixPointFactor() internal pure returns (uint){
         return FixPointFactor;

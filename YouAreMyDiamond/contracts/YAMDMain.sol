@@ -80,6 +80,10 @@ contract YAMDMain {
         data.buy(user, eth, 0, friendLink);
     }
     
+    function getKeyPrice(uint keyAmount) public view returns (uint){
+        return YAMDAlg.calcKeyPrice(data, keyAmount);
+    }
+    
     function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (

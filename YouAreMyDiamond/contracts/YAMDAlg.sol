@@ -24,8 +24,8 @@ library YAMDAlg {
     // 最後?%鑽石的分紅，用來測試用。值應該是1
     uint8 constant LastWinP = 100;
     
-    uint constant KeyEthAtStart = 100 szabo;
-    uint constant FixPointFactor = 1000 wei;
+    uint constant KeyEthAtStart = 75 szabo;
+    uint constant FixPointFactor = 1000000000;
     uint constant ExtendTime = 60 seconds;
     uint constant TimeAtStart = 1 minutes;
     uint constant MaxTime = 24 hours;
@@ -124,7 +124,7 @@ library YAMDAlg {
         return id;
     }
   
-    function getTotalKeyAmount(Data storage data) internal view returns (uint){
+    function getTotalKeyAmount(Data memory data) internal pure returns (uint){
         uint i;
         uint total;
         for(i=1; i<data.plyrs.length; ++i){
@@ -134,10 +134,18 @@ library YAMDAlg {
     }
     
     function calcKeyAmount(uint totalValue, uint value) internal pure returns (uint){
+        //return value.keys().mul(FixPointFactor)/KeysCalc.fixPointFactor();
         uint totalEth = totalValue;
         uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
         uint format = keyAmountWithCalcFixPoint.mul(FixPointFactor)/KeysCalc.fixPointFactor();
         return format;
+    }
+    
+    function calcKeyPrice(Data memory data, uint keyAmount) internal pure returns (uint){
+        //return ((keyAmount * KeysCalc.fixPointFactor())/FixPointFactor).eth();
+        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
+        uint format = (totalKey * KeysCalc.fixPointFactor())/FixPointFactor;
+        return format.ethRec(keyAmount.mul(KeysCalc.fixPointFactor())/FixPointFactor);
     }
     
     function reduceHistory(Data storage data) internal {
