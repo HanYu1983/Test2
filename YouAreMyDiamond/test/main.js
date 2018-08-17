@@ -151,11 +151,14 @@ contract('YAMDMain', function(accounts) {
         var main;
         return Main.deployed().then(function(ins){
             main = ins;
+            console.log("結束前")
             return main.getRoundInfo()
         }).then(function(ret){
             logRoundInfo(ret)
+            console.log("結束")
             return main.endRound();
         }).then(function(){
+            console.log("結束後")
             return main.getRoundInfo()
         }).then(function(ret){
             logRoundInfo(ret)
@@ -165,7 +168,6 @@ contract('YAMDMain', function(accounts) {
             assert.equal(rnd, 1, "輪數必須是1")
             //assert.equal(addedTime, 60, "剩餘時間必須增加60秒")
             assert.equal(state, 0, "結束後狀態必須是0")
-            
             return main.getPlayerInfo({from: john})
         }).then(function(ret){
             logPlayerInfo("john:", ret)
@@ -175,6 +177,22 @@ contract('YAMDMain', function(accounts) {
             return main.getPlayerInfo({from: marry})
         }).then(function(ret){
             logPlayerInfo("marry:", ret)
+        })
+    })
+    
+    it("路續買1個鑽石", function(){
+        var useMoney = 1000000000000000000;
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.buy({from: marry, value: useMoney})
+        }).then(function(){
+            return main.getRoundInfo()
+        }).then(function(ret){
+            var state = ret[7].toNumber()
+            logRoundInfo(ret)
+            
+            assert.equal(state, 1, "起始狀態必須是1")
         })
     })
     
