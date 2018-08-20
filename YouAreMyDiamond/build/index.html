@@ -1,0 +1,247 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  	<meta name="theme-color" content="#343a40">
+  </head>
+  <body>
+    <div id="app">
+      <h1>Main</h1>
+      <h1>Purchase</h1>
+      <form>
+        <input name="key" v-model="temp.keyAmount">
+      </form>
+      <button v-on:click="getKeyPrice(temp.keyAmount)">compute key price</button>
+      <br>
+      {{temp.keyPriceWei}} wei
+      <br>
+      {{temp.keyPriceEth}} eth
+      <br>
+      <button v-on:click="buy(temp.keyAmount)">buy</button>
+      <button>use vault</button>
+      
+      <p>Vault</p>
+      <button v-on:click="withdraw()">withdraw</button>
+      
+      <p>Vanity & Referrals</p>
+      <button v-on:click="registerPartner()">register name</button>
+      <button v-on:click="getPartnerLink()">get partner link</button>
+        
+        <h1>Round</h1>
+        <p>rnd {{ roundInfo.rnd }}</p>
+        <p>remainTime {{ roundInfo.remainTime }}</p>
+        <p>com {{ roundInfo.com }}</p>
+        <p>pot {{ roundInfo.pot }}</p>
+        <p>pub {{ roundInfo.pub }}</p>
+        <p>state {{ roundInfo.state }}</p>
+        <p>lastPlyrId {{ roundInfo.lastPlyrId }}</p>
+      
+        <h1>Player</h1>
+        <p>key {{ playerInfo.key }}</p>
+        <p>win {{ playerInfo.win }}</p>
+        <p>gen {{ playerInfo.gen }}</p>
+        <p>fri {{ playerInfo.fri }}</p>
+        <p>par {{ playerInfo.par }}</p>
+        <p>friendLink {{ playerInfo.friendLink }}</p>
+      
+      <!--
+    <p>Your Keys: {{ keys }}</p>
+      <p>Total {{ totalKeys }} Keys</p>
+      <p>Your Earnings: {{ earn }}</p>
+    -->
+    </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/livescript/1.5.0/livescript-min.js"></script>    
+    <script>
+        // https://ropsten.etherscan.io/tx/0xfb3fd9245ff3461b19301fbfb7016b78f2cfa6e193bb7b2ecbe11c7cc4fd0acd
+        
+        var oneEther = 1000000000000000000;
+        
+        var model = model || {};
+        (function(module){
+            var fixPointFactor = 1000000000;
+            
+            var ContractAddressVer1 = "0x6e4e913f895a1dfca0be2af5afd338e852c4e0e5"
+            var ContractAddressVer2 = "0xe2bb35ffeec914ff8ec9990613120c48becafbf9"
+            var ContractAddressVer3 = "0x39407662083205d3d29dd786c1ec515e358a1956"
+            var ContractAddressVer4 = "0x85a15e1ff0db65f0f5098af85c14d5fa41cea6c9" // most ok, run endRound manually
+            var ContractAddress = "0xFb01c2BD0Bda635F14dD09A354e3EC686CeB276c"
+            
+            // unused. = "0x50E0714902193751dEE700c149CeE17c83FA2f24"
+            var contract = 0
+            
+            async function loadContract(){
+                return $.getJSON('contracts/YAMDMain.json', function(data) {
+                    var Clz = TruffleContract(data);
+                    Clz.setProvider(web3.currentProvider);
+                
+                    contract = Clz.at(ContractAddress)
+                    console.log(contract)
+                });
+            }
+            
+            function getContract(){
+                return contract
+            }
+            
+            async function loadRoundInfo(){
+                var info = await contract.getRoundInfo()
+                var [rnd, startTime, endTime, remainTime, com, pot, pub, state, lastPlyrId] = info
+                return {
+                    "rnd": rnd.toNumber(),
+                    "startTime": startTime,
+                    "endTime": endTime, 
+                    "remainTime": remainTime.toNumber(),
+                    "com": com.dividedBy(model.fixPointFactor).toNumber(),
+                    "pot": pot.dividedBy(model.fixPointFactor).toNumber(),
+                    "pub": pub.dividedBy(model.fixPointFactor).toNumber(),
+                    "state": state.toNumber(),
+                    "lastPlyrId": lastPlyrId.toNumber()
+                }
+            }
+            
+            async function loadPlayerInfo(){
+                var info = await contract.getPlayerInfo()
+                var [key, win, gen, fri, par, friendLink] = info
+                return {
+                    "key": key.dividedBy(model.fixPointFactor).toNumber(),
+                    "win": win.dividedBy(model.fixPointFactor).toNumber(),
+                    "gen": gen.dividedBy(model.fixPointFactor).toNumber(),
+                    "fri": fri.dividedBy(model.fixPointFactor).toNumber(),
+                    "par": par.dividedBy(model.fixPointFactor).toNumber(),
+                    "friendLink": friendLink
+                }
+            }
+            
+            module.loadContract = loadContract
+            module.getContract = getContract
+            module.loadRoundInfo = loadRoundInfo
+            module.fixPointFactor = fixPointFactor
+            module.loadPlayerInfo = loadPlayerInfo
+        })(model)
+        
+        function main(){
+            
+            var vueModel = new Vue({
+              el: '#app',
+              data: {
+                  temp:{
+                      keyAmount: 1,
+                      keyPriceWei:0,
+                      keyPriceEth:0.0
+                  },
+                  roundInfo: {
+                    "rnd": 0,
+                    "startTime": 0,
+                    "endTime": 0, 
+                    "remainTime": 0,
+                    "com": 0,
+                    "pot": 0,
+                    "pub": 0,
+                    "state": 0,
+                    "lastPlyrId": 0
+                  },
+                  playerInfo: {
+                      key: 0,
+                      win: 0,
+                      gen: 0,
+                      fri: 0,
+                      par: 0,
+                      friendLink: "link"
+                  }
+              },
+              methods:{
+                  buy: (keyAmount)=>{
+                      (async function(){
+                          var contract = model.getContract()
+                          console.log('user...')
+                          try{
+                              await contract.buy({value: vueModel.temp.keyPriceWei, gas: 2100000})
+                              
+                               
+                              console.log('user end')
+                              await loadData()
+                          }catch(e){
+                              console.log(e)
+                          }
+                          
+                          
+                          //0xa6f2ae3a buy
+                          //0x749aa2d9 nextRound
+                          
+                          /*
+                          web3.eth.estimateGas({
+                              to: "", 
+                              data: "0xa6f2ae3a"
+                          }, (ret)=>{
+                              console.log(ret)
+                          });
+                          */
+                          
+                      })()
+                  },
+                  getKeyPrice: (keyAmount)=>{
+                      (async function(){
+                          var contract = model.getContract()
+                          var price = await contract.getKeyPrice(keyAmount * model.fixPointFactor)
+                          //console.log(vueModel)
+                          vueModel.temp.keyPriceWei = price.toNumber()
+                          vueModel.temp.keyPriceEth = vueModel.temp.keyPriceWei / oneEther
+                      })()
+                  },
+                  withdraw: ()=>{
+                      (async function(){
+                          var contract = model.getContract()
+                          try{
+                              await contract.withdraw()
+                              await loadData()
+                          }catch(e){
+                              console.log(e)
+                          }
+                      })()
+                  },
+                  getPartnerLink: ()=>{
+                      (async function(){
+                          var contract = model.getContract()
+                          try{
+                              var link = await contract.getPartnerLink()
+                              console.log(link)
+                              await loadData()
+                          }catch(e){
+                              console.log(e)
+                          }
+                      })()
+                  },
+                  registerPartner: ()=>{
+                      
+                  }
+              }
+            })
+            
+            var loadData = async ()=>{
+                var contract = model.getContract()
+                var roundInfo = await model.loadRoundInfo()
+                console.log(roundInfo)
+                
+                var playerInfo = await model.loadPlayerInfo()
+                console.log(playerInfo)
+                
+                vueModel.roundInfo = roundInfo
+                vueModel.playerInfo = playerInfo
+            }
+            
+            
+            var start = async ()=>{
+                await model.loadContract()
+                await loadData()
+            }
+            start()
+        }
+        window.onload = main
+    </script>
+  </body>
+</html>
