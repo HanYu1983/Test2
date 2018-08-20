@@ -208,7 +208,73 @@ contract('YAMDMain', function(accounts) {
             logRoundInfo(ret)
             
             assert.equal(state, 1, "起始狀態必須是1")
+            return main.buy({from: john, value: useMoney})
+        }).then(function(){
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
         })
+    })
+    
+    it("結束這一輪", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            console.log("結束前")
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
+            console.log("結束")
+            return main.endRound();
+        }).then(function(){
+            console.log("結束後")
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
+            var rnd = ret[0].toNumber()
+            var remainTime = ret[3].toNumber()
+            var state = ret[7].toNumber()
+            assert.equal(rnd, 2, "輪數必須是2")
+            //assert.equal(addedTime, 60, "剩餘時間必須增加60秒")
+            assert.equal(state, 0, "結束後狀態必須是0")
+            return main.getPlayerInfo({from: john})
+        }).then(function(ret){
+            logPlayerInfo("john:", ret)
+            return main.getPlayerInfo({from: han})
+        }).then(function(ret){
+            logPlayerInfo("han:", ret)
+            return main.getPlayerInfo({from: marry})
+        }).then(function(ret){
+            logPlayerInfo("marry:", ret)
+        })
+    })
+    
+    it("連續結束", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.endRound();
+        }).then(function(){
+            return main.endRound();
+        }).then(function(ret){
+            return main.endRound();
+        }).then(function(){
+            return main.getRoundInfo()
+        }).then(function(ret){
+            logRoundInfo(ret)
+        });
+    })
+    
+    it("withdraw", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.withdraw({from: john})
+        }).then(function(){
+            return main.getPlayerInfo({from: john})
+        }).then(function(ret){
+            logPlayerInfo("john:", ret)
+        });
     })
     
     function logPlayerInfo(tag, ret){
@@ -236,6 +302,7 @@ contract('YAMDMain', function(accounts) {
         var pub = ret[6].toNumber()
         var state = ret[7].toNumber()
         var lastPlyrId = ret[8].toNumber()
+        var keyAmount = ret[9].toNumber()
         //console.log(rnd, startTime, endTime, remainTime, pot, state)
         console.log("輪數:", rnd)
         console.log("時間:", remainTime)
@@ -244,5 +311,6 @@ contract('YAMDMain', function(accounts) {
         console.log("公益:", (pub/oneEther/fixPointFactor))
         console.log("狀態:", state)
         console.log("最後玩家:", lastPlyrId)
+        console.log("鑽石總數:", keyAmount/fixPointFactor)
     }
 });

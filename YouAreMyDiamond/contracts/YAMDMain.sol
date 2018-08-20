@@ -7,7 +7,7 @@ contract YAMDMain {
     using YAMDAlg for YAMDAlg.Data;
     using PartnerMgr for PartnerMgr.Data;
     
-    address owner;
+    address public owner;
     modifier onlyOwner(){
         require(msg.sender == owner, "must owner");
         _;
@@ -57,11 +57,6 @@ contract YAMDMain {
         return data.partnerMgr.getLink(user);
     }
     
-    function getFriendLink() public view returns (bytes32){
-        address user = msg.sender;
-        return data.partnerMgr.getLink(user);
-    }
-    
     function buy() onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
@@ -84,7 +79,7 @@ contract YAMDMain {
         return YAMDAlg.calcKeyPrice(data, keyAmount);
     }
     
-    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint){
+    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint,uint){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (
             info.rnd,
@@ -95,7 +90,8 @@ contract YAMDMain {
             info.potVault,
             info.pubVault,
             info.state,
-            info.lastPlyrId
+            info.lastPlyrId,
+            info.keyAmount
         );
     }
     
@@ -119,5 +115,9 @@ contract YAMDMain {
     
     function endRound() onlyOwner() public {
         data.endRound();
+    }
+    
+    function kill() onlyOwner() public {
+        selfdestruct(msg.sender);
     }
 }
