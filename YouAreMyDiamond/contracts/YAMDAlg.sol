@@ -150,7 +150,7 @@ library YAMDAlg {
     
     function reduceHistory(Data storage data) internal {
         // 最後一筆必須留下來
-        if(data.history.length == 1){
+        if(data.history.length <= 1){
             return;
         }
         // 最後1%鑽石
@@ -200,7 +200,7 @@ library YAMDAlg {
     
     function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
         // 不能低於最低價
-        // require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
+        require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
         buyLocal memory local;
         // 先判斷時間是否結束，分配彩金
         if(data.state == GameState.Playing){
@@ -210,7 +210,6 @@ library YAMDAlg {
                 local.plyr = data.plyrs[local.plyrId];
                 // 如果時間已結束，直接將使用者花的錢存到錢包中
                 // 就當這次沒買鑽石了
-                // TODO 詢問如何處理
                 data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(value.mul(FixPointFactor));
                 endRound(data);
                 return;
