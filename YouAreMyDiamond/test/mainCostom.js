@@ -19,7 +19,7 @@ contract('大略測試與輸出觀察', function(accounts) {
             var fee = ret.toNumber();
             console.log("han註冊合夥人")
             console.log("費用:"+fee)
-            return main.reigsterPartner(2, {from: han, value: fee})
+            return main.registerPartner(2, {from: han, value: fee})
         }).then(function(){
             console.log("han註冊成功")
             return main.getPartnerLink({from: han})

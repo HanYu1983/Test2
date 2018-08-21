@@ -274,21 +274,27 @@ library YAMDAlg {
         local.friendId = data.plyrIdByFriendLink[friendLink];
         if(local.friendId != 0){
             local.plyr = data.plyrs[local.friendId];
-            data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
+            if(local.plyr.addr == addr){
+                // 推薦人不能是自己
+                // 分給公司
+                data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
+            } else {
+                data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
+            }
         } else {
             // 若推薦人不存在就分給公司
             data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
         }
         
         // 鑽石回饋
-        /*
         // ver1.不保含這次買的key
         local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
-        */
+        /*
         // ver2.減掉自己的key, 因為自己不分紅
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
         local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
+        */
         // 第一個買會使totalKey等於0, 略過第一個買的(沒有分紅的對象)
         if(local.totalKey > 0){
             local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
@@ -296,11 +302,9 @@ library YAMDAlg {
             for(local.i=1; local.i<data.plyrs.length; ++local.i){
                 local.plyr = data.plyrs[local.i];
                 if(local.plyr.addr == addr){
-                    /*
                     // ver1.如果是自己，減掉今次買的。這樣計算才正確
                     genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
                     data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
-                    */
                     // ver2.自己不分紅
                 }else{
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;

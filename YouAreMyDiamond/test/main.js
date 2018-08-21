@@ -106,7 +106,7 @@ contract('單1方法連續呼叫，測試程式內部錯誤', function(accounts)
         return Main.deployed().then(function(ins){
             main = ins;
             console.log("han註冊合夥人")
-            return main.reigsterPartner(2, {from: han, value: parnterFee})
+            return main.registerPartner(2, {from: han, value: parnterFee})
         }).then(function(){
             console.log("han註冊成功")
             return main.getPartnerLink({from: han})

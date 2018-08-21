@@ -40,7 +40,7 @@ contract YAMDMain {
     //
     YAMDAlg.Data data;
     
-    function reigsterPartner(uint level) public payable{
+    function registerPartner(uint level) public payable{
         address user = msg.sender;
         uint value = msg.value;
         PartnerMgr.Project proj = PartnerMgr.Project.One;
