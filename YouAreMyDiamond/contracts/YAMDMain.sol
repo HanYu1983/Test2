@@ -75,6 +75,21 @@ contract YAMDMain {
         data.buy(user, eth, 0, friendLink);
     }
     
+    function vaultBuy(uint eth) onlyPhase(Phase.Open) public {
+        address user = msg.sender;
+        data.buyWithVault(user, eth, 0, 0);
+    }
+    
+    function vaultBuyWithPartnerLink(uint eth, bytes32 partnerLink) onlyPhase(Phase.Open) public {
+        address user = msg.sender;
+        data.buyWithVault(user, eth, partnerLink, 0);
+    }
+    
+    function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) onlyPhase(Phase.Open) public {
+        address user = msg.sender;
+        data.buyWithVault(user, eth, 0, friendLink);
+    }
+    
     function getKeyPrice(uint keyAmount) public view returns (uint){
         return YAMDAlg.calcKeyPrice(data, keyAmount);
     }

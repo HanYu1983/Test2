@@ -32,8 +32,8 @@ library YAMDAlg {
     
     struct Player{
         address addr;
-        uint key;           // 固定點小數
-        bytes32 usedPartnerLink;   // 所使用的合夥人連結
+        uint key;                   // 固定點小數
+        bytes32 usedPartnerLink;    // 所使用的合夥人連結
         bytes32 friendLink;
         uint winVaultId;
         uint genVaultId;
@@ -63,12 +63,9 @@ library YAMDAlg {
         uint pubVaultId;
         uint totalVaultId;
         uint[] vaults;  // 固定點小數
-        // only for query
+        // 合夥人的資料
+        // 為了好一點的程式碼，在YAMDAlg中只能呼叫getter
         PartnerMgr.Data partnerMgr;
-    }
-    
-    enum ErrorMsg{
-        error
     }
     
     enum GameState{
@@ -284,18 +281,27 @@ library YAMDAlg {
         }
         
         // 鑽石回饋
-        // 不保含這次買的key
-        local.totalKey = getTotalKeyAmount(data).sub(local.keyAmount);
+        /*
+        // ver1.不保含這次買的key
+        local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
+        */
+        // ver2.減掉自己的key, 因為自己不分紅
+        local.plyrId = getOrNewPlayer(data, addr);
+        local.plyr = data.plyrs[local.plyrId];
+        local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
         // 第一個買會使totalKey等於0, 略過第一個買的(沒有分紅的對象)
-        if(local.totalKey != 0){
+        if(local.totalKey > 0){
             local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
             uint genPlus;
             for(local.i=1; local.i<data.plyrs.length; ++local.i){
                 local.plyr = data.plyrs[local.i];
                 if(local.plyr.addr == addr){
-                    // 如果是自己，減掉今次買的。這樣計算才正確
+                    /*
+                    // ver1.如果是自己，減掉今次買的。這樣計算才正確
                     genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
                     data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
+                    */
+                    // ver2.自己不分紅
                 }else{
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                     data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
@@ -323,8 +329,24 @@ library YAMDAlg {
         }
     }
     
+    function buyWithVault(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
+        uint plyrId = getOrNewPlayer(data, addr);
+        Player memory plyr = data.plyrs[plyrId];
+        uint totalVault = withdraw(data, addr);
+        if(value > totalVault){
+            value = totalVault;
+        }
+        uint remainVault = totalVault - value;
+        // 改為固定點小數存入記憶體
+        data.vaults[plyr.genVaultId] = remainVault * FixPointFactor;
+        buy(data, addr, value, partnerLink, friendLink);
+    }
+    
     function withdraw(Data storage data, address addr) internal returns (uint){
         uint id = getPlayerId(data, addr);
+        if(id == 0){
+            return 0;
+        }
         Player memory plyr = data.plyrs[id];
         uint total = data.vaults[plyr.winVaultId]
             .add(data.vaults[plyr.genVaultId])
@@ -356,7 +378,7 @@ library YAMDAlg {
     
     function endRound(Data storage data) internal {
         endRoundLocal memory local;
-        // 彩池
+        // 彩池(固定點小點)
         local.pot = data.vaults[data.potVaultId];
         // 最後1%的鑽石數(固定點小點)
         local.lastOneTotalKeys = getTotalKeyAmount(data).mul(LastWinP)/100;
@@ -378,7 +400,8 @@ library YAMDAlg {
         // 最後1%鑽石
         if(data.history.length > 0 && local.lastOneTotalKeys > 0){
             // 最後1%鑽石的分紅中的每一個鑽石分紅
-            local.winLastOnePerKey = local.winLastOne / local.lastOneTotalKeys; 
+            // 固定點小數相除要乘回來
+            local.winLastOnePerKey = (local.winLastOne / local.lastOneTotalKeys)*FixPointFactor; 
             
             local.currKey = 0;
             for(local.i=data.history.length-1;; --local.i){
