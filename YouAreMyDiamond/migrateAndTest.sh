@@ -1,2 +1,2 @@
 truffle migrate --reset
-truffle test test/main5.js
+truffle test test/mainCostom.js

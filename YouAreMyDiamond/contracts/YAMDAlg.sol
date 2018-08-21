@@ -27,7 +27,7 @@ library YAMDAlg {
     uint constant KeyEthAtStart = 75 szabo;
     uint constant FixPointFactor = 1000000000;
     uint constant ExtendTime = 60 seconds;
-    uint constant TimeAtStart = 1 minutes;
+    uint constant TimeAtStart = 5 minutes;
     uint constant MaxTime = 24 hours;
     
     struct Player{
@@ -405,14 +405,15 @@ library YAMDAlg {
             
             local.currKey = 0;
             for(local.i=data.history.length-1;; --local.i){
-                // 佔最後1%鑽石的比例
-                local.currKey += data.history[local.i].key;
-                local.occupyKey = data.history[local.i].key;
-                if(local.currKey > local.lastOneTotalKeys){
-                    local.occupyKey = local.lastOneTotalKeys.sub(local.currKey.sub(data.history[local.i].key));
-                }
                 // 最後1位不分紅
                 if(local.i != data.history.length-1){
+                    // 佔最後1%鑽石的比例
+                    local.currKey += data.history[local.i].key;
+                    local.occupyKey = data.history[local.i].key;
+                    if(local.currKey > local.lastOneTotalKeys){
+                        local.occupyKey = local.lastOneTotalKeys.sub(local.currKey.sub(data.history[local.i].key));
+                    }
+                    
                     local.plyrId = data.history[local.i].plyrId;
                     local.plyr = data.plyrs[local.plyrId];
                     data.vaults[local.plyr.winVaultId] = data.vaults[local.plyr.winVaultId].add(local.occupyKey.mul(local.winLastOnePerKey)/FixPointFactor);

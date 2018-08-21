@@ -34,7 +34,7 @@ library PartnerMgr {
         data.partners.push(ignore);
     }
     
-    function projFee(Data memory data, Project proj) private pure returns (uint){
+    function projFee(Data memory data, Project proj) internal pure returns (uint){
         require(proj != Project.Unknow, "you must select a project");
         if(data.open){
             if(proj == Project.One){

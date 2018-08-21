@@ -87,14 +87,26 @@ contract('單1方法連續呼叫，測試程式內部錯誤', function(accounts)
         })
     })
     
+    var parnterFee;
+    it("取得註冊合夥人價格", function(){
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.getPartnerProjectFee(2)
+        }).then(function(ret){
+            parnterFee = ret.toNumber()
+            console.log("合夥人費用:"+parnterFee)
+        })
+    })
+    
+    
     var hanPartnerLink;
     it("註冊合夥人並取得連結", function(){
         var main;
         return Main.deployed().then(function(ins){
             main = ins;
             console.log("han註冊合夥人")
-            // 開盤後要2 ether
-            return main.reigsterPartnerTwo({from: han, value: oneEther*2})
+            return main.reigsterPartner(2, {from: han, value: parnterFee})
         }).then(function(){
             console.log("han註冊成功")
             return main.getPartnerLink({from: han})

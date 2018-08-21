@@ -40,16 +40,22 @@ contract YAMDMain {
     //
     YAMDAlg.Data data;
     
-    function reigsterPartnerOne() public payable{
+    function reigsterPartner(uint level) public payable{
         address user = msg.sender;
         uint value = msg.value;
-        data.partnerMgr.register(user, value, PartnerMgr.Project.One);
+        PartnerMgr.Project proj = PartnerMgr.Project.One;
+        if(level == 2){
+            proj = PartnerMgr.Project.Two;
+        }
+        data.partnerMgr.register(user, value, proj);
     }
     
-    function reigsterPartnerTwo() public payable{
-        address user = msg.sender;
-        uint value = msg.value;
-        data.partnerMgr.register(user, value, PartnerMgr.Project.Two);
+    function getPartnerProjectFee(uint level) public view returns (uint){
+        PartnerMgr.Project proj = PartnerMgr.Project.One;
+        if(level == 2){
+            proj = PartnerMgr.Project.Two;
+        }
+        return PartnerMgr.projFee(data.partnerMgr, proj);
     }
     
     function getPartnerLink() public view returns (bytes32){

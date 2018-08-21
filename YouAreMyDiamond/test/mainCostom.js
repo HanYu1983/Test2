@@ -14,8 +14,12 @@ contract('大略測試與輸出觀察', function(accounts) {
         var main;
         return Main.deployed().then(function(ins){
             main = ins;
+            return main.getPartnerProjectFee(2)
+        }).then(function(ret){
+            var fee = ret.toNumber();
             console.log("han註冊合夥人")
-            return main.reigsterPartnerTwo({from: han, value: oneEther})
+            console.log("費用:"+fee)
+            return main.reigsterPartner(2, {from: han, value: fee})
         }).then(function(){
             console.log("han註冊成功")
             return main.getPartnerLink({from: han})
@@ -276,7 +280,7 @@ contract('大略測試與輸出觀察', function(accounts) {
             logPlayerInfo("john:", ret)
         });
     })
-    
+
     function logPlayerInfo(tag, ret){
         var key = ret[0].toNumber()
         var win = ret[1].toNumber()

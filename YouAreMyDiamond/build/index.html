@@ -5,45 +5,46 @@
   	<meta name="theme-color" content="#343a40">
   </head>
   <body>
+        <p>以下為開發中測試，不定期更新</p>
     <div id="app">
-      <h1>Main</h1>
-      <h1>Purchase</h1>
-      <form>
-        <input name="key" v-model="temp.keyAmount">
-      </form>
-      <button v-on:click="getKeyPrice(temp.keyAmount)">compute key price</button>
+      請先按計算價格再買
+      <br>
+      <input name="key" v-model="temp.keyAmount">
+      <button v-on:click="getKeyPrice(temp.keyAmount)">計算價格</button>
       <br>
       {{temp.keyPriceWei}} wei
       <br>
       {{temp.keyPriceEth}} eth
       <br>
-      <button v-on:click="buy(temp.keyAmount)">buy</button>
-      <button>use vault</button>
-      
-      <p>Vault</p>
-      <button v-on:click="withdraw()">withdraw</button>
-      
-      <p>Vanity & Referrals</p>
-      <button v-on:click="registerPartner()">register name</button>
-      <button v-on:click="getPartnerLink()">get partner link</button>
+      <button v-on:click="buy(temp.keyAmount)">買</button>
+      <button v-on:click="vaultBuy(temp.keyAmount)">用錢包買</button>
         
-        <h1>Round</h1>
-        <p>rnd {{ roundInfo.rnd }}</p>
-        <p>remainTime {{ roundInfo.remainTime }}</p>
-        <p>com {{ roundInfo.com }}</p>
-        <p>pot {{ roundInfo.pot }}</p>
-        <p>pub {{ roundInfo.pub }}</p>
-        <p>state {{ roundInfo.state }}</p>
-        <p>lastPlyrId {{ roundInfo.lastPlyrId }}</p>
+        <h1>回合</h1>
+        每一回合應為24小時倒數，為了方便測試暫時使用1分鐘
+        <p>回合數 {{ roundInfo.rnd }}</p>
+        <p>剩餘時間 {{ temp.remainTimeFormat }}</p>
+        <p>公司 {{ roundInfo.com }}</p>
+        <p>彩池 {{ roundInfo.pot }}</p>
+        <p>公益 {{ roundInfo.pub }}</p>
+        <p>狀態 {{ roundInfo.state }}</p>
+        <p>領先玩家 {{ roundInfo.lastPlyrId }}</p>
       
-        <h1>Player</h1>
+        <h1>玩家</h1>
+        <button v-on:click="withdraw()">取款</button>
         <p>key {{ playerInfo.key }}</p>
-        <p>win {{ playerInfo.win }}</p>
-        <p>gen {{ playerInfo.gen }}</p>
-        <p>fri {{ playerInfo.fri }}</p>
-        <p>par {{ playerInfo.par }}</p>
-        <p>friendLink {{ playerInfo.friendLink }}</p>
-      
+        <p>領先分紅 {{ playerInfo.win }}</p>
+        <p>通常錢包 {{ playerInfo.gen }}</p>
+        <p>推薦分紅 {{ playerInfo.fri }}</p>
+        <p>合夥分紅 {{ playerInfo.par }}</p>
+        <p>朋友連結 {{ playerInfo.friendLink }}</p>
+        
+        <h1>合夥人</h1>
+        {{ temp.partnerLink }}
+        <br>
+        <button v-on:click="registerPartnerOne()">註冊合夥人等級1</button>
+        <button v-on:click="registerPartnerTwo()">註冊合夥人等級2</button>
+        <button v-on:click="getPartnerLink()">取得合夥人連結</button>
+          
       <!--
     <p>Your Keys: {{ keys }}</p>
       <p>Total {{ totalKeys }} Keys</p>
@@ -64,14 +65,7 @@
         var model = model || {};
         (function(module){
             var fixPointFactor = 1000000000;
-            
-            var ContractAddressVer1 = "0x6e4e913f895a1dfca0be2af5afd338e852c4e0e5"
-            var ContractAddressVer2 = "0xe2bb35ffeec914ff8ec9990613120c48becafbf9"
-            var ContractAddressVer3 = "0x39407662083205d3d29dd786c1ec515e358a1956"
-            var ContractAddressVer4 = "0x85a15e1ff0db65f0f5098af85c14d5fa41cea6c9" // most ok, run endRound manually
-            var ContractAddress = "0xFb01c2BD0Bda635F14dD09A354e3EC686CeB276c"
-            
-            // unused. = "0x50E0714902193751dEE700c149CeE17c83FA2f24"
+            var ContractAddress = "0xfc0107f4b4635bda3fbafec29406ee0afd357a4a"
             var contract = 0
             
             async function loadContract(){
@@ -132,7 +126,9 @@
                   temp:{
                       keyAmount: 1,
                       keyPriceWei:0,
-                      keyPriceEth:0.0
+                      keyPriceEth:0.0,
+                      remainTimeFormat:"",
+                      partnerLink:""
                   },
                   roundInfo: {
                     "rnd": 0,
@@ -184,6 +180,19 @@
                           
                       })()
                   },
+                  vaultBuy: (keyAmount)=>{
+                      (async function(){
+                          var contract = model.getContract()
+                          console.log('user...')
+                          try{
+                              await contract.vaultBuy(vueModel.temp.keyPriceWei, {gas: 2100000})
+                              console.log('user end')
+                              await loadData()
+                          }catch(e){
+                              console.log(e)
+                          }
+                      })()
+                  },
                   getKeyPrice: (keyAmount)=>{
                       (async function(){
                           var contract = model.getContract()
@@ -209,14 +218,17 @@
                           var contract = model.getContract()
                           try{
                               var link = await contract.getPartnerLink()
-                              console.log(link)
                               await loadData()
+                              vueModel.temp.partnerLink = link
                           }catch(e){
                               console.log(e)
                           }
                       })()
                   },
-                  registerPartner: ()=>{
+                  registerPartnerOne: ()=>{
+                      
+                  },
+                  registerPartnerTwo: ()=>{
                       
                   }
               }
@@ -238,7 +250,18 @@
             var start = async ()=>{
                 await model.loadContract()
                 await loadData()
+                
+                var update = ()=>{
+                    var remainSecond = --vueModel.roundInfo.remainTime
+                    if(remainSecond < 0){
+                        remainSecond = 0
+                    }
+                    var date = new Date(remainSecond*1000)
+                    vueModel.temp.remainTimeFormat = date.getUTCHours()+":"+date.getUTCMinutes()+":"+date.getUTCSeconds()
+                }
+                setInterval(update, 1000)
             }
+            
             start()
         }
         window.onload = main
