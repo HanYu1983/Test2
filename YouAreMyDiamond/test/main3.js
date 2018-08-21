@@ -1,6 +1,6 @@
 var Main = artifacts.require("./YAMDMain.sol");
 
-contract('領先玩家', function(accounts) {
+contract('輪數與輪狀態', function(accounts) {
     var oneEther = 1000000000000000000;
     var fixPointFactor = 1000000000;
     var han = accounts[0];

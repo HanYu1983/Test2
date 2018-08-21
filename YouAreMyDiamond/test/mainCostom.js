@@ -1,6 +1,6 @@
 var Main = artifacts.require("./YAMDMain.sol");
 
-contract('大略測試', function(accounts) {
+contract('大略測試與輸出觀察', function(accounts) {
     var oneEther = 1000000000000000000;
     var fixPointFactor = 1000000000;
     var han = accounts[0];
