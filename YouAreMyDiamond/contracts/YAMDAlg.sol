@@ -34,6 +34,7 @@ library YAMDAlg {
         address addr;
         uint key;                   // 固定點小數
         bytes32 usedPartnerLink;    // 所使用的合夥人連結
+        bytes32 usedFriendLink;    // 所使用的推薦人連結
         bytes32 friendLink;
         uint winVaultId;
         uint genVaultId;
@@ -56,6 +57,7 @@ library YAMDAlg {
         Player[] plyrs;
         
         GameState state;
+        uint lastPlyrId;
         History[] history;
         
         uint comVaultId;
@@ -218,8 +220,13 @@ library YAMDAlg {
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
         local.plyr.addr = addr;
+        // 只能使用之前綁定的 
         if(local.plyr.usedPartnerLink == 0){
             local.plyr.usedPartnerLink = partnerLink;
+        }
+        // 只能使用之前綁定的
+        if(local.plyr.usedFriendLink == 0){
+            local.plyr.usedFriendLink = friendLink;
         }
         // 增加鑽石
         local.plyr.key = local.plyr.key.add(local.keyAmount);
@@ -229,11 +236,12 @@ library YAMDAlg {
         
         // 買超過1個鑽石才有勝利的機會
         if(local.keyAmount / FixPointFactor >= 1){
-            // 處理歷史訂單，這裡用來做最後1%鑽石的分紅
-            data.history.push(History(local.plyrId, local.keyAmount));
-            // 只保留最後1%的歷史訂單
-            reduceHistory(data);
+            data.lastPlyrId = local.plyrId;
         }
+        // 處理歷史訂單，這裡用來做最後1%鑽石的分紅
+        data.history.push(History(local.plyrId, local.keyAmount));
+        // 只保留最後1%的歷史訂單
+        reduceHistory(data);
         
         // 處理合夥人
         local.partner = data.partnerMgr.getPartner(addr, local.plyr.usedPartnerLink);
@@ -271,7 +279,9 @@ library YAMDAlg {
             }
         }
         // 推薦人
-        local.friendId = data.plyrIdByFriendLink[friendLink];
+        local.plyrId = getOrNewPlayer(data, addr);
+        local.plyr = data.plyrs[local.plyrId];
+        local.friendId = data.plyrIdByFriendLink[local.plyr.usedFriendLink];
         if(local.friendId != 0){
             local.plyr = data.plyrs[local.friendId];
             if(local.plyr.addr == addr){
@@ -326,6 +336,7 @@ library YAMDAlg {
             if(local.keyAmount / FixPointFactor >= 1){
                 // 增加時間
                 data.endTime = data.endTime.add(ExtendTime);
+                // 最大限定為24小時
                 if(data.endTime > data.startTime + MaxTime){
                     data.endTime = data.startTime + MaxTime;
                 }
@@ -396,11 +407,16 @@ library YAMDAlg {
         local.pub = local.pot.mul(PotPubRate) / 100;
         // 套用分紅
         // 最後1位玩家
-        if(data.history.length > 0){
-            local.lastPlyrId = data.history[data.history.length-1].plyrId;
+        if(data.lastPlyrId != 0){
+            local.lastPlyrId = data.lastPlyrId;
             local.lastPlyr = data.plyrs[local.lastPlyrId];
             data.vaults[local.lastPlyr.winVaultId] = data.vaults[local.lastPlyr.winVaultId].add(local.win);
         }
+        /*if(data.history.length > 0){
+            local.lastPlyrId = data.history[data.history.length-1].plyrId;
+            local.lastPlyr = data.plyrs[local.lastPlyrId];
+            data.vaults[local.lastPlyr.winVaultId] = data.vaults[local.lastPlyr.winVaultId].add(local.win);
+        }*/
         // 最後1%鑽石
         if(data.history.length > 0 && local.lastOneTotalKeys > 0){
             // 最後1%鑽石的分紅中的每一個鑽石分紅
@@ -451,10 +467,10 @@ library YAMDAlg {
         for(local.i=1; local.i<data.plyrs.length; ++local.i){
             data.plyrs[local.i].key = 0;
         }
+        data.lastPlyrId = 0;
         data.history.length = 0;
         data.rnd++;
         data.state = GameState.Idle;
-        
     }
     
     struct RoundInfo {
@@ -475,11 +491,12 @@ library YAMDAlg {
         if(data.endTime >= now){
             remainTime = data.endTime.sub(now);
         }
-        uint lastPlyrId = 0;
+        uint lastPlyrId = data.lastPlyrId;
+        /*uint lastPlyrId = 0;
         // 避免error
         if(data.history.length > 0){
             lastPlyrId = data.history[data.history.length-1].plyrId;
-        }
+        }*/
         uint keyAmount = getTotalKeyAmount(data);
         return RoundInfo(
             data.rnd,
