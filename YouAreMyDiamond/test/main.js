@@ -87,6 +87,34 @@ contract('單1方法連續呼叫，測試程式內部錯誤', function(accounts)
         })
     })
     
+    var oddParnterLink = "0x08c379a000000000000000000000000000000000000000000000000000000000";
+    it("使用奇怪的合夥人連結買", function(){
+        var useMoney = 1000000000000000000;
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.buyWithPartnerLink(oddParnterLink, {from: marry, value: useMoney})
+        })
+    })
+    
+    it("使用奇怪的合夥人連結買", function(){
+        var useMoney = 1000000000000000000;
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.buyWithPartnerLink(oddParnterLink, {from: marry, value: useMoney})
+        })
+    })
+    
+    it("使用奇怪的合夥人連結買", function(){
+        var useMoney = 1000000000000000000;
+        var main;
+        return Main.deployed().then(function(ins){
+            main = ins;
+            return main.buyWithPartnerLink(oddParnterLink, {from: marry, value: useMoney})
+        })
+    })
+    
     var parnterFee;
     it("取得註冊合夥人價格", function(){
         var main;
