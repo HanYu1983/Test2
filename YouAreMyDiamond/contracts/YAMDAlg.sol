@@ -32,7 +32,8 @@ library YAMDAlg {
     
     struct Player{
         address addr;
-        uint key;                   // 固定點小數
+        uint key;                   // 所買鑽石。固定點小數，回合結束必須歸零
+        uint alreadyShareFromKey;   // 已取得的鑽石分紅。用來計算最大分紅，回合結束必須歸零
         bytes32 usedPartnerLink;    // 所使用的合夥人連結
         bytes32 usedFriendLink;    // 所使用的推薦人連結
         bytes32 friendLink;
@@ -195,6 +196,9 @@ library YAMDAlg {
         uint i;
         uint keyAmount;
         PartnerMgr.Partner partner;
+        uint maxShareFromKey;
+        uint shareToPlyr;
+        uint shareToCom;
     }
     
     function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
@@ -314,12 +318,35 @@ library YAMDAlg {
                 if(local.plyr.addr == addr){
                     // ver1.如果是自己，減掉今次買的。這樣計算才正確
                     genPlus = (local.genPerKey * local.plyr.key.sub(local.keyAmount)) / FixPointFactor;
-                    data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
                     // ver2.自己不分紅
+                    // nothing to do
                 }else{
+                    // 這個玩家的鑽石分紅
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
-                    data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(genPlus);
                 }
+                // 玩家最大鑽石分紅為所買鑽石的2倍
+                local.maxShareFromKey = (local.plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2);
+                local.shareToPlyr = genPlus;
+                // 如果超過最大分紅，則只取補足的值
+                if(local.plyr.alreadyShareFromKey.add(genPlus) > local.maxShareFromKey){
+                    local.shareToPlyr = local.maxShareFromKey - local.plyr.alreadyShareFromKey;
+                    // 記錄取得分紅
+                    local.plyr.alreadyShareFromKey = local.maxShareFromKey;
+                } else {
+                    // 記錄取得分紅
+                    local.plyr.alreadyShareFromKey = local.plyr.alreadyShareFromKey.add(local.shareToPlyr);
+                }
+                // 有剩餘的話分到公司
+                if(local.shareToPlyr < genPlus){
+                    local.shareToCom = genPlus.sub(local.shareToPlyr);
+                } else {
+                    local.shareToCom = 0;
+                }
+                // 套用修改
+                data.plyrs[local.i] = local.plyr;
+                // 套用分紅
+                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.shareToPlyr);
+                data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.shareToCom);
             }
         }
         // 記錄所有的錢
@@ -466,6 +493,7 @@ library YAMDAlg {
         // 準備下個回合
         for(local.i=1; local.i<data.plyrs.length; ++local.i){
             data.plyrs[local.i].key = 0;
+            data.plyrs[local.i].alreadyShareFromKey = 0;
         }
         data.lastPlyrId = 0;
         data.history.length = 0;
