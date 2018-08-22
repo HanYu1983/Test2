@@ -99,14 +99,6 @@ library YAMDAlg {
         return data.plyrIdByAddr[addr];
     }
     
-    function assignVaults(Data storage data, Player memory player) internal returns (Player){
-        player.winVaultId = genVaultId(data);
-        player.genVaultId = genVaultId(data);
-        player.friVaultId = genVaultId(data);
-        player.parVaultId = genVaultId(data);
-        return player;
-    }
-    
     function getOrNewPlayer(Data storage data, address addr) internal returns (uint) {
         uint id = data.plyrIdByAddr[addr];
         if(id != 0){
@@ -116,7 +108,10 @@ library YAMDAlg {
         data.plyrIdByAddr[addr] = id;
 
         Player memory plyr;
-        plyr = assignVaults(data, plyr);
+        plyr.winVaultId = genVaultId(data);
+        plyr.genVaultId = genVaultId(data);
+        plyr.friVaultId = genVaultId(data);
+        plyr.parVaultId = genVaultId(data);
         plyr.friendLink = bytes32(now + (id << 224));
         
         data.plyrs.push(plyr);

@@ -5,9 +5,11 @@
   	<meta name="theme-color" content="#343a40">
   </head>
   <body>
-        <p>以下為開發中測試，所有邏輯並未實作完成。不定期更新</p>
+        <p>以下為開發中測試，所有邏輯並未實作完成。不定期更新。即時更新尚未套用。</p>
+        <p>合約回應請自行參照MetaMask吐出的連結，因為失敗並不會顯示在網頁上</p>
     <div id="app">
-      請先按計算價格再買
+        請先使用1.01來買，不然買不到超過1個key，無法啟動時間更新。<br>
+        請先按計算價格再買
       <br>
       <input v-model="temp.keyAmount">
       <button v-on:click="getKeyPrice(temp.keyAmount)">計算價格</button>
@@ -26,7 +28,7 @@
       <button v-on:click="vaultBuy(temp.keyAmount)">用錢包買</button>
         
         <h1>回合</h1>
-        每一回合應為24小時倒數，為了方便測試暫時使用1分鐘
+        每一回合應為24小時倒數，為了方便測試暫時使用5分鐘
         <p>回合數 {{ roundInfo.rnd }}</p>
         <p>剩餘時間 {{ temp.remainTimeFormat }}</p>
         <p>公司 {{ roundInfo.com }}</p>
@@ -44,7 +46,7 @@
         <p>合夥分紅 {{ playerInfo.par }}</p>
         <p>朋友連結 {{ playerInfo.friendLink }}</p>
         
-        <h1>合夥人</h1>
+        <h1>合夥人(必須先註冊後取得的才有效)</h1>
         {{ temp.partnerLink }}
         <br>
         <button v-on:click="registerPartner(1)">註冊合夥人等級1</button>
@@ -71,7 +73,7 @@
         var model = model || {};
         (function(module){
             var fixPointFactor = 1000000000;
-            var ContractAddress = "0xeb1607130acf3563b9b3f4861d04678497a67f87"  // kovan testnet
+            var ContractAddress = "0xd9e7e1a4f723f5d45f02067c385ba4287755305d"  // kovan testnet
             var contract = 0
             
             async function loadContract(){

@@ -37,10 +37,15 @@ contract YAMDMain {
             PartnerMgr.open(data.partnerMgr);
         }
     }
+    function getInfo() public view returns (Phase){
+        return (phase);
+    }
     // 
     // 主業務
     //
     YAMDAlg.Data data;
+    
+    event onMsg(bytes32 msg);
     
     function registerPartner(uint level) public payable{
         address user = msg.sender;
@@ -56,6 +61,7 @@ contract YAMDMain {
             uint plyrId = data.getPlayerId(user);
             data.vaults[data.plyrs[plyrId].genVaultId] = data.vaults[data.plyrs[plyrId].genVaultId].add(value);
         }
+        emit onMsg("registerPartner");
     }
     
     function getPartnerProjectFee(uint level) public view returns (uint){
@@ -75,33 +81,39 @@ contract YAMDMain {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
+        emit onMsg("buy");
     }
     
     function buyWithPartnerLink(bytes32 partnerLink) onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, partnerLink, 0);
+        emit onMsg("buyWithPartnerLink");
     }
     
     function buyWithFriendLink(bytes32 friendLink) onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
+        emit onMsg("buyWithFriendLink");
     }
     
     function vaultBuy(uint eth) onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, 0);
+        emit onMsg("vaultBuy");
     }
     
     function vaultBuyWithPartnerLink(uint eth, bytes32 partnerLink) onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, partnerLink, 0);
+        emit onMsg("vaultBuyWithPartnerLink");
     }
     
     function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, friendLink);
+        emit onMsg("vaultBuyWithFriendLink");
     }
     
     function getKeyPrice(uint keyAmount) public view returns (uint){

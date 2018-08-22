@@ -19,6 +19,7 @@ module.exports = function(deployer) {
     }).then(function(obj){
         deployer.link(YAMDAlg, YAMDMain)
         deployer.link(PartnerMgr, YAMDMain)
+        deployer.link(SafeMath, YAMDMain)
         return deployer.deploy(YAMDMain)
     })
 };
