@@ -89,6 +89,11 @@ library PartnerMgr {
         uint fee = projFee(data, proj);
         require(value == fee, "eth not enougth");
         uint id = getOrNewPartner(data, addr);
+        // 如果已註冊過，就直接將錢歸還
+        if(data.partners[id].proj != Project.Unknow){
+            msg.sender.transfer(value);
+            return;
+        }
         bytes32 link = bytes32(now.add(id << 224));
         data.partners[id].addr = addr;
         data.partners[id].proj = proj;

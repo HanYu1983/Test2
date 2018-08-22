@@ -303,12 +303,10 @@ library YAMDAlg {
         // 鑽石回饋
         // ver1.不保含這次買的key
         local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
-        /*
         // ver2.減掉自己的key, 因為自己不分紅
-        local.plyrId = getOrNewPlayer(data, addr);
-        local.plyr = data.plyrs[local.plyrId];
-        local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
-        */
+        // local.plyrId = getOrNewPlayer(data, addr);
+        // local.plyr = data.plyrs[local.plyrId];
+        // local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
         // 第一個買會使totalKey等於0, 略過第一個買的(沒有分紅的對象)
         if(local.totalKey > 0){
             local.genPerKey = (local.gen / local.totalKey).mul(FixPointFactor);
@@ -324,9 +322,9 @@ library YAMDAlg {
                     // 這個玩家的鑽石分紅
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                 }
+                local.shareToPlyr = genPlus;
                 // 玩家最大鑽石分紅為所買鑽石的2倍
                 local.maxShareFromKey = (local.plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2);
-                local.shareToPlyr = genPlus;
                 // 如果超過最大分紅，則只取補足的值
                 if(local.plyr.alreadyShareFromKey.add(genPlus) > local.maxShareFromKey){
                     local.shareToPlyr = local.maxShareFromKey - local.plyr.alreadyShareFromKey;
@@ -345,8 +343,8 @@ library YAMDAlg {
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
                 // 套用分紅
-                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.shareToPlyr);
                 data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.shareToCom);
+                data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(local.shareToPlyr);
             }
         }
         // 記錄所有的錢

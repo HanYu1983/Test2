@@ -48,6 +48,7 @@ contract YAMDMain {
             proj = PartnerMgr.Project.Two;
         }
         data.partnerMgr.register(user, value, proj);
+        // TODO 錢要流向公司
     }
     
     function getPartnerProjectFee(uint level) public view returns (uint){

@@ -71,7 +71,7 @@
         var model = model || {};
         (function(module){
             var fixPointFactor = 1000000000;
-            var ContractAddress = "0xfc0107f4b4635bda3fbafec29406ee0afd357a4a"
+            var ContractAddress = "0xa9a84b094a02c0c25e1ae0e913f4da1bcfc7b70c"  // kovan testnet
             var contract = 0
             
             async function loadContract(){
@@ -255,7 +255,7 @@
                           var contract = model.getContract()
                           try{
                               var fee = await contract.getPartnerProjectFee(level)
-                              await contract.registerPartner({value: fee})
+                              await contract.registerPartner(level, {value: fee})
                           }catch(e){
                               console.log(e)
                           }
