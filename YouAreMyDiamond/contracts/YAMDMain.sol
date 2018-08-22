@@ -2,10 +2,12 @@ pragma solidity ^0.4.24;
 
 import "./YAMDAlg.sol";
 import "./PartnerMgr.sol";
+import "./lib/SafeMath.sol";
 
 contract YAMDMain {
     using YAMDAlg for YAMDAlg.Data;
     using PartnerMgr for PartnerMgr.Data;
+    using SafeMath for *;
     
     address public owner;
     modifier onlyOwner(){
@@ -47,8 +49,13 @@ contract YAMDMain {
         if(level == 2){
             proj = PartnerMgr.Project.Two;
         }
-        data.partnerMgr.register(user, value, proj);
-        // TODO 錢要流向公司
+        if(data.partnerMgr.register(user, value, proj)){
+            // TODO 錢要流向公司
+        } else {
+            // 還給玩家
+            uint plyrId = data.getPlayerId(user);
+            data.vaults[data.plyrs[plyrId].genVaultId] = data.vaults[data.plyrs[plyrId].genVaultId].add(value);
+        }
     }
     
     function getPartnerProjectFee(uint level) public view returns (uint){
