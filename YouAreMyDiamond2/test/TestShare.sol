@@ -13,7 +13,7 @@ contract TestShare {
     YAMDAlg.Data data;
     
     function beforeAll() public {
-        data.init();
+        data.init(); 
     }
     
     address constant userA = 0x0;

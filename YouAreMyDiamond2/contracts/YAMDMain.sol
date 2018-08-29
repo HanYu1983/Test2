@@ -49,17 +49,18 @@ contract YAMDMain {
     
     function isCanRegisterPartner() public view returns (bool){
         address user = msg.sender;
-        bytes32 ignore;
         // 如果有人使用過你的推薦人連結，就沒辨法註冊合夥人
         if(data.hasFriendLinkPointToAddr(user)){
             return false;
         }
+        /*
+        bytes32 ignore;
         (bool isValid, bytes32 link) = data.partnerMgr.getLink(user);
         ignore = link;
         
         if(isValid){
             return false;
-        }
+        }*/
         return true;
     }
     
@@ -95,23 +96,11 @@ contract YAMDMain {
         return PartnerMgr.projFee(data.partnerMgr, proj);
     }
     
-    function getPartnerLink() public view returns (bool, bytes32){
-        address user = msg.sender;
-        return data.partnerMgr.getLink(user);
-    }
-    
     function buy() onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
         emit onMsg("buy");
-    }
-    
-    function buyWithPartnerLink(bytes32 partnerLink) onlyPhase(Phase.Open) public payable {
-        address user = msg.sender;
-        uint eth = msg.value;
-        data.buy(user, eth, partnerLink, 0);
-        emit onMsg("buyWithPartnerLink");
     }
     
     function buyWithFriendLink(bytes32 friendLink) onlyPhase(Phase.Open) public payable {
@@ -125,12 +114,6 @@ contract YAMDMain {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, 0);
         emit onMsg("vaultBuy");
-    }
-    
-    function vaultBuyWithPartnerLink(uint eth, bytes32 partnerLink) onlyPhase(Phase.Open) public {
-        address user = msg.sender;
-        data.buyWithVault(user, eth, partnerLink, 0);
-        emit onMsg("vaultBuyWithPartnerLink");
     }
     
     function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) onlyPhase(Phase.Open) public {
@@ -185,4 +168,23 @@ contract YAMDMain {
     function kill() onlyOwner() public {
         selfdestruct(msg.sender);
     }
+    
+    /*
+    function getPartnerLink() private view returns (bool, bytes32){
+        address user = msg.sender;
+        return data.partnerMgr.getLink(user);
+    }
+    
+    function buyWithPartnerLink(bytes32 partnerLink) onlyPhase(Phase.Open) private payable {
+        address user = msg.sender;
+        uint eth = msg.value;
+        data.buy(user, eth, partnerLink, 0);
+        emit onMsg("buyWithPartnerLink");
+    }
+    
+    function vaultBuyWithPartnerLink(uint eth, bytes32 partnerLink) onlyPhase(Phase.Open) private {
+        address user = msg.sender;
+        data.buyWithVault(user, eth, partnerLink, 0);
+        emit onMsg("vaultBuyWithPartnerLink");
+    }*/
 }

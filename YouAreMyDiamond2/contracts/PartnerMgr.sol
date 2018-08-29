@@ -101,14 +101,8 @@ library PartnerMgr {
         return true;
     }
     
-    function getLink(Data storage data, address addr) internal view returns (bool, bytes32){
+    function getPartner(Data storage data, address addr) internal view returns (Partner){
         uint id = data.partnerIdByAddr[addr];
-        bool isValid = id != 0;
-        return (isValid, data.partners[id].link);
-    }
-    
-    function getPartner(Data storage data, bytes32 link) internal view returns (Partner){
-        uint id = data.partnerIdByLink[link];
         Partner memory partner =  data.partners[id];
         return partner;
     }
@@ -116,4 +110,18 @@ library PartnerMgr {
     function open(Data storage data) internal {
         data.open = true;
     }
+    /*
+    // 不使用
+    function getLink(Data storage data, address addr) private view returns (bool, bytes32){
+        uint id = data.partnerIdByAddr[addr];
+        bool isValid = id != 0;
+        return (isValid, data.partners[id].link);
+    }
+    
+    // 不使用
+    function getPartnerByLink(Data storage data, bytes32 link) private view returns (Partner){
+        uint id = data.partnerIdByLink[link];
+        Partner memory partner =  data.partners[id];
+        return partner;
+    }*/
 }

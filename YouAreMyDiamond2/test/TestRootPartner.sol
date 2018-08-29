@@ -28,11 +28,13 @@ contract TestRootPartner {
     
     function testShare() public {
         bool isValid;
-        bytes32 userAPartnerLink;
+        //bytes32 userAPartnerLink;
         uint parVault;
         uint lastParVault;
         uint comVault;
         uint lastComVault;
+        uint friVault;
+        uint lastFriVault;
         uint i;
         
         Assert.equal(PartnerMgr.comRate(PartnerMgr.Project.Two), 0, "comRate must be 0");
@@ -43,28 +45,45 @@ contract TestRootPartner {
         // 請注意YAMDMain.sol中的註冊方法中有沒有這行!!
         data.getOrNewPlayer(userA);
         
-        (isValid, userAPartnerLink) = data.partnerMgr.getLink(userA);
-        Assert.equal(isValid, true, "must can register");
-        // 合夥人連結，會分紅給合夥人
-        // 沒有使用推廌人連結，推薦人部分會分紅給公司
-        data.buy(userB, 1 ether, userAPartnerLink, 0);
+        //(isValid, userAPartnerLink) = data.partnerMgr.getLink(userA);
+        //Assert.equal(isValid, true, "must can register");
+        // ver1. 使用合夥人連結，會分紅給合夥人。沒有使用推廌人連結，推薦人部分會分紅給公司
+        //data.buy(userB, 1 ether, userAPartnerLink, 0);
+        //parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
+        //comVault = data.vaults[data.comVaultId];
+        //Assert.equal(parVault>lastParVault, true, "parValut must plus");
+        //Assert.equal(comVault>lastComVault, true, "comVault must plus");
+        //lastParVault = parVault;
+        //lastComVault = comVault;
+        // ver1 end.
+        
+        // ver2. 用推薦人連結，會分紅給頂部合夥人，也會分給推薦人
+        data.buy(userB, 1 ether, 0, data.plyrs[data.getPlayerId(userA)].friendLink);
         parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
         comVault = data.vaults[data.comVaultId];
+        friVault = data.vaults[data.plyrs[data.getPlayerId(userA)].friVaultId];
         
         Assert.equal(parVault>lastParVault, true, "parValut must plus");
-        Assert.equal(comVault>lastComVault, true, "comVault must plus");
+        Assert.equal(friVault>lastFriVault, true, "friVault must plus");
+        Assert.equal(comVault, lastComVault, "comVault must not plus");
         
         lastParVault = parVault;
         lastComVault = comVault;
+        lastFriVault = friVault;
+        // ver2. end
         
         // 合夥人下線的推薦人連結，會分紅給推薦人和頂部合夥人，不會分紅給公司
         // 沒有使用合夥人連結，會從推薦人找到合夥人
         for(i=0; i<3; ++i){
+            lastFriVault = data.vaults[data.plyrs[data.getPlayerId(userB)].friVaultId];
+            
             data.buy(userC, 1 ether, 0, data.plyrs[data.getPlayerId(userB)].friendLink);
             parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
             comVault = data.vaults[data.comVaultId];
+            friVault = data.vaults[data.plyrs[data.getPlayerId(userB)].friVaultId];
         
             Assert.equal(parVault>lastParVault, true, "parValut must plus");
+            Assert.equal(friVault>lastFriVault, true, "friVault must plus");
             Assert.equal(comVault, lastComVault, "comVault must not plus");
         
             lastParVault = parVault;
@@ -72,11 +91,15 @@ contract TestRootPartner {
         }
         
         for(i=0; i<3; ++i){
+            lastFriVault = data.vaults[data.plyrs[data.getPlayerId(userC)].friVaultId];
+            
             data.buy(userD, 1 ether, 0, data.plyrs[data.getPlayerId(userC)].friendLink);
             parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
             comVault = data.vaults[data.comVaultId];
+            friVault = data.vaults[data.plyrs[data.getPlayerId(userC)].friVaultId];
         
             Assert.equal(parVault>lastParVault, true, "parValut must plus");
+            Assert.equal(friVault>lastFriVault, true, "friVault must plus");
             Assert.equal(comVault, lastComVault, "comVault must not plus");
         
             lastParVault = parVault;

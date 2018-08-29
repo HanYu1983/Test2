@@ -24,11 +24,13 @@ library YAMDAlg {
     // 最後?%鑽石的分紅，用來測試用。值應該是1
     uint8 constant LastWinP = 1;
     
+    
     uint constant KeyEthAtStart = 75 szabo;
     uint constant FixPointFactor = 1000000000;
     uint constant ExtendTime = 60 seconds;
     uint constant TimeAtStart = 5 minutes;
     uint constant MaxTime = 24 hours;
+    uint constant ShareLimitRate = 2 * FixPointFactor;
     
     struct Player{
         address addr;
@@ -245,7 +247,7 @@ library YAMDAlg {
         // 處理合夥人
         if(local.plyr.usedPartnerLink != 0){
             // 若使用合夥人連結，直接找出合夥人
-            local.partner = data.partnerMgr.getPartner(local.plyr.usedPartnerLink);
+            local.partner = data.partnerMgr.getPartner(local.plyr.addr);
         } else {
             // 若沒使用合夥人連結，找出最根部的合夥人
             local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
@@ -299,7 +301,7 @@ library YAMDAlg {
                 data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
                 /*
                 // 分紅限制
-                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, local.fri);
+                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(ShareLimitRate, local.plyr, local.fri);
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
                 // 套用分紅
@@ -335,7 +337,7 @@ library YAMDAlg {
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                 }
                 // 分紅限制
-                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, genPlus);
+                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(ShareLimitRate, local.plyr, genPlus);
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
                 // 套用分紅
@@ -382,17 +384,17 @@ library YAMDAlg {
             if(alreadyUse[friendId]){
                 return data.partnerMgr.getPartner(0);
             }
-            friend = data.plyrs[friendId];
             alreadyUse[friendId] = true;
+            friend = data.plyrs[friendId];
         }
-        return data.partnerMgr.getPartner(friend.usedPartnerLink);
+        return data.partnerMgr.getPartner(friend.addr);
     }
     
-    function calcShareLimit(Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
+    function calcShareLimit(uint rateFP, Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
         uint shareToPlyr = genPlus;
         uint shareToCom = 0;
         // 玩家最大鑽石分紅為所買鑽石的2倍
-        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2).mul(FixPointFactor);
+        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(rateFP);
         // 如果超過最大分紅，則只取補足的值
         if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
             shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
@@ -525,7 +527,7 @@ library YAMDAlg {
         // 合夥人
         if(local.plyr.usedPartnerLink != 0){
             // 若使用合夥人連結，直接找出合夥人
-            local.partner = data.partnerMgr.getPartner(local.plyr.usedPartnerLink);
+            local.partner = data.partnerMgr.getPartner(local.plyr.addr);
         } else {
             // 若沒使用合夥人連結，找出最根部的合夥人
             local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
