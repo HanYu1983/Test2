@@ -21,30 +21,13 @@ contract TestOneKeyAndBuy {
         uint oneKeyPrice;
         YAMDAlg.PlayerInfo memory plyrInfo;
         uint fixPointFactor = 1000000000;
+        uint i;
         
-        oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
-        data.buy(user, oneKeyPrice, 0, 0);
-        plyrInfo = data.getPlayerInfo(user);
-        Assert.equal((plyrInfo.key/fixPointFactor) >= 1, true, "買的數量不符");
-        
-        oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
-        data.buy(user, oneKeyPrice, 0, 0);
-        plyrInfo = data.getPlayerInfo(user);
-        Assert.equal((plyrInfo.key/fixPointFactor) >= 2, true, "買的數量不符");
-        
-        oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
-        data.buy(user, oneKeyPrice, 0, 0);
-        plyrInfo = data.getPlayerInfo(user);
-        Assert.equal((plyrInfo.key/fixPointFactor) >= 3, true, "買的數量不符");
-        
-        oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
-        data.buy(user, oneKeyPrice, 0, 0);
-        plyrInfo = data.getPlayerInfo(user);
-        Assert.equal((plyrInfo.key/fixPointFactor) >= 4, true, "買的數量不符");
-        
-        oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
-        data.buy(user, oneKeyPrice, 0, 0);
-        plyrInfo = data.getPlayerInfo(user);
-        Assert.equal((plyrInfo.key/fixPointFactor) >= 5, true, "買的數量不符");
+        for(i=0; i<10; ++i){
+            oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
+            data.buy(user, oneKeyPrice, 0, 0);
+            plyrInfo = data.getPlayerInfo(user);
+            Assert.equal((plyrInfo.key/fixPointFactor) >= (i+1), true, "買的數量不符");
+        }
     }
 }

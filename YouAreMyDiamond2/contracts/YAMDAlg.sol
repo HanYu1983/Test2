@@ -366,6 +366,9 @@ library YAMDAlg {
     }
     
     function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
+        if(friendLink == 0){
+            return data.partnerMgr.getPartner(0);
+        }
         bool[] memory alreadyUse = new bool[](data.plyrs.length);
         
         uint friendId = data.plyrIdByFriendLink[friendLink];
