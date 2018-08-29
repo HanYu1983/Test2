@@ -136,7 +136,7 @@ contract YAMDMain {
         );
     }
     
-    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32){
+    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32, uint){
         YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(msg.sender);
         return (
             info.key,
@@ -144,7 +144,8 @@ contract YAMDMain {
             info.genVault,
             info.friVault,
             info.parVault,
-            info.friendLink
+            info.friendLink,
+            info.alreadyShareFromKey
         );
     }
     

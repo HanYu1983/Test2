@@ -540,6 +540,7 @@ library YAMDAlg {
         uint friVault;
         uint parVault;
         bytes32 friendLink;
+        uint alreadyShareFromKey;
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
@@ -551,7 +552,8 @@ library YAMDAlg {
             data.vaults[plyr.genVaultId],
             data.vaults[plyr.friVaultId],
             data.vaults[plyr.parVaultId],
-            plyr.friendLink
+            plyr.friendLink,
+            plyr.alreadyShareFromKey
         );
     }
 }
