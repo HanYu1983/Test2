@@ -30,7 +30,7 @@ contract TestFns {
         data.buy(user, 1 ether, 0, 0);
     }
     
-    function testBuyWithPartnerLink() public {
+    /*function testBuyWithPartnerLink() public {
         address user = msg.sender;
         bool isValid;
         bytes32 partnerLink;
@@ -39,7 +39,7 @@ contract TestFns {
         data.buy(user, 1 ether, partnerLink, 0);
         data.buy(user, 1 ether, partnerLink, 0);
         data.buy(user, 1 ether, partnerLink, 0);
-    }
+    }*/
     
     function testBuyWithFriendLink() public {
         address user = msg.sender;
@@ -61,15 +61,15 @@ contract TestFns {
     
     function testBuyWithVault() public { 
         address user = msg.sender;
-        bool isValid;
-        bytes32 partnerLink;
+        // bool isValid;
+        // bytes32 partnerLink;
         // win the money
         data.endRound();
         
-        (isValid, partnerLink) = data.partnerMgr.getLink(user);
+        //(isValid, partnerLink) = data.partnerMgr.getLink(user);
         // use vault
         data.buyWithVault(user, 1000000000000000, 0, 0);
-        data.buyWithVault(user, 1000000000000000, partnerLink, 0);
+        //data.buyWithVault(user, 1000000000000000, partnerLink, 0);
         data.buyWithVault(user, 1000000000000000, 0, data.getPlayerInfo(user).friendLink);
     }
     

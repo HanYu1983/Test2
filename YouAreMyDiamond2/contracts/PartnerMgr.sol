@@ -19,13 +19,13 @@ library PartnerMgr {
     struct Partner{
         address addr;
         Project proj;
-        bytes32 link;
+        // bytes32 link;
     }
     
     struct Data{
         bool open;
         mapping(address=>uint) partnerIdByAddr;
-        mapping(bytes32=>uint) partnerIdByLink;
+        // mapping(bytes32=>uint) partnerIdByLink;
         Partner[] partners; // 索引為0的位置不用
     }
     
@@ -93,11 +93,12 @@ library PartnerMgr {
         if(data.partners[id].proj != Project.Unknow){
             return false;
         }
-        bytes32 link = bytes32(now.add(id << 224));
         data.partners[id].addr = addr;
         data.partners[id].proj = proj;
-        data.partners[id].link = link;
-        data.partnerIdByLink[link] = id;
+        
+        // bytes32 link = bytes32(now.add(id << 224));
+        // data.partners[id].link = link;
+        // data.partnerIdByLink[link] = id;
         return true;
     }
     
