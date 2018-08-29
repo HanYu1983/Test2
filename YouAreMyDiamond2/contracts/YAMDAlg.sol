@@ -366,11 +366,21 @@ library YAMDAlg {
     }
     
     function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
+        bool[] memory alreadyUse = new bool[](data.plyrs.length);
+        
         uint friendId = data.plyrIdByFriendLink[friendLink];
         Player memory friend = data.plyrs[friendId];
+        
+        alreadyUse[friendId] = true;
+        
         for(;friend.usedFriendLink != 0;){
-            friendId = data.plyrIdByFriendLink[friendLink];
+            friendId = data.plyrIdByFriendLink[friend.usedFriendLink];
+            // 如果有循環參照，就當成沒有找到
+            if(alreadyUse[friendId]){
+                return data.partnerMgr.getPartner(0);
+            }
             friend = data.plyrs[friendId];
+            alreadyUse[friendId] = true;
         }
         return data.partnerMgr.getPartner(friend.usedPartnerLink);
     }

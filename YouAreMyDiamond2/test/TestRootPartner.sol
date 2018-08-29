@@ -16,10 +16,17 @@ contract TestRootPartner {
         data.init();
     }
     
-    function test() public {
-        address userA = 0x0;
-        address userB = 0x1;
-        address userC = 0x2;
+    address constant userA = 0x0;
+    address constant userB = 0x1;
+    address constant userC = 0x2;
+    address constant userD = 0x3;
+    address constant userE = 0x4;
+    address constant userF = 0x5;
+    address constant userG = 0x6;
+    address constant userH = 0x7;
+    address constant userI = 0x8;
+    
+    function testShare() public {
         bool isValid;
         bytes32 userAPartnerLink;
         uint parVault;
@@ -63,5 +70,30 @@ contract TestRootPartner {
             lastParVault = parVault;
             lastComVault = comVault;
         }
+        
+        for(i=0; i<3; ++i){
+            data.buy(userD, 1 ether, 0, data.plyrs[data.getPlayerId(userC)].friendLink);
+            parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
+            comVault = data.vaults[data.comVaultId];
+        
+            Assert.equal(parVault>lastParVault, true, "parValut must plus");
+            Assert.equal(comVault, lastComVault, "comVault must not plus");
+        
+            lastParVault = parVault;
+            lastComVault = comVault;
+        }
+    }
+    
+    function testCircleFriendLink() public {
+        // 先新增玩家!!
+        data.getOrNewPlayer(userE);
+        data.buy(userF, 1 ether, 0, data.plyrs[data.getPlayerId(userE)].friendLink);
+        data.buy(userE, 1 ether, 0, data.plyrs[data.getPlayerId(userF)].friendLink);
+        
+        // 先新增玩家!!
+        data.getOrNewPlayer(userG);
+        data.buy(userH, 1 ether, 0, data.plyrs[data.getPlayerId(userG)].friendLink);
+        data.buy(userI, 1 ether, 0, data.plyrs[data.getPlayerId(userH)].friendLink);
+        data.buy(userG, 1 ether, 0, data.plyrs[data.getPlayerId(userI)].friendLink);
     }
 }
