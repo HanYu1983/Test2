@@ -55,7 +55,7 @@ library YAMDAlg {
         
         mapping (address=>uint) plyrIdByAddr;
         mapping (bytes32=>uint) plyrIdByFriendLink;
-        Player[] plyrs;
+        Player[] plyrs; // 索引為0的位置不用
         
         GameState state;
         uint lastPlyrId;
@@ -243,13 +243,19 @@ library YAMDAlg {
         reduceHistory(data);
         
         // 處理合夥人
-        local.partner = data.partnerMgr.getPartner(addr, local.plyr.usedPartnerLink);
-        if(local.partner.proj == PartnerMgr.Project.Unknow){
-            // 如果不是合夥人的下線
-            // 分紅給公司
+        if(local.plyr.usedPartnerLink != 0){
+            // 若使用合夥人連結，直接找出合夥人
+            local.partner = data.partnerMgr.getPartner(local.plyr.usedPartnerLink);
+        } else {
+            // 若沒使用合夥人連結，找出最根部的合夥人
+            local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
+        }
+        // 合夥人不能是自己 || 沒找到專案
+        if(local.partner.addr == addr || local.partner.proj == PartnerMgr.Project.Unknow){
+            // 不是合夥人的下線，分紅給公司
             local.com = value.mul(ComRate).mul(FixPointFactor)/100;
         }else{
-            // 如果是合夥人的下線（用合夥人提供的連結玩遊戲）
+            // 是合夥人的下線
             // 依專案分紅給公司和合夥人
             local.com = value.mul(PartnerMgr.comRate(local.partner.proj)).mul(FixPointFactor)/100;
             local.par = value.mul(PartnerMgr.partRate(local.partner.proj)).mul(FixPointFactor)/100;
@@ -273,7 +279,8 @@ library YAMDAlg {
                 local.plyr = data.plyrs[local.plyrId];
                 data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
             } else {
-                // 該存在的合夥人不存在就分給公司。合理的情況這裡應該不會運行
+                // 注意：合理的情況這裡應該不會運行，若運行到這裡可能代表合夥人有註冊，但沒有呼叫到getOrNewPlayer來建立玩家。所以在註冊成功時請一定要呼叫getOrNewPlayer
+                // 該存在的合夥人不存在就分給公司。
                 data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.par);
             }
         }
@@ -288,12 +295,17 @@ library YAMDAlg {
                 // 分給公司
                 data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
             } else {
+                // 推薦人分紅不限制
+                data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
+                /*
+                // 分紅限制
                 (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, local.fri);
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
                 // 套用分紅
                 data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.shareToCom);
                 data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.shareToPlyr);
+                */
             }
         } else {
             // 若推薦人不存在就分給公司
@@ -322,6 +334,7 @@ library YAMDAlg {
                     // 這個玩家的鑽石分紅
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                 }
+                // 分紅限制
                 (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, genPlus);
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
@@ -352,11 +365,21 @@ library YAMDAlg {
         }
     }
     
+    function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
+        uint friendId = data.plyrIdByFriendLink[friendLink];
+        Player memory friend = data.plyrs[friendId];
+        for(;friend.usedFriendLink != 0;){
+            friendId = data.plyrIdByFriendLink[friendLink];
+            friend = data.plyrs[friendId];
+        }
+        return data.partnerMgr.getPartner(friend.usedPartnerLink);
+    }
+    
     function calcShareLimit(Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
         uint shareToPlyr = genPlus;
         uint shareToCom = 0;
         // 玩家最大鑽石分紅為所買鑽石的2倍
-        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2);
+        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2).mul(FixPointFactor);
         // 如果超過最大分紅，則只取補足的值
         if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
             shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
@@ -487,7 +510,14 @@ library YAMDAlg {
             }
         }
         // 合夥人
-        local.partner = data.partnerMgr.getPartner(local.lastPlyr.addr, local.lastPlyr.usedPartnerLink);
+        if(local.plyr.usedPartnerLink != 0){
+            // 若使用合夥人連結，直接找出合夥人
+            local.partner = data.partnerMgr.getPartner(local.plyr.usedPartnerLink);
+        } else {
+            // 若沒使用合夥人連結，找出最根部的合夥人
+            local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
+        }
+        
         if(local.partner.proj == PartnerMgr.Project.Unknow){
             // 如果不是合夥人的下線
             // 公益
@@ -578,5 +608,21 @@ library YAMDAlg {
             plyr.friendLink,
             plyr.alreadyShareFromKey
         );
+    }
+    
+    function hasFriendLinkPointToAddr(Data storage data, address addr) internal view returns (bool){
+        uint i;
+        uint id = getPlayerId(data, addr);
+        if(id == 0){
+            return false;
+        }
+        for(i=1; i<data.plyrs.length; ++i){
+            Player memory plyr = data.plyrs[i];
+            uint linkToPlyrId = data.plyrIdByFriendLink[plyr.usedFriendLink];
+            if(id == linkToPlyrId){
+                return true;
+            }
+        }
+        return false;
     }
 }

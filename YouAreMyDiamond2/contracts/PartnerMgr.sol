@@ -26,7 +26,7 @@ library PartnerMgr {
         bool open;
         mapping(address=>uint) partnerIdByAddr;
         mapping(bytes32=>uint) partnerIdByLink;
-        Partner[] partners;
+        Partner[] partners; // 索引為0的位置不用
     }
     
     function init(Data storage data) internal {
@@ -101,19 +101,15 @@ library PartnerMgr {
         return true;
     }
     
-    function getLink(Data storage data, address addr) internal view returns (bytes32){
+    function getLink(Data storage data, address addr) internal view returns (bool, bytes32){
         uint id = data.partnerIdByAddr[addr];
-        require(id != 0, "you must register");
-        return data.partners[id].link;
+        bool isValid = id != 0;
+        return (isValid, data.partners[id].link);
     }
     
-    function getPartner(Data storage data, address user, bytes32 link) internal view returns (Partner){
+    function getPartner(Data storage data, bytes32 link) internal view returns (Partner){
         uint id = data.partnerIdByLink[link];
         Partner memory partner =  data.partners[id];
-        // 合夥人不能是自己
-        if(partner.addr == user){
-            return data.partners[0];
-        }
         return partner;
     }
     

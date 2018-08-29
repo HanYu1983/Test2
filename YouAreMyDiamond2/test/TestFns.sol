@@ -32,9 +32,10 @@ contract TestFns {
     
     function testBuyWithPartnerLink() public {
         address user = msg.sender;
+        bool isValid;
         bytes32 partnerLink;
         data.partnerMgr.register(user, PartnerMgr.projFee(data.partnerMgr, PartnerMgr.Project.One), PartnerMgr.Project.One);
-        partnerLink = data.partnerMgr.getLink(user);
+        (isValid, partnerLink) = data.partnerMgr.getLink(user);
         data.buy(user, 1 ether, partnerLink, 0);
         data.buy(user, 1 ether, partnerLink, 0);
         data.buy(user, 1 ether, partnerLink, 0);
@@ -60,11 +61,12 @@ contract TestFns {
     
     function testBuyWithVault() public { 
         address user = msg.sender;
+        bool isValid;
         bytes32 partnerLink;
         // win the money
         data.endRound();
         
-        partnerLink = data.partnerMgr.getLink(user);
+        (isValid, partnerLink) = data.partnerMgr.getLink(user);
         // use vault
         data.buyWithVault(user, 1000000000000000, 0, 0);
         data.buyWithVault(user, 1000000000000000, partnerLink, 0);

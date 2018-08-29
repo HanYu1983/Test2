@@ -47,6 +47,22 @@ contract YAMDMain {
     
     event onMsg(bytes32 msg);
     
+    function isCanRegisterPartner() public view returns (bool){
+        address user = msg.sender;
+        bytes32 ignore;
+        // 如果有人使用過你的推薦人連結，就沒辨法註冊合夥人
+        if(data.hasFriendLinkPointToAddr(user)){
+            return false;
+        }
+        (bool isValid, bytes32 link) = data.partnerMgr.getLink(user);
+        ignore = link;
+        
+        if(isValid){
+            return false;
+        }
+        return true;
+    }
+    
     function registerPartner(uint level) public payable{
         address user = msg.sender;
         uint value = msg.value;
@@ -54,12 +70,19 @@ contract YAMDMain {
         if(level == 2){
             proj = PartnerMgr.Project.Two;
         }
+        if(isCanRegisterPartner() == false){
+            // 還給玩家
+            user.transfer(value);
+            return;
+        }
         if(data.partnerMgr.register(user, value, proj)){
+            // 重要：新增玩家!!
+            data.getOrNewPlayer(user);
             // TODO 錢要流向公司
         } else {
             // 還給玩家
-            uint plyrId = data.getPlayerId(user);
-            data.vaults[data.plyrs[plyrId].genVaultId] = data.vaults[data.plyrs[plyrId].genVaultId].add(value);
+            user.transfer(value);
+            return;
         }
         emit onMsg("registerPartner");
     }
@@ -72,7 +95,7 @@ contract YAMDMain {
         return PartnerMgr.projFee(data.partnerMgr, proj);
     }
     
-    function getPartnerLink() public view returns (bytes32){
+    function getPartnerLink() public view returns (bool, bytes32){
         address user = msg.sender;
         return data.partnerMgr.getLink(user);
     }
