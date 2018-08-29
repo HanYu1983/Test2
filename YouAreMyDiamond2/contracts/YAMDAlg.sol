@@ -284,11 +284,16 @@ library YAMDAlg {
         if(local.friendId != 0){
             local.plyr = data.plyrs[local.friendId];
             if(local.plyr.addr == addr){
-                // 推薦人不能是自己
+                // 推薦人如果是自己
                 // 分給公司
                 data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.fri);
             } else {
-                data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.fri);
+                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, local.fri);
+                // 套用修改
+                data.plyrs[local.i] = local.plyr;
+                // 套用分紅
+                data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(local.shareToCom);
+                data.vaults[local.plyr.friVaultId] = data.vaults[local.plyr.friVaultId].add(local.shareToPlyr);
             }
         } else {
             // 若推薦人不存在就分給公司
@@ -317,24 +322,7 @@ library YAMDAlg {
                     // 這個玩家的鑽石分紅
                     genPlus = (local.genPerKey * local.plyr.key) / FixPointFactor;
                 }
-                local.shareToPlyr = genPlus;
-                // 玩家最大鑽石分紅為所買鑽石的2倍
-                local.maxShareFromKey = (local.plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2);
-                // 如果超過最大分紅，則只取補足的值
-                if(local.plyr.alreadyShareFromKey.add(genPlus) > local.maxShareFromKey){
-                    local.shareToPlyr = local.maxShareFromKey - local.plyr.alreadyShareFromKey;
-                    // 記錄取得分紅
-                    local.plyr.alreadyShareFromKey = local.maxShareFromKey;
-                } else {
-                    // 記錄取得分紅
-                    local.plyr.alreadyShareFromKey = local.plyr.alreadyShareFromKey.add(local.shareToPlyr);
-                }
-                // 有剩餘的話分到公司
-                if(local.shareToPlyr < genPlus){
-                    local.shareToCom = genPlus.sub(local.shareToPlyr);
-                } else {
-                    local.shareToCom = 0;
-                }
+                (local.plyr, local.shareToPlyr, local.shareToCom) = calcShareLimit(local.plyr, genPlus);
                 // 套用修改
                 data.plyrs[local.i] = local.plyr;
                 // 套用分紅
@@ -364,6 +352,29 @@ library YAMDAlg {
         }
     }
     
+    function calcShareLimit(Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
+        uint shareToPlyr = genPlus;
+        uint shareToCom = 0;
+        // 玩家最大鑽石分紅為所買鑽石的2倍
+        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(2);
+        // 如果超過最大分紅，則只取補足的值
+        if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
+            shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
+            // 記錄取得分紅
+            plyr.alreadyShareFromKey = maxShareFromKey;
+        } else {
+            // 記錄取得分紅
+            plyr.alreadyShareFromKey = plyr.alreadyShareFromKey.add(shareToPlyr);
+        }
+        // 有剩餘的話分到公司
+        if(shareToPlyr < genPlus){
+            shareToCom = genPlus.sub(shareToPlyr);
+        } else {
+            shareToCom = 0;
+        }
+        return (plyr, shareToPlyr, shareToCom);
+    }
+    
     function buyWithVault(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
         uint plyrId = getOrNewPlayer(data, addr);
         Player memory plyr = data.plyrs[plyrId];
@@ -377,7 +388,19 @@ library YAMDAlg {
         buy(data, addr, value, partnerLink, friendLink);
     }
     
+    // 提款
+    // 這個方法會修改到玩家的錢包，呼叫時一定要把回傳的值(錢)發送給玩家
     function withdraw(Data storage data, address addr) internal returns (uint){
+        // 觸發結算endRound
+        // 有2個地方觸發結算
+        // 1. buy
+        // 2. withdraw
+        if(data.state == GameState.Playing){
+            RoundInfo memory info = getRoundInfo(data);
+            if(info.remainTime == 0){
+                endRound(data);
+            }
+        }
         uint id = getPlayerId(data, addr);
         if(id == 0){
             return 0;
