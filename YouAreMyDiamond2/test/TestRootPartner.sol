@@ -107,7 +107,7 @@ contract TestRootPartner {
         }
     }
     
-    function testCircleFriendLink() public {
+    function testCircleFriendLinkWithoutCrash() public {
         // 先新增玩家!!
         data.getOrNewPlayer(userE);
         data.buy(userF, 1 ether, 0, data.plyrs[data.getPlayerId(userE)].friendLink);
