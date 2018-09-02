@@ -4,9 +4,9 @@ import "./YAMDAlg.sol";
 import "./PartnerMgr.sol";
 import "./lib/SafeMath.sol";
 
-interface IFowarder{
+/*interface IFowarder{
     function deposit() external payable returns (bool);
-}
+}*/
 
 contract YAMDMain {
     using YAMDAlg for YAMDAlg.Data;
@@ -47,7 +47,7 @@ contract YAMDMain {
     //
     // 分潤
     //
-    uint constant DepositGate = 1 ether;
+    uint constant DepositGate = 0;
     
     address public comAddr;
     function setComAddr(address addr) onlyOwner() public {
@@ -59,7 +59,8 @@ contract YAMDMain {
         }
         if(data.vaults[data.comVaultId] >= DepositGate){
             uint value = data.withdrawCom();
-            require(IFowarder(comAddr).deposit.value(value)(), "depositToCom fail");
+            comAddr.transfer(value);
+            //require(IFowarder(comAddr).deposit.value(value)(), "depositToCom fail");
         }
     }
     
@@ -73,7 +74,8 @@ contract YAMDMain {
         }
         if(data.vaults[data.pubVaultId] >= DepositGate){
             uint value = data.withdrawPub();
-            require(IFowarder(pubAddr).deposit.value(value)(), "depositToPub fail");
+            pubAddr.transfer(value);
+            //require(IFowarder(pubAddr).deposit.value(value)(), "depositToPub fail");
         }
     }
     

@@ -36,7 +36,7 @@ library YAMDAlg {
         address addr;
         uint key;                   // 所買鑽石。固定點小數，回合結束必須歸零
         uint alreadyShareFromKey;   // 已取得的鑽石分紅。用來計算最大分紅，回合結束必須歸零
-        bytes32 usedPartnerLink;    // 所使用的合夥人連結
+        //bytes32 usedPartnerLink;    // 所使用的合夥人連結
         bytes32 usedFriendLink;    // 所使用的推薦人連結
         bytes32 friendLink;
         uint winVaultId;
@@ -198,7 +198,7 @@ library YAMDAlg {
         uint shareToCom;
     }
     
-    function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(bool) {
+    function buy(Data storage data, address addr, uint value, bytes32 /* partnerLink */, bytes32 friendLink) internal returns(bool) {
         // 不能低於最低價
         require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
         buyLocal memory local;
@@ -222,9 +222,9 @@ library YAMDAlg {
         local.plyr = data.plyrs[local.plyrId];
         local.plyr.addr = addr;
         // 只能使用之前綁定的 
-        if(local.plyr.usedPartnerLink == 0){
+        /*if(local.plyr.usedPartnerLink == 0){
             local.plyr.usedPartnerLink = partnerLink;
-        }
+        }*/
         // 只能使用之前綁定的
         if(local.plyr.usedFriendLink == 0){
             local.plyr.usedFriendLink = friendLink;
@@ -245,13 +245,15 @@ library YAMDAlg {
         reduceHistory(data);
         
         // 處理合夥人
-        if(local.plyr.usedPartnerLink != 0){
+        /*if(local.plyr.usedPartnerLink != 0){
             // 若使用合夥人連結，直接找出合夥人
-            local.partner = data.partnerMgr.getPartner(local.plyr.addr);
+            local.partner = data.partnerMgr.getPartnerByLink(local.plyr.usedPartnerLink);
         } else {
             // 若沒使用合夥人連結，找出最根部的合夥人
             local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
-        }
+        }*/
+        // 找出最根部的合夥人
+        local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
         // 合夥人不能是自己 || 沒找到專案
         if(local.partner.addr == addr || local.partner.proj == PartnerMgr.Project.Unknow){
             // 不是合夥人的下線，分紅給公司
@@ -500,12 +502,13 @@ library YAMDAlg {
         // 公益分紅
         local.pub = local.pot.mul(PotPubRate) / 100;
         // 套用分紅
-        // 最後1位玩家
+        // 最後1位玩家ver1.
         if(data.lastPlyrId != 0){
             local.lastPlyrId = data.lastPlyrId;
             local.lastPlyr = data.plyrs[local.lastPlyrId];
             data.vaults[local.lastPlyr.winVaultId] = data.vaults[local.lastPlyr.winVaultId].add(local.win);
         }
+        // 最後1位玩家ver2.
         /*if(data.history.length > 0){
             local.lastPlyrId = data.history[data.history.length-1].plyrId;
             local.lastPlyr = data.plyrs[local.lastPlyrId];
@@ -538,14 +541,16 @@ library YAMDAlg {
             }
         }
         // 合夥人
-        if(local.plyr.usedPartnerLink != 0){
+        /*if(local.plyr.usedPartnerLink != 0){
             // 若使用合夥人連結，直接找出合夥人
-            local.partner = data.partnerMgr.getPartner(local.plyr.addr);
+            local.partner = data.partnerMgr.getPartnerByLink(local.plyr.usedPartnerLink);
         } else {
             // 若沒使用合夥人連結，找出最根部的合夥人
             local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
         }
-        
+        */
+        // 找出最根部的合夥人
+        local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
         if(local.partner.proj == PartnerMgr.Project.Unknow){
             // 如果不是合夥人的下線
             // 公益
@@ -593,7 +598,9 @@ library YAMDAlg {
         if(data.endTime >= now){
             remainTime = data.endTime.sub(now);
         }
+        // ver1.
         uint lastPlyrId = data.lastPlyrId;
+        // ver2.
         /*uint lastPlyrId = 0;
         // 避免error
         if(data.history.length > 0){
