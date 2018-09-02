@@ -97,10 +97,14 @@ contract YAMDMain {
     }
     
     function depositAuto(YAMDAlg.Data storage data) private {
-        uint com = data.withdrawCom();
-        uint pub = data.withdrawPub();
-        comAddr.transfer(com);
-        pubAddr.transfer(pub);
+        if(comAddr != 0){
+            uint com = data.withdrawCom();
+            comAddr.transfer(com);
+        }
+        if(pubAddr != 0){
+            uint pub = data.withdrawPub();
+            pubAddr.transfer(pub);
+        }
     }
     
     // 
