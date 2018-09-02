@@ -4,6 +4,10 @@ import "./YAMDAlg.sol";
 import "./PartnerMgr.sol";
 import "./lib/SafeMath.sol";
 
+interface IFowarder{
+    function deposit() external payable returns (bool);
+}
+
 contract YAMDMain {
     using YAMDAlg for YAMDAlg.Data;
     using PartnerMgr for PartnerMgr.Data;
@@ -39,6 +43,43 @@ contract YAMDMain {
     }
     function getInfo() public view returns (Phase){
         return (phase);
+    }
+    //
+    // 分潤
+    //
+    uint constant DepositGate = 1 ether;
+    
+    address public comAddr;
+    function setComAddr(address addr) onlyOwner() public {
+        comAddr = addr;
+    }
+    function depositToCom(YAMDAlg.Data storage data) private {
+        if(comAddr == 0){
+            return;
+        }
+        if(data.vaults[data.comVaultId] >= DepositGate){
+            uint value = data.withdrawCom();
+            require(IFowarder(comAddr).deposit.value(value)(), "depositToCom fail");
+        }
+    }
+    
+    address public pubAddr;
+    function setPubAddr(address addr) onlyOwner() public {
+        pubAddr = addr;
+    }
+    function depositToPub(YAMDAlg.Data storage data) private {
+        if(pubAddr == 0){
+            return;
+        }
+        if(data.vaults[data.pubVaultId] >= DepositGate){
+            uint value = data.withdrawPub();
+            require(IFowarder(pubAddr).deposit.value(value)(), "depositToPub fail");
+        }
+    }
+    
+    function depositAuto(YAMDAlg.Data storage data) private {
+        depositToCom(data);
+        depositToPub(data);
     }
     // 
     // 主業務
@@ -96,10 +137,11 @@ contract YAMDMain {
         return PartnerMgr.projFee(data.partnerMgr, proj);
     }
     
-    function buy() onlyPhase(Phase.Open) isHuman() public payable {
+    function buy() isHuman() onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
+        depositAuto(data);
         emit onMsg("buy");
     }
     
@@ -107,19 +149,26 @@ contract YAMDMain {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
+        depositAuto(data);
         emit onMsg("buyWithFriendLink");
     }
     
-    function vaultBuy(uint eth) onlyPhase(Phase.Open) isHuman() public {
+    function vaultBuy(uint eth) isHuman() onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, 0);
+        depositAuto(data);
         emit onMsg("vaultBuy");
     }
     
     function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) isHuman() onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, friendLink);
+        depositAuto(data);
         emit onMsg("vaultBuyWithFriendLink");
+    }
+    
+    function depositManual() onlyOwner() public {
+        depositAuto(data);
     }
     
     function getKeyPrice(uint keyAmount) public view returns (uint){

@@ -198,7 +198,7 @@ library YAMDAlg {
         uint shareToCom;
     }
     
-    function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
+    function buy(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(bool) {
         // 不能低於最低價
         require(value >= KeyEthAtStart, "value must >= KeyEthAtStart");
         buyLocal memory local;
@@ -212,7 +212,7 @@ library YAMDAlg {
                 // 就當這次沒買鑽石了
                 data.vaults[local.plyr.genVaultId] = data.vaults[local.plyr.genVaultId].add(value.mul(FixPointFactor));
                 endRound(data);
-                return;
+                return true;
             }
         }
         // 買到的鑽石，有小數點
@@ -365,6 +365,7 @@ library YAMDAlg {
                 }
             }
         }
+        return false;
     }
     
     function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
@@ -450,6 +451,18 @@ library YAMDAlg {
         data.vaults[plyr.winVaultId] = 0;
         data.vaults[plyr.genVaultId] = 0;
         data.vaults[plyr.friVaultId] = 0;
+        return total / FixPointFactor;
+    }
+    
+    function withdrawCom(Data storage data) internal returns (uint){
+        uint total = data.vaults[data.comVaultId];
+        data.vaults[data.comVaultId] = 0;
+        return total / FixPointFactor;
+    }
+    
+    function withdrawPub(Data storage data) internal returns (uint){
+        uint total = data.vaults[data.pubVaultId];
+        data.vaults[data.pubVaultId] = 0;
         return total / FixPointFactor;
     }
  
