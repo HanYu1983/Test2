@@ -20,6 +20,16 @@ contract TestShare {
     address constant userB = 0x1;
     uint constant FixPointFactor = 1000000000;
     
+    function testShareToCom() public {
+        uint eth = 1;
+        uint nowEth;
+        
+        data.shareToCom(eth);
+        nowEth = data.withdrawCom();
+        
+        Assert.equal(eth, nowEth, "nowEth must be 1");
+    }
+    
     function testShareLimit() public {
         YAMDAlg.PlayerInfo memory plyrInfo;
         YAMDAlg.Player memory plyr;

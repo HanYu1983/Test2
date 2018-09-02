@@ -79,4 +79,10 @@ contract TestFns {
         data.withdraw(user);
         data.withdraw(user);
     }
+    
+    function testOther() public {
+        data.shareToCom(1);
+        data.withdrawCom();
+        data.withdrawPub();
+    }
 }
