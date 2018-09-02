@@ -450,22 +450,39 @@ library YAMDAlg {
         uint total = data.vaults[plyr.winVaultId]
             .add(data.vaults[plyr.genVaultId])
             .add(data.vaults[plyr.friVaultId]);
+        total = total  / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
         data.vaults[plyr.winVaultId] = 0;
         data.vaults[plyr.genVaultId] = 0;
         data.vaults[plyr.friVaultId] = 0;
-        return total / FixPointFactor;
+        return total;
+    }
+    
+    function shareToCom(Data storage data, uint value) internal {
+        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(value.mul(FixPointFactor));
     }
     
     function withdrawCom(Data storage data) internal returns (uint){
-        uint total = data.vaults[data.comVaultId];
+        uint total = data.vaults[data.comVaultId] / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
         data.vaults[data.comVaultId] = 0;
-        return total / FixPointFactor;
+        return total;
     }
     
     function withdrawPub(Data storage data) internal returns (uint){
-        uint total = data.vaults[data.pubVaultId];
+        uint total = data.vaults[data.pubVaultId] / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
         data.vaults[data.pubVaultId] = 0;
-        return total / FixPointFactor;
+        return total;
     }
  
     struct endRoundLocal{

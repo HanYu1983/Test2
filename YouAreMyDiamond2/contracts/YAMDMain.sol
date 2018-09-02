@@ -47,6 +47,7 @@ contract YAMDMain {
     //
     // 分潤
     //
+    /*
     uint constant DepositGate = 0;
     
     address public comAddr;
@@ -83,6 +84,25 @@ contract YAMDMain {
         depositToCom(data);
         depositToPub(data);
     }
+    */
+    
+    address public comAddr;
+    function setComAddr(address addr) onlyOwner() public {
+        comAddr = addr;
+    }
+    
+    address public pubAddr;
+    function setPubAddr(address addr) onlyOwner() public {
+        pubAddr = addr;
+    }
+    
+    function depositAuto(YAMDAlg.Data storage data) private {
+        uint com = data.withdrawCom();
+        uint pub = data.withdrawPub();
+        comAddr.transfer(com);
+        pubAddr.transfer(pub);
+    }
+    
     // 
     // 主業務
     //
@@ -122,7 +142,8 @@ contract YAMDMain {
         if(data.partnerMgr.register(user, value, proj)){
             // 重要：新增玩家!!
             data.getOrNewPlayer(user);
-            // TODO 錢要流向公司
+            // 錢要流向公司
+            data.shareToCom(value);
         } else {
             // 還給玩家
             user.transfer(value);
