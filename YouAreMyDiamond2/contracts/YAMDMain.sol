@@ -64,7 +64,7 @@ contract YAMDMain {
         return true;
     }
     
-    function registerPartner(uint level) public payable{
+    function registerPartner(uint level) isHuman() public payable{
         address user = msg.sender;
         uint value = msg.value;
         PartnerMgr.Project proj = PartnerMgr.Project.One;
@@ -96,27 +96,27 @@ contract YAMDMain {
         return PartnerMgr.projFee(data.partnerMgr, proj);
     }
     
-    function buy() onlyPhase(Phase.Open) public payable {
+    function buy() onlyPhase(Phase.Open) isHuman() public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
         emit onMsg("buy");
     }
     
-    function buyWithFriendLink(bytes32 friendLink) onlyPhase(Phase.Open) public payable {
+    function buyWithFriendLink(bytes32 friendLink) isHuman() onlyPhase(Phase.Open) public payable {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
         emit onMsg("buyWithFriendLink");
     }
     
-    function vaultBuy(uint eth) onlyPhase(Phase.Open) public {
+    function vaultBuy(uint eth) onlyPhase(Phase.Open) isHuman() public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, 0);
         emit onMsg("vaultBuy");
     }
     
-    function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) onlyPhase(Phase.Open) public {
+    function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) isHuman() onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, friendLink);
         emit onMsg("vaultBuyWithFriendLink");
@@ -167,6 +167,16 @@ contract YAMDMain {
     
     function kill() onlyOwner() public {
         selfdestruct(msg.sender);
+    }
+    
+    // common 
+    modifier isHuman() {
+        address _addr = msg.sender;
+        uint256 _codeLength;
+        
+        assembly {_codeLength := extcodesize(_addr)}
+        require(_codeLength == 0, "sorry humans only");
+        _;
     }
     
     /*
