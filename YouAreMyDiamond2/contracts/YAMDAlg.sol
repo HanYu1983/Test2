@@ -455,6 +455,7 @@ library YAMDAlg {
         if(total == 0){
             return 0;
         }
+        // 取款後小數點不保留，尾數算在合約擁有者上
         data.vaults[plyr.winVaultId] = 0;
         data.vaults[plyr.genVaultId] = 0;
         data.vaults[plyr.friVaultId] = 0;
@@ -471,7 +472,8 @@ library YAMDAlg {
         if(total == 0){
             return 0;
         }
-        data.vaults[data.comVaultId] = 0;
+        // 保留小數點
+        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].sub(total.mul(FixPointFactor));
         return total;
     }
     
@@ -481,7 +483,8 @@ library YAMDAlg {
         if(total == 0){
             return 0;
         }
-        data.vaults[data.pubVaultId] = 0;
+        // 保留小數點
+        data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].sub(total.mul(FixPointFactor));
         return total;
     }
  
