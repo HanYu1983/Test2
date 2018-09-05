@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "./lib/SafeMath.sol";
+import "./IForwarder.sol";
 
-contract YAMDDistribute {
+contract YAMDDistribute is IForwarder{
     using SafeMath for *;
     
     address public owner;
@@ -19,6 +20,10 @@ contract YAMDDistribute {
     function kill() onlyOwner() public {
         selfdestruct(msg.sender);
     }
+    
+    function deposit() external payable{
+        distribute();
+    } 
     //
     //
     //
@@ -33,7 +38,7 @@ contract YAMDDistribute {
         targets.push(ShareTarget(0x0, 5));
     }
     
-    function distribute() onlyOwner() public payable{
+    function distribute() public payable{
         uint value = msg.value;
         uint remain = value;
         uint i;

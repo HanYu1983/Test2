@@ -3,10 +3,7 @@ pragma solidity ^0.4.24;
 import "./YAMDAlg.sol";
 import "./PartnerMgr.sol";
 import "./lib/SafeMath.sol";
-
-/*interface IFowarder{
-    function deposit() external payable returns (bool);
-}*/
+import "./IForwarder.sol";
 
 contract YAMDMain {
     using YAMDAlg for YAMDAlg.Data;
@@ -99,11 +96,11 @@ contract YAMDMain {
     function depositAuto(YAMDAlg.Data storage data) private {
         if(comAddr != 0){
             uint com = data.withdrawCom();
-            comAddr.transfer(com);
+            IForwarder(comAddr).deposit.value(com)();
         }
         if(pubAddr != 0){
             uint pub = data.withdrawPub();
-            pubAddr.transfer(pub);
+            IForwarder(pubAddr).deposit.value(pub)();
         }
     }
     
@@ -168,7 +165,6 @@ contract YAMDMain {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, 0);
-        depositAuto(data);
         emit onMsg("buy");
     }
     
@@ -176,25 +172,22 @@ contract YAMDMain {
         address user = msg.sender;
         uint eth = msg.value;
         data.buy(user, eth, 0, friendLink);
-        depositAuto(data);
         emit onMsg("buyWithFriendLink");
     }
     
     function vaultBuy(uint eth) isHuman() onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, 0);
-        depositAuto(data);
         emit onMsg("vaultBuy");
     }
     
     function vaultBuyWithFriendLink(uint eth, bytes32 friendLink) isHuman() onlyPhase(Phase.Open) public {
         address user = msg.sender;
         data.buyWithVault(user, eth, 0, friendLink);
-        depositAuto(data);
         emit onMsg("vaultBuyWithFriendLink");
     }
     
-    function depositManual() onlyOwner() public {
+    function distribute() onlyOwner() public {
         depositAuto(data);
     }
     
