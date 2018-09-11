@@ -20,13 +20,8 @@ contract TestRootPartner {
     address constant userB = 0x1;
     address constant userC = 0x2;
     address constant userD = 0x3;
-    address constant userE = 0x4;
-    address constant userF = 0x5;
-    address constant userG = 0x6;
-    address constant userH = 0x7;
-    address constant userI = 0x8;
     
-    function testShare() public {
+    function test() public {
         bool isValid;
         //bytes32 userAPartnerLink;
         uint parVault;
@@ -44,6 +39,10 @@ contract TestRootPartner {
         // 重要：新增玩家!!
         // 請注意YAMDMain.sol中的註冊方法中有沒有這行!!
         data.getOrNewPlayer(userA);
+        
+        lastParVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
+        lastComVault = data.vaults[data.comVaultId];
+        lastFriVault = data.vaults[data.plyrs[data.getPlayerId(userA)].friVaultId];
         
         //(isValid, userAPartnerLink) = data.partnerMgr.getLink(userA);
         //Assert.equal(isValid, true, "must can register");
@@ -105,18 +104,5 @@ contract TestRootPartner {
             lastParVault = parVault;
             lastComVault = comVault;
         }
-    }
-    
-    function testCircleFriendLinkWithoutCrash() public {
-        // 先新增玩家!!
-        data.getOrNewPlayer(userE);
-        data.buy(userF, 1 ether, 0, data.plyrs[data.getPlayerId(userE)].friendLink);
-        data.buy(userE, 1 ether, 0, data.plyrs[data.getPlayerId(userF)].friendLink);
-        
-        // 先新增玩家!!
-        data.getOrNewPlayer(userG);
-        data.buy(userH, 1 ether, 0, data.plyrs[data.getPlayerId(userG)].friendLink);
-        data.buy(userI, 1 ether, 0, data.plyrs[data.getPlayerId(userH)].friendLink);
-        data.buy(userG, 1 ether, 0, data.plyrs[data.getPlayerId(userI)].friendLink);
     }
 }
