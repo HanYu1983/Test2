@@ -1,7 +1,7 @@
 var model = model || {};
 (function(module){
     var fixPointFactor = 1000000000;
-    var ContractAddress = "0x55faeeef207692bb38b87c11f4de48ad58a75757"
+    var ContractAddress = "0xd0fb80a7b02377ff5c389c02c01271690a9336f5"
     var contract = 0
     // tx: https://etherscan.io/tx/0xc62495bb98256669d6ac760c9352c23ce21a94d6ff2e62d2b29f4d90a337bc86
     //var distributeAddress = "0xd240eb94e0d4e77c3c0f8c7343d4601673accc4e"

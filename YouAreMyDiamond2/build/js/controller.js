@@ -77,11 +77,13 @@ var controller = controller || {};
                   (async function(){
                       await updateKeyPrice(vueModel.temp.keyAmount)
                       
-                      var totalEth = 
+                      var totalEth = Math.round(
                           (vueModel.playerInfo.win +
                           vueModel.playerInfo.gen +
                           vueModel.playerInfo.fri +
-                          vueModel.playerInfo.par) / model.fixPointFactor;
+                          vueModel.playerInfo.par) * oneEther
+                      );
+                      
                       var useEth = vueModel.temp.keyPriceWei;
                       if(useEth > totalEth){
                           alert("eth not enougth. your vault is "+ Math.round(totalEth))
@@ -92,7 +94,7 @@ var controller = controller || {};
                       try{
                           if(vueModel.temp.useFriend){
                               var link = vueModel.temp.usedFriendLink
-                              await contract.vaultBuyWithFriendLink(useEth, link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
+                              await contract.vaultBuyWithFriendLink(useEth, link, {gas: 2100000})
                           }else{
                               await contract.vaultBuy(useEth, {gas: 2100000})
                           }
