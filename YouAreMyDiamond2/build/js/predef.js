@@ -34,4 +34,9 @@ function byteStr2str(byteStr){
   return ret
 }
 
+function formatTime(seconds){
+  var date = new Date(seconds*1000)
+  return date.getUTCHours()+":"+date.getUTCMinutes()+":"+date.getUTCSeconds() 
+}
+
 var oneEther = 1000000000000000000;

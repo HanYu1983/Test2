@@ -2,7 +2,20 @@
 
 var controller = controller || {};
 (function(module){
-    function init(){
+    
+    function setLink(link){
+        $.cookie('link', link, { expires: 30, path: '/' });
+    }
+    
+    function getLink(){
+        return $.cookie('link');
+    }
+    
+    function isUseLink(){
+        return !!getLink()
+    }
+    
+    function startApp(){
         var keyAmountChangeRunner = 0
     
         var vueModel = new Vue({
@@ -12,11 +25,9 @@ var controller = controller || {};
                   keyAmount: 1,
                   keyPriceWei:0,
                   keyPriceEth:0.0,
-                  remainTimeFormat:"",
-                  partnerLink:"",
-                  usedPartnerLink: "",
-                  usedFriendLink: "",
-                  useFriend: false
+                  remainTime:0,
+                  usedFriendLink: getLink(),
+                  useFriend: isUseLink()
               },
               roundInfo: {
                 "rnd": 0,
@@ -36,6 +47,11 @@ var controller = controller || {};
                   fri: 0,
                   par: 0,
                   friendLink: "link"
+              }
+          },
+          filters:{
+              formatTime: (str)=>{
+                  return window.formatTime(parseInt(str))
               }
           },
           methods:{
@@ -60,14 +76,25 @@ var controller = controller || {};
               vaultBuy: (keyAmount)=>{
                   (async function(){
                       await updateKeyPrice(vueModel.temp.keyAmount)
+                      
+                      var totalEth = 
+                          (vueModel.playerInfo.win +
+                          vueModel.playerInfo.gen +
+                          vueModel.playerInfo.fri +
+                          vueModel.playerInfo.par) / model.fixPointFactor;
+                      var useEth = vueModel.temp.keyPriceWei;
+                      if(useEth > totalEth){
+                          alert("eth not enougth. your vault is "+ Math.round(totalEth))
+                          return
+                      }
                   
                       var contract = model.getContract()
                       try{
                           if(vueModel.temp.useFriend){
                               var link = vueModel.temp.usedFriendLink
-                              await contract.vaultBuyWithFriendLink(vueModel.temp.keyPriceWei, link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
+                              await contract.vaultBuyWithFriendLink(useEth, link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
                           }else{
-                              await contract.vaultBuy(vueModel.temp.keyPriceWei, {gas: 2100000})
+                              await contract.vaultBuy(useEth, {gas: 2100000})
                           }
                           await loadData()
                       }catch(e){
@@ -171,12 +198,14 @@ var controller = controller || {};
                 if(remainSecond < 0){
                     remainSecond = 0
                 }
-                var date = new Date(remainSecond*1000)
-                vueModel.temp.remainTimeFormat = date.getUTCHours()+":"+date.getUTCMinutes()+":"+date.getUTCSeconds()
+                vueModel.temp.remainTime = remainSecond
             }
             setInterval(update, 1000)
         }
         start()
     }
-    module.init = init
+    
+    module.setLink = setLink
+    module.getLink = getLink
+    module.startApp = startApp
 })(controller)

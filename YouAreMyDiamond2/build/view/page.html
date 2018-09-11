@@ -34,7 +34,7 @@
     </div>
     <div class="time textshadow">
       <h4>下订倒数</h4>
-      <div>{{ temp.remainTimeFormat }}</div>
+      <div>{{ temp.remainTime | formatTime }}</div>
     </div>
     <a v-on:click="buy(1)">
       1x
@@ -69,6 +69,7 @@
               </tr>
             </table>
             <button v-on:click="buy(temp.keyAmount)">确认购买</button>
+            <button v-on:click="vaultBuy(temp.keyAmount)">錢包购买</button>
           </div>
 
           <div class="tabBox" id="tab2">
@@ -128,7 +129,7 @@
               </li>
               <li>
                 <label for="">游戏剩余时间：</label>
-                <span>{{ temp.remainTimeFormat }}</span>
+                <span>{{ temp.remainTime | formatTime }}</span>
               </li>
               <li>
                 <label for="">彩池：</label>
@@ -145,12 +146,12 @@
 
           <div class="tabBox" id="tab5">
             <ul class="stat">
-              <li><label>投资总额</label><span class="textshadow">未實作</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>已分发奖金</label><span class="textshadow">未實作</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>已延长时间</label><span class="textshadow">未實作</span><i class="textshadow">年</i></li>
+              <li><label>投资总额</label><span class="textshadow">{{ playerInfo.eth }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>已分发奖金</label><span class="textshadow">{{ playerInfo.alreadyShareFromKey }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>已延长时间</label><span class="textshadow">{{ roundInfo.totalExtendTime | formatTime }}</span><i class="textshadow"></i></li>
             </ul>
             <div class="timeBox">
-              <span>未實作</span>
+              <span>{{ roundInfo.totalExtendTime }}</span>
               <i>秒</i>
             </div>
           </div>
@@ -171,17 +172,31 @@
   <script src="../assets/js/main.js"></script>
   <!-- 以上是view -->
   <!-- 以下是model/controller-->
+  <!-- 注意：不要更新這裡使用的jquery版本 -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
   <script src="../js/truffle-contract.js"></script>
   <script src="../js/web3.min.js"></script>
-  <script src="../js/predef.js"></script>
-  <script src="../js/model.js"></script>
-  <script src="../js/controller.js"></script>
+  <script src="../js/predef.js?v=2"></script>
+  <script src="../js/model.js?v=9"></script>
+  <script src="../js/controller.js?v=10"></script>
   <script>
+      // 處理推薦人連結
+      var useLink = url("?link")
+      if(!!useLink){
+          controller.setLink(useLink)
+      } else {
+          useLink = controller.getLink();
+          if(!!useLink){
+              controller.setLink(useLink)
+              window.location.href = window.location.href + "?link=" + useLink
+          }
+      }
       // 必須使用jquery的$()，不然會覆寫到別人的window.onload
-      $(controller.init)
+      $(controller.startApp)
   </script>
 </body>
 
