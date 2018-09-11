@@ -51,6 +51,7 @@ var controller = controller || {};
                           }else{
                               await contract.buy({value: vueModel.temp.keyPriceWei, gas: 2100000})
                           }
+                          await loadData()
                       }catch(e){
                           console.log(e)
                       }
@@ -68,6 +69,7 @@ var controller = controller || {};
                           }else{
                               await contract.vaultBuy(vueModel.temp.keyPriceWei, {gas: 2100000})
                           }
+                          await loadData()
                       }catch(e){
                           console.log(e)
                       }
@@ -86,6 +88,7 @@ var controller = controller || {};
                       var contract = model.getContract()
                       try{
                           await contract.withdraw()
+                          await loadData()
                       }catch(e){
                           console.log(e)
                       }
@@ -94,17 +97,6 @@ var controller = controller || {};
               addKeyAmount:(keyAmount)=>{
                   vueModel.temp.keyAmount += parseFloat(keyAmount)
                   vueModel.onKeyAmountChange()
-              },
-              getPartnerLink: ()=>{
-                  (async function(){
-                      var contract = model.getContract()
-                      try{
-                          var link = await contract.getPartnerLink()
-                          vueModel.temp.partnerLink = link
-                      }catch(e){
-                          console.log(e)
-                      }
-                  })()
               },
               registerPartner: (level)=>{
                   (async function(){
@@ -140,7 +132,7 @@ var controller = controller || {};
             keyAmount = keyAmount + 0.0001;
             var contract = model.getContract()
             var price = await contract.getKeyPrice(keyAmount * model.fixPointFactor)
-            //console.log(vueModel)
+
             vueModel.temp.keyPriceWei = price.toNumber()
             vueModel.temp.keyPriceEth = vueModel.temp.keyPriceWei / oneEther
         }
@@ -168,7 +160,7 @@ var controller = controller || {};
                     console.log(msg)
                     if(msg.indexOf("buy") != -1){
                         async()=>{
-                            await loadData()
+                            // message alert
                         }
                     }
                 }

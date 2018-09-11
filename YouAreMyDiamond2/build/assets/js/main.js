@@ -8,7 +8,6 @@ $(function(){
         tabGroup = '#'+$this.parents('.tab').data('tabgroup'),
         others = $this.closest('li').siblings(),
         target = $this.attr('href');
-    console.log(others)
     others.removeClass('active');
     $this.parents('li').addClass('active');
     $(tabGroup).children('div').hide();
