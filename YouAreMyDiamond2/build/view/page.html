@@ -53,10 +53,10 @@
           <div class="tabBox" id="tab1">
             <h4>立即购买钻石 </h4>
             <span>立即购买钻石，加入钻石竞标会！</span>
-            <div class="f-right"><label for="">当前钻价:</label><span>{{temp.keyPriceEth}}</span><span>ＥＴＨ</span></div>
+            <!--<div class="f-right"><label for="">当前钻价:</label><span>{{temp.keyPriceEth}}</span><span>ＥＴＨ</span></div>-->
             <div class="greenBox">
               <img src="../assets/img/symbols.png" alt="">
-              <div><input type="text" v-model="temp.keyAmount">颗钻石</div>
+              <div><input type="text" v-model="temp.keyAmount" v-on:keyup="onKeyAmountChange()">颗钻石</div>
               <div>约为<span>{{temp.keyPriceEth}}</span>ETH</div>
             </div>
             <table class="greenTable">
@@ -90,7 +90,8 @@
                 <span>{{ playerInfo.par }}</span>
               </li>
             </ul>
-            <button class="right">复制</button>
+            <input id="friendLink" v-model="playerInfo.friendLink" hidden>
+            <button class="right" v-on:click="copyLink()">复制推薦連結</button>
           </div>
 
           <div class="tabBox" id="tab3">
@@ -106,8 +107,8 @@
               <li><span>付费<b>1</b>ETH 成为合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
             </ul>
             <div class="btnSide">
-              <button>注册成为普通合伙人</button>
-              <button>注册成为高级合伙人</button>
+              <button v-on:click="registerPartner(1)">注册成为普通合伙人</button>
+              <button v-on:click="registerPartner(2)">注册成为高级合伙人</button>
             </div>
           </div>
           
@@ -134,11 +135,10 @@
                 <span>{{ roundInfo.pot }}</span>
               </li>
               <li>
-                <label for="">游戏状态：{{ roundInfo.state }}</label>
-                <ul>
-                  <li><i>1.</i><span>游戏进行中，时间持续倒数</span></li>
-                  <li><i>2.</i><span>前一局已结束，新局开始，等待玩家开局，时间不到数</span></li>
-                </ul>
+                <label for="">游戏状态：
+                    <span v-show="roundInfo.state == 1">游戏进行中，时间持续倒数</span>
+                    <span v-show="roundInfo.state == 0">前一局已结束，新局开始，等待玩家开局，时间不到数</span>
+                </label>
               </li>
             </ul>
           </div>
@@ -241,18 +241,19 @@
       })(model)
       
       function main(){
+          var keyAmountChangeRunner = 0
+          
           var vueModel = new Vue({
             el: '#app',
             data: {
                 temp:{
-                    keyAmount: 1.01,
+                    keyAmount: 1,
                     keyPriceWei:0,
                     keyPriceEth:0.0,
                     remainTimeFormat:"",
                     partnerLink:"",
                     usedPartnerLink: "",
                     usedFriendLink: "",
-                    usePartner: false,
                     useFriend: false
                 },
                 roundInfo: {
@@ -278,13 +279,13 @@
             methods:{
                 buy: (keyAmount)=>{
                     (async function(){
+                        await updateKeyPrice(keyAmount)
+                        
                         var contract = model.getContract()
                         console.log('user...')
                         try{
-                            if(vueModel.temp.usePartner){
-                                var link = vueModel.temp.usedPartnerLink
-                                await contract.buyWithPartnerLink(link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
-                            }else if(vueModel.temp.useFriend){
+                            
+                            if(vueModel.temp.useFriend){
                                 var link = vueModel.temp.usedFriendLink
                                 await contract.buyWithFriendLink(link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
                             }else{
@@ -295,32 +296,16 @@
                         }catch(e){
                             console.log(e)
                         }
-                        
-                        
-                        //0xa6f2ae3a buy
-                        //0x749aa2d9 nextRound
-                        
-                        /*
-                        web3.eth.estimateGas({
-                            to: "", 
-                            data: "0xa6f2ae3a"
-                        }, (ret)=>{
-                            console.log(ret)
-                        });
-                        */
-                        
                     })()
                 },
                 vaultBuy: (keyAmount)=>{
                     (async function(){
+                        await updateKeyPrice(vueModel.temp.keyAmount)
+                        
                         var contract = model.getContract()
                         console.log('user...')
                         try{
-                            
-                            if(vueModel.temp.usePartner){
-                                var link = vueModel.temp.usedPartnerLink
-                                await contract.vaultBuyWithPartnerLink(vueModel.temp.keyPriceWei, link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
-                            }else if(vueModel.temp.useFriend){
+                            if(vueModel.temp.useFriend){
                                 var link = vueModel.temp.usedFriendLink
                                 await contract.vaultBuyWithFriendLink(vueModel.temp.keyPriceWei, link, {value: vueModel.temp.keyPriceWei, gas: 2100000})
                             }else{
@@ -355,6 +340,7 @@
                 },
                 addKeyAmount:(keyAmount)=>{
                     vueModel.temp.keyAmount += parseFloat(keyAmount)
+                    vueModel.onKeyAmountChange()
                 },
                 getPartnerLink: ()=>{
                     (async function(){
@@ -378,9 +364,36 @@
                             console.log(e)
                         }
                     })()
+                },
+                onKeyAmountChange: ()=>{
+                    if(keyAmountChangeRunner != 0){
+                        clearInterval(keyAmountChangeRunner)
+                        keyAmountChangeRunner = 0
+                    }
+                    
+                    keyAmountChangeRunner = setTimeout(()=>{
+                        (async function(){
+                            await updateKeyPrice(vueModel.temp.keyAmount)
+                        })()
+                    }, 500)
+                },
+                copyLink: (arg)=>{
+                    var copyText = document.getElementById("friendLink");
+                    copyText.select();
+                    document.execCommand("copy");
+                    alert("Copied the text: " + copyText.value);
                 }
             }
           })
+          
+          var updateKeyPrice = async (keyAmount)=>{
+              keyAmount = keyAmount + 0.0001;
+              var contract = model.getContract()
+              var price = await contract.getKeyPrice(keyAmount * model.fixPointFactor)
+              //console.log(vueModel)
+              vueModel.temp.keyPriceWei = price.toNumber()
+              vueModel.temp.keyPriceEth = vueModel.temp.keyPriceWei / oneEther
+          }
           
           var loadData = async ()=>{
               var contract = model.getContract()
@@ -398,6 +411,7 @@
           var start = async ()=>{
               await model.loadContract()
               await loadData()
+              await updateKeyPrice(vueModel.temp.keyAmount)
               
               var update = ()=>{
                   var remainSecond = --vueModel.roundInfo.remainTime
