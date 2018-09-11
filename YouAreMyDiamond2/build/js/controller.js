@@ -132,7 +132,6 @@ var controller = controller || {};
                       var contract = model.getContract()
                       try{
                           var canRegister = await contract.isCanRegisterPartner()
-                          console.log(canRegister)
                           if(canRegister == false){
                               alert("you can not register")
                               return

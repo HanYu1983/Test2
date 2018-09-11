@@ -117,14 +117,11 @@ contract YAMDMain {
         if(data.hasFriendLinkPointToAddr(user)){
             return false;
         }
-        /*
-        bytes32 ignore;
-        (bool isValid, bytes32 link) = data.partnerMgr.getLink(user);
-        ignore = link;
-        
-        if(isValid){
+        // 已經是合夥人
+        PartnerMgr.Partner memory partner = data.partnerMgr.getPartner(user);
+        if(partner.proj != PartnerMgr.Project.Unknow){
             return false;
-        }*/
+        }
         return true;
     }
     
