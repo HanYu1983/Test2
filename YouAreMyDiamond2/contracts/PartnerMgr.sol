@@ -24,6 +24,7 @@ library PartnerMgr {
     
     struct Data{
         bool open;
+        uint openTime;
         mapping(address=>uint) partnerIdByAddr;
         // mapping(bytes32=>uint) partnerIdByLink;
         Partner[] partners; // 索引為0的位置不用
@@ -34,9 +35,12 @@ library PartnerMgr {
         data.partners.push(ignore);
     }
     
-    function projFee(Data memory data, Project proj) internal pure returns (uint){
+    function projFee(Data storage data, Project proj) internal view returns (uint){
         require(proj != Project.Unknow, "you must select a project");
-        if(data.open){
+        bool shouldPayMore;
+        
+        shouldPayMore = data.open && (now - data.openTime >= 31 days);
+        if(shouldPayMore){
             if(proj == Project.One){
                 return Fee1af;
             }
@@ -110,6 +114,7 @@ library PartnerMgr {
     
     function open(Data storage data) internal {
         data.open = true;
+        data.openTime = now;
     }
     /*
     // 不使用
