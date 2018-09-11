@@ -74,8 +74,11 @@
         var model = model || {};
         (function(module){
             var fixPointFactor = 1000000000;
-            var ContractAddress = "0xd9e7e1a4f723f5d45f02067c385ba4287755305d"  // kovan testnet
+            //var ContractAddress = "0xd9e7e1a4f723f5d45f02067c385ba4287755305d"  // kovan testnet
+            var ContractAddress = "0xf71b622b854222fabaeaab68c4d18c0ff88ee46e"
             var contract = 0
+            // tx: https://etherscan.io/tx/0xc62495bb98256669d6ac760c9352c23ce21a94d6ff2e62d2b29f4d90a337bc86
+            //var distributeAddress = "0xd240eb94e0d4e77c3c0f8c7343d4601673accc4e"
             
             async function loadContract(){
                 return $.getJSON('contracts/YAMDMain.json', function(data) {
