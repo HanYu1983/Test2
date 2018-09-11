@@ -9,32 +9,51 @@ library YAMDAlg {
     using KeysCalc for *;
     using PartnerMgr for PartnerMgr.Data;
     
+    // 公司分紅比例(百分之)
     uint8 constant ComRate = 4;
-    uint8 constant Par1Rate = 2;
-    uint8 constant Par2Rate = 4;
+    // 合夥人分紅比例
+    // 單純用來計算合計是否為100
+    uint8 constant ParRate = 4;
+    // 推薦人分紅比例
     uint8 constant FriRate = 10;
+    // 鑽石回饋分紅比例
     uint8 constant GenRate = 62;
+    // 彩池比例
     uint8 constant PotRate = 20;
     
+    // 彩池中領先玩家分紅比例
     uint8 constant PotWinRate = 50;
+    // 彩池中最後百分之1鑽石分紅比例
     uint8 constant PotLastOneRate = 30;
+    // 彩池中推薦人分紅比例
     uint8 constant PotParRate = 10;
+    // 彩池中公益分紅比例
     uint8 constant PotPubRate = 10;
     
-    // 最後?%鑽石的分紅，用來測試用。值應該是1
+    // 最後幾%鑽石的分紅
+    // 用來測試用。值應該是1
     uint8 constant LastWinP = 1;
-    
-    
+    // 鑽石最低價
+    // 這個時不能修改
+    // 公式計算出最低價剛好是這個值
     uint constant KeyEthAtStart = 75 szabo;
-    uint constant FixPointFactor = 1000000000;
+    // 每買一個鑽石的延長時間
     uint constant ExtendTime = 60 seconds;
+    // 剛買第1顆鑽石的起始倒計時間
     uint constant TimeAtStart = 5 minutes;
+    // 最大延長時間
     uint constant MaxTime = 24 hours;
+    // 玩家最大鑽石回饋係數(固定點小數)
     uint constant ShareLimitRate = 2 * FixPointFactor;
+    // 計算固定點小數的係數
+    // 越高越精確
+    // 注意，若修改這個值則前台js部分也要一並修改
+    uint constant FixPointFactor = 1000000000;
     
     struct Player{
         address addr;
         uint key;                   // 所買鑽石。固定點小數，回合結束必須歸零
+        uint eth;
         uint alreadyShareFromKey;   // 已取得的鑽石分紅。用來計算最大分紅，回合結束必須歸零
         //bytes32 usedPartnerLink;    // 所使用的合夥人連結
         bytes32 usedFriendLink;    // 所使用的推薦人連結
@@ -54,6 +73,7 @@ library YAMDAlg {
         uint32 rnd;
         uint startTime;
         uint endTime;
+        uint totalExtendTime;
         
         mapping (address=>uint) plyrIdByAddr;
         mapping (bytes32=>uint) plyrIdByFriendLink;
@@ -78,7 +98,7 @@ library YAMDAlg {
     }
     
     function init(Data storage data) internal {
-        require(ComRate + Par2Rate + FriRate + GenRate + PotRate == 100, "");
+        require(ComRate + ParRate + FriRate + GenRate + PotRate == 100, "");
         require(PotWinRate + PotLastOneRate + PotParRate + PotPubRate == 100, "");
         
         data.comVaultId = genVaultId(data);
@@ -231,6 +251,7 @@ library YAMDAlg {
         }
         // 增加鑽石
         local.plyr.key = local.plyr.key.add(local.keyAmount);
+        local.plyr.eth = local.plyr.eth.add(value.mul(FixPointFactor));
         // 套用新資料!
         // 很多事情要在這行之後處理!
         data.plyrs[local.plyrId] = local.plyr;
@@ -365,6 +386,8 @@ library YAMDAlg {
                 if(data.endTime > data.startTime + MaxTime){
                     data.endTime = data.startTime + MaxTime;
                 }
+                // 記錄所增加的時間
+                data.totalExtendTime = data.totalExtendTime.add(ExtendTime);
             }
         }
         return false;
@@ -397,7 +420,7 @@ library YAMDAlg {
         uint shareToPlyr = genPlus;
         uint shareToCom = 0;
         // 玩家最大鑽石分紅為所買鑽石的2倍
-        uint maxShareFromKey = (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(rateFP);
+        uint maxShareFromKey = plyr.eth.mul(rateFP)/FixPointFactor; // (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(rateFP);
         // 如果超過最大分紅，則只取補足的值
         if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
             shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
@@ -429,64 +452,7 @@ library YAMDAlg {
         buy(data, addr, value, partnerLink, friendLink);
     }
     
-    // 提款
-    // 這個方法會修改到玩家的錢包，呼叫時一定要把回傳的值(錢)發送給玩家
-    function withdraw(Data storage data, address addr) internal returns (uint){
-        // 觸發結算endRound
-        // 有2個地方觸發結算
-        // 1. buy
-        // 2. withdraw
-        if(data.state == GameState.Playing){
-            RoundInfo memory info = getRoundInfo(data);
-            if(info.remainTime == 0){
-                endRound(data);
-            }
-        }
-        uint id = getPlayerId(data, addr);
-        if(id == 0){
-            return 0;
-        }
-        Player memory plyr = data.plyrs[id];
-        uint total = data.vaults[plyr.winVaultId]
-            .add(data.vaults[plyr.genVaultId])
-            .add(data.vaults[plyr.friVaultId]);
-        total = total  / FixPointFactor;
-        // 保留小數點
-        if(total == 0){
-            return 0;
-        }
-        // 取款後小數點不保留，尾數算在合約擁有者上
-        data.vaults[plyr.winVaultId] = 0;
-        data.vaults[plyr.genVaultId] = 0;
-        data.vaults[plyr.friVaultId] = 0;
-        return total;
-    }
     
-    function shareToCom(Data storage data, uint value) internal {
-        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(value.mul(FixPointFactor));
-    }
-    
-    function withdrawCom(Data storage data) internal returns (uint){
-        uint total = data.vaults[data.comVaultId] / FixPointFactor;
-        // 保留小數點
-        if(total == 0){
-            return 0;
-        }
-        // 保留小數點
-        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].sub(total.mul(FixPointFactor));
-        return total;
-    }
-    
-    function withdrawPub(Data storage data) internal returns (uint){
-        uint total = data.vaults[data.pubVaultId] / FixPointFactor;
-        // 保留小數點
-        if(total == 0){
-            return 0;
-        }
-        // 保留小數點
-        data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].sub(total.mul(FixPointFactor));
-        return total;
-    }
  
     struct endRoundLocal{
         uint i;
@@ -592,12 +558,47 @@ library YAMDAlg {
         // 準備下個回合
         for(local.i=1; local.i<data.plyrs.length; ++local.i){
             data.plyrs[local.i].key = 0;
+            data.plyrs[local.i].eth = 0;
             data.plyrs[local.i].alreadyShareFromKey = 0;
         }
         data.lastPlyrId = 0;
         data.history.length = 0;
         data.rnd++;
         data.state = GameState.Idle;
+        data.totalExtendTime = 0;
+    }
+    
+    // 提款
+    // 這個方法會修改到玩家的錢包，呼叫時一定要把回傳的值(錢)發送給玩家
+    function withdraw(Data storage data, address addr) internal returns (uint){
+        // 觸發結算endRound
+        // 有2個地方觸發結算
+        // 1. buy
+        // 2. withdraw
+        if(data.state == GameState.Playing){
+            RoundInfo memory info = getRoundInfo(data);
+            if(info.remainTime == 0){
+                endRound(data);
+            }
+        }
+        uint id = getPlayerId(data, addr);
+        if(id == 0){
+            return 0;
+        }
+        Player memory plyr = data.plyrs[id];
+        uint total = data.vaults[plyr.winVaultId]
+            .add(data.vaults[plyr.genVaultId])
+            .add(data.vaults[plyr.friVaultId]);
+        total = total  / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
+        // 取款後小數點不保留，尾數算在合約擁有者上
+        data.vaults[plyr.winVaultId] = 0;
+        data.vaults[plyr.genVaultId] = 0;
+        data.vaults[plyr.friVaultId] = 0;
+        return total;
     }
     
     struct RoundInfo {
@@ -611,6 +612,7 @@ library YAMDAlg {
         GameState state;
         uint lastPlyrId;
         uint keyAmount;
+        uint totalExtendTime;   // 總延長時間
     }
     
     function getRoundInfo(Data storage data) internal view returns (RoundInfo){
@@ -637,7 +639,8 @@ library YAMDAlg {
             data.vaults[data.pubVaultId],
             data.state,
             lastPlyrId,
-            keyAmount
+            keyAmount,
+            data.totalExtendTime
         );
     }
     
@@ -648,7 +651,8 @@ library YAMDAlg {
         uint friVault;
         uint parVault;
         bytes32 friendLink;
-        uint alreadyShareFromKey;
+        uint alreadyShareFromKey;   // 已分發獎金
+        uint eth;                   // 總投資額
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
@@ -661,7 +665,8 @@ library YAMDAlg {
             data.vaults[plyr.friVaultId],
             data.vaults[plyr.parVaultId],
             plyr.friendLink,
-            plyr.alreadyShareFromKey
+            plyr.alreadyShareFromKey,
+            plyr.eth / FixPointFactor
         );
     }
     
@@ -679,5 +684,31 @@ library YAMDAlg {
             }
         }
         return false;
+    }
+    
+    function shareToCom(Data storage data, uint value) internal {
+        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(value.mul(FixPointFactor));
+    }
+    
+    function withdrawCom(Data storage data) internal returns (uint){
+        uint total = data.vaults[data.comVaultId] / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
+        // 保留小數點
+        data.vaults[data.comVaultId] = data.vaults[data.comVaultId].sub(total.mul(FixPointFactor));
+        return total;
+    }
+    
+    function withdrawPub(Data storage data) internal returns (uint){
+        uint total = data.vaults[data.pubVaultId] / FixPointFactor;
+        // 保留小數點
+        if(total == 0){
+            return 0;
+        }
+        // 保留小數點
+        data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].sub(total.mul(FixPointFactor));
+        return total;
     }
 }
