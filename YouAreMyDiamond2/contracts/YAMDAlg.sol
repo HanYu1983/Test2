@@ -666,7 +666,7 @@ library YAMDAlg {
             data.vaults[plyr.parVaultId],
             plyr.friendLink,
             plyr.alreadyShareFromKey,
-            plyr.eth / FixPointFactor
+            plyr.eth
         );
     }
     
