@@ -29,7 +29,7 @@
     <div class="point">
       <img src="../assets/img/symbols.png" />
       <img src="../assets/img/symbols-arrow.png" alt="">
-      <div class="num">未實作</div>
+      <div class="num">{{ roundInfo.pot/2 }}</div>
       <img src="../assets/img/symbols-ethereum-logo.png">
     </div>
     <div class="time textshadow">
@@ -90,7 +90,6 @@
                 <span>{{ playerInfo.par }}</span>
               </li>
             </ul>
-            <input id="friendLink" v-model="playerInfo.friendLink" hidden>
             <button class="right" v-on:click="copyLink()">复制推薦連結</button>
           </div>
 
@@ -145,12 +144,12 @@
 
           <div class="tabBox" id="tab5">
             <ul class="stat">
-              <li><label>投资总额</label><span class="textshadow">2854.6483</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>已分发奖金</label><span class="textshadow">2854.6483</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>已延长时间</label><span class="textshadow">5.31</span><i class="textshadow">年</i></li>
+              <li><label>投资总额</label><span class="textshadow">未實作</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>已分发奖金</label><span class="textshadow">未實作</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>已延长时间</label><span class="textshadow">未實作</span><i class="textshadow">年</i></li>
             </ul>
             <div class="timeBox">
-              <span>167,514,570</span>
+              <span>未實作</span>
               <i>秒</i>
             </div>
           </div>
@@ -177,6 +176,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.min.js"></script>
   
   <script>
+      const copyToClipboard = str => {
+        const el = document.createElement('textarea');  // Create a <textarea> element
+        el.value = str;                                 // Set its value to the string that you want copied
+        el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+        el.style.position = 'absolute';                 
+        el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+        document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
+        const selected =            
+          document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+            ? document.getSelection().getRangeAt(0)     // Store selection if found
+            : false;                                    // Mark as false to know no selection existed before
+        el.select();                                    // Select the <textarea> content
+        document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+        document.body.removeChild(el);                  // Remove the <textarea> element
+        if (selected) {                                 // If a selection existed before copying
+          document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+          document.getSelection().addRange(selected);   // Restore the original selection
+        }
+      };
+      
+      function byteStr2str(byteStr){
+        var msg = byteStr
+        var [_, parsed] = msg.split('x')
+  
+        var ret = ""
+        for(var i=0; i<parsed.length; i+=2){
+          var token = parsed[i] + parsed[i+1]
+          var tokenI = parseInt(token, 16)
+          if(tokenI != 0){
+            var c = String.fromCharCode(tokenI)
+            ret += c
+          }
+        }
+        return ret
+      }
+      
+  </script>
+  
+  <script>
+      
+      
+      
       // https://ropsten.etherscan.io/tx/0xfb3fd9245ff3461b19301fbfb7016b78f2cfa6e193bb7b2ecbe11c7cc4fd0acd
       
       var oneEther = 1000000000000000000;
@@ -212,9 +253,9 @@
                   "startTime": startTime,
                   "endTime": endTime, 
                   "remainTime": remainTime.toNumber(),
-                  "com": com.dividedBy(model.fixPointFactor).toNumber(),
-                  "pot": pot.dividedBy(model.fixPointFactor).toNumber(),
-                  "pub": pub.dividedBy(model.fixPointFactor).toNumber(),
+                  "com": com.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "pot": pot.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "pub": pub.dividedBy(model.fixPointFactor*oneEther).toNumber(),
                   "state": state.toNumber(),
                   "lastPlyrId": lastPlyrId.toNumber()
               }
@@ -224,13 +265,20 @@
               var info = await contract.getPlayerInfo()
               var [key, win, gen, fri, par, friendLink] = info
               return {
-                  "key": key.dividedBy(model.fixPointFactor).toNumber(),
-                  "win": win.dividedBy(model.fixPointFactor).toNumber(),
-                  "gen": gen.dividedBy(model.fixPointFactor).toNumber(),
-                  "fri": fri.dividedBy(model.fixPointFactor).toNumber(),
-                  "par": par.dividedBy(model.fixPointFactor).toNumber(),
+                  "key": key.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "win": win.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "gen": gen.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "fri": fri.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+                  "par": par.dividedBy(model.fixPointFactor*oneEther).toNumber(),
                   "friendLink": friendLink
               }
+          }
+          
+          function addListener(obj){
+              contract.onMsg().watch((err, result)=>{
+                  var msg = byteStr2str(result.args.msg)
+                  obj.onMsg(msg)
+              })
           }
           
           module.loadContract = loadContract
@@ -238,6 +286,7 @@
           module.loadRoundInfo = loadRoundInfo
           module.fixPointFactor = fixPointFactor
           module.loadPlayerInfo = loadPlayerInfo
+          module.addListener = addListener
       })(model)
       
       function main(){
@@ -280,9 +329,7 @@
                 buy: (keyAmount)=>{
                     (async function(){
                         await updateKeyPrice(keyAmount)
-                        
                         var contract = model.getContract()
-                        console.log('user...')
                         try{
                             
                             if(vueModel.temp.useFriend){
@@ -291,8 +338,6 @@
                             }else{
                                 await contract.buy({value: vueModel.temp.keyPriceWei, gas: 2100000})
                             }
-                            console.log('user end')
-                            await loadData()
                         }catch(e){
                             console.log(e)
                         }
@@ -303,7 +348,6 @@
                         await updateKeyPrice(vueModel.temp.keyAmount)
                         
                         var contract = model.getContract()
-                        console.log('user...')
                         try{
                             if(vueModel.temp.useFriend){
                                 var link = vueModel.temp.usedFriendLink
@@ -311,8 +355,6 @@
                             }else{
                                 await contract.vaultBuy(vueModel.temp.keyPriceWei, {gas: 2100000})
                             }
-                            console.log('user end')
-                            await loadData()
                         }catch(e){
                             console.log(e)
                         }
@@ -322,7 +364,6 @@
                     (async function(){
                         var contract = model.getContract()
                         var price = await contract.getKeyPrice(keyAmount * model.fixPointFactor)
-                        //console.log(vueModel)
                         vueModel.temp.keyPriceWei = price.toNumber()
                         vueModel.temp.keyPriceEth = vueModel.temp.keyPriceWei / oneEther
                     })()
@@ -332,7 +373,6 @@
                         var contract = model.getContract()
                         try{
                             await contract.withdraw()
-                            await loadData()
                         }catch(e){
                             console.log(e)
                         }
@@ -347,7 +387,6 @@
                         var contract = model.getContract()
                         try{
                             var link = await contract.getPartnerLink()
-                            await loadData()
                             vueModel.temp.partnerLink = link
                         }catch(e){
                             console.log(e)
@@ -378,10 +417,8 @@
                     }, 500)
                 },
                 copyLink: (arg)=>{
-                    var copyText = document.getElementById("friendLink");
-                    copyText.select();
-                    document.execCommand("copy");
-                    alert("Copied the text: " + copyText.value);
+                    copyToClipboard(vueModel.playerInfo.friendLink)
+                    alert("你的連結為：" + vueModel.playerInfo.friendLink);
                 }
             }
           })
@@ -412,6 +449,17 @@
               await model.loadContract()
               await loadData()
               await updateKeyPrice(vueModel.temp.keyAmount)
+              
+              model.addListener({
+                  onMsg: function(msg){
+                      console.log(msg)
+                      if(msg.indexOf("buy") != -1){
+                          async()=>{
+                              await loadData()
+                          }
+                      }
+                  }
+              })
               
               var update = ()=>{
                   var remainSecond = --vueModel.roundInfo.remainTime
