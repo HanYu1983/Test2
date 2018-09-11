@@ -339,7 +339,7 @@ library YAMDAlg {
         
         // 鑽石回饋
         // ver1.不保含這次買的key
-        local.totalKey = getTotalKeyAmount(data).sub(local.plyr.key);
+        local.totalKey = getTotalKeyAmount(data).sub(local.keyAmount);
         // ver2.減掉自己的key, 因為自己不分紅
         // local.plyrId = getOrNewPlayer(data, addr);
         // local.plyr = data.plyrs[local.plyrId];

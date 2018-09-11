@@ -20,20 +20,13 @@ contract TestShare {
     address constant userB = 0x1;
     uint constant FixPointFactor = 1000000000;
     
-    function testShareToCom() public {
-        uint eth = 1;
-        uint nowEth;
-        
-        data.shareToCom(eth);
-        nowEth = data.withdrawCom();
-        
-        Assert.equal(eth, nowEth, "nowEth must be 1");
-    }
-    
     function testShareLimit() public {
         YAMDAlg.PlayerInfo memory plyrInfo;
         YAMDAlg.Player memory plyr;
         uint offset;
+        
+        // 先把錢提光
+        data.withdraw(userA);
         
         data.buy(userA, 1 ether, 0, 0);
         data.buy(userB, 100 ether, 0, 0);
@@ -45,5 +38,48 @@ contract TestShare {
         plyr = data.plyrs[data.getPlayerId(userA)];
         offset = 2 ether.sub(data.vaults[plyr.genVaultId]/FixPointFactor);
         Assert.equal(offset < 10000, true, "share limit must limit to 2 ether");
+    }
+    
+    function testShareToCom() public {
+        // 先把錢提光
+        data.withdrawCom();
+        
+        uint eth = 1;
+        uint nowEth;
+        
+        data.shareToCom(eth);
+        nowEth = data.withdrawCom();
+        
+        Assert.equal(eth, nowEth, "nowEth must be 1");
+    }
+    
+    function testShare() public {
+        YAMDAlg.PlayerInfo memory plyrInfo;
+        uint lastShare;
+        uint currShare;
+        
+        // 先把錢提光
+        data.withdraw(userA);
+        
+        plyrInfo = data.getPlayerInfo(userA);
+        currShare = plyrInfo.alreadyShareFromKey;
+        lastShare = currShare;
+        
+        data.buy(userA, 1 ether, 0, 0);
+        plyrInfo = data.getPlayerInfo(userA);
+        currShare = plyrInfo.alreadyShareFromKey;
+        lastShare = currShare;
+        
+        data.buy(userA, 1 ether, 0, 0);
+        plyrInfo = data.getPlayerInfo(userA);
+        currShare = plyrInfo.alreadyShareFromKey;
+        Assert.equal(currShare > lastShare, true, "share must plus");
+        lastShare = currShare;
+        
+        data.buy(userA, 1 ether, 0, 0);
+        plyrInfo = data.getPlayerInfo(userA);
+        currShare = plyrInfo.alreadyShareFromKey;
+        Assert.equal(currShare > lastShare, true, "share must plus");
+        lastShare = currShare;
     }
 }

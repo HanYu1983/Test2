@@ -148,9 +148,10 @@ var controller = controller || {};
                       })()
                   }, 500)
               },
-              copyLink: (arg)=>{
-                  copyToClipboard(vueModel.playerInfo.friendLink)
-                  alert("你的連結為：" + vueModel.playerInfo.friendLink);
+              copyLink: ()=>{
+                  var urlstr = url('protocol') + "://" +url('hostname') +":"+ url("port") + url("path") + "?link=" + vueModel.playerInfo.friendLink
+                  copyToClipboard(urlstr)
+                  alert("成功copy到剪貼簿");
               }
           }
         })
