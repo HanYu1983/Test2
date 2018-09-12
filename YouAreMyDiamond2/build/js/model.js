@@ -1,7 +1,7 @@
 var model = model || {};
 (function(module){
     
-    var ContractAddress = "0x85a15e1ff0db65f0f5098af85c14d5fa41cea6c9"
+    var ContractAddress = "0x38933435a88cb22cfca22cda3842e818d48fc68e"
     var contract = 0
     
     async function loadContract(){
@@ -39,7 +39,7 @@ var model = model || {};
     
     async function loadPlayerInfo(){
         var info = await contract.getPlayerInfo()
-        var [key, win, gen, fri, par, friendLink, alreadyShareFromKey, eth] = info
+        var [key, win, gen, fri, par, friendLink, alreadyShareFromKey, eth, id] = info
         console.log(info)
         return {
             "key": key.dividedBy(model.fixPointFactor).toNumber(),
@@ -49,7 +49,8 @@ var model = model || {};
             "par": par.dividedBy(model.fixPointFactor*oneEther).toNumber(),
             "friendLink": friendLink,
             "alreadyShareFromKey": alreadyShareFromKey.dividedBy(model.fixPointFactor*oneEther).toNumber(),
-            "eth": eth.dividedBy(model.fixPointFactor*oneEther).toNumber()
+            "eth": eth.dividedBy(model.fixPointFactor*oneEther).toNumber(),
+            "id": id.toNumber()
         }
     }
     

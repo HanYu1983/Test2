@@ -56,6 +56,9 @@ var controller = controller || {};
           filters:{
               formatTime: (str)=>{
                   return window.formatTime(parseInt(str))
+              },
+              formatPlayerId: (str)=>{
+                  return parseInt(str) == this.playerInfo.id ? "我" : "玩家"+str;
               }
           },
           methods:{
@@ -138,7 +141,7 @@ var controller = controller || {};
                   })()
               },
               addKeyAmount:(keyAmount)=>{
-                  vueModel.temp.keyAmount += parseFloat(keyAmount)
+                  vueModel.temp.keyAmount = parseFloat(vueModel.temp.keyAmount) + parseFloat(keyAmount)
                   vueModel.onKeyAmountChange()
               },
               registerPartner: (level)=>{
@@ -187,15 +190,15 @@ var controller = controller || {};
         }
     
         var loadData = async ()=>{
-            var contract = model.getContract()
             var roundInfo = await model.loadRoundInfo()
             console.log(roundInfo)
+            vueModel.roundInfo = roundInfo
         
             var playerInfo = await model.loadPlayerInfo()
             console.log(playerInfo)
-        
-            vueModel.roundInfo = roundInfo
             vueModel.playerInfo = playerInfo
+            
+            await updateKeyPrice(vueModel.temp.keyAmount)
         }
     
         var start = async ()=>{
@@ -211,7 +214,6 @@ var controller = controller || {};
             }
             
             await loadData()
-            await updateKeyPrice(vueModel.temp.keyAmount)
         
             model.addListener({
                 onMsg: function(msg){

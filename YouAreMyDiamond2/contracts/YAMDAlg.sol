@@ -50,10 +50,6 @@ library YAMDAlg {
     // 注意，若修改這個值則前台js部分也要一並修改
     uint constant FixPointFactor = 1 ether;
     
-    function getFixPointFactor() public pure returns (uint){
-        return FixPointFactor;
-    }
-    
     struct Player{
         address addr;
         uint key;                   // 所買鑽石。固定點小數，回合結束必須歸零
@@ -669,6 +665,7 @@ library YAMDAlg {
         bytes32 friendLink;
         uint alreadyShareFromKey;   // 已分發獎金
         uint eth;                   // 總投資額
+        uint id;
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
@@ -682,7 +679,8 @@ library YAMDAlg {
             data.vaults[plyr.parVaultId],
             plyr.friendLink,
             plyr.alreadyShareFromKey,
-            plyr.eth
+            plyr.eth,
+            id
         );
     }
     
