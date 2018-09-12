@@ -27,7 +27,8 @@ var controller = controller || {};
                   keyPriceEth:0.0,
                   remainTime:0,
                   usedFriendLink: getLink(),
-                  useFriend: isUseLink()
+                  useFriend: isUseLink(),
+                  lastPlayerIdFormat: ""
               },
               roundInfo: {
                 "rnd": 0,
@@ -46,7 +47,9 @@ var controller = controller || {};
                   gen: 0,
                   fri: 0,
                   par: 0,
-                  friendLink: "link"
+                  friendLink: "link",
+                  eth: 0,
+                  id: "未有領先玩家"
               },
               info: {
                   phase: 0,
@@ -56,9 +59,6 @@ var controller = controller || {};
           filters:{
               formatTime: (str)=>{
                   return window.formatTime(parseInt(str))
-              },
-              formatPlayerId: (str)=>{
-                  return parseInt(str) == this.playerInfo.id ? "我" : "玩家"+str;
               }
           },
           methods:{
@@ -199,6 +199,11 @@ var controller = controller || {};
             vueModel.playerInfo = playerInfo
             
             await updateKeyPrice(vueModel.temp.keyAmount)
+            
+            vueModel.temp.lastPlayerIdFormat = 
+                roundInfo.lastPlyrId == 0 ? "尚未有人领先" :
+                roundInfo.lastPlyrId == playerInfo.id ? "我" :
+                "玩家" + roundInfo.lastPlyrId
         }
     
         var start = async ()=>{
@@ -210,7 +215,6 @@ var controller = controller || {};
             
             if(vueModel.info.phase == 0){
                 alert('尚未開盤')
-                return
             }
             
             await loadData()

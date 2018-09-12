@@ -1,7 +1,7 @@
 var model = model || {};
 (function(module){
     
-    var ContractAddress = "0x38933435a88cb22cfca22cda3842e818d48fc68e"
+    var ContractAddress = "0x2b7bfbe9738e6ae832fd669312b375ba4247bff8"
     var contract = 0
     
     async function loadContract(){
