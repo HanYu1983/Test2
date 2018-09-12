@@ -259,7 +259,21 @@ library YAMDAlg {
         }*/
         // 只能使用之前綁定的
         if(local.plyr.usedFriendLink == 0){
-            local.plyr.usedFriendLink = friendLink;
+            if(data.plyrIdByFriendLink[friendLink] != 0){
+                // 先找找是不是合法的推薦人
+                // 更新連結
+                local.plyr.usedFriendLink = friendLink;
+            } else {
+                // 若不是推薦人，找合夥人
+                local.partner = calcRootPartner(data, friendLink);
+                // 若合夥人存在並且合夥人不是自己
+                // 更新連結
+                if(local.partner.addr != addr && local.partner.proj != PartnerMgr.Project.Unknow){
+                    local.plyr.usedFriendLink = friendLink;
+                } else {
+                    // 其它情況不更新連結
+                }
+            }
         }
         // 增加鑽石
         local.plyr.key = local.plyr.key.add(local.keyAmount);
