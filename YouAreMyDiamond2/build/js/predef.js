@@ -40,3 +40,4 @@ function formatTime(seconds){
 }
 
 var oneEther = 1000000000000000000;
+var fixPointFactor = oneEther;

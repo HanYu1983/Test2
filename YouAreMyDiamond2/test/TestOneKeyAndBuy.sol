@@ -12,6 +12,8 @@ contract TestOneKeyAndBuy {
 
     YAMDAlg.Data data;
     
+    uint constant fixPointFactor = 1 ether;
+    
     function beforeAll() public {
         data.init();
     }
@@ -20,14 +22,13 @@ contract TestOneKeyAndBuy {
         address user = msg.sender;
         uint oneKeyPrice;
         YAMDAlg.PlayerInfo memory plyrInfo;
-        uint fixPointFactor = 1000000000;
         uint i;
         
         for(i=0; i<10; ++i){
             oneKeyPrice = YAMDAlg.calcKeyPrice(data, 1*fixPointFactor);
             data.buy(user, oneKeyPrice, 0, 0);
             plyrInfo = data.getPlayerInfo(user);
-            Assert.equal((plyrInfo.key/fixPointFactor) >= (i+1), true, "買的數量不符");
+            Assert.equal((plyrInfo.key/fixPointFactor) == (i+1), true, "買的數量不符");
         }
     }
 }

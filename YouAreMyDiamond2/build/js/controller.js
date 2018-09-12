@@ -47,6 +47,10 @@ var controller = controller || {};
                   fri: 0,
                   par: 0,
                   friendLink: "link"
+              },
+              info: {
+                  phase: 0,
+                  openTime: 0
               }
           },
           filters:{
@@ -56,6 +60,11 @@ var controller = controller || {};
           },
           methods:{
               buy: (keyAmount)=>{
+                  if(vueModel.info.phase == 0){
+                      alert('尚未開盤')
+                      return
+                  }
+                  
                   (async function(){
                       await updateKeyPrice(keyAmount)
                       var contract = model.getContract()
@@ -74,6 +83,11 @@ var controller = controller || {};
                   })()
               },
               vaultBuy: (keyAmount)=>{
+                  if(vueModel.info.phase == 0){
+                      alert('尚未開盤')
+                      return
+                  }
+                  
                   (async function(){
                       await updateKeyPrice(vueModel.temp.keyAmount)
                       
@@ -164,7 +178,7 @@ var controller = controller || {};
         })
     
         var updateKeyPrice = async (keyAmount)=>{
-            keyAmount = keyAmount + 0.0001;
+            keyAmount = keyAmount;// + 0.0001;
             var contract = model.getContract()
             var price = await contract.getKeyPrice(keyAmount * model.fixPointFactor)
 
@@ -184,9 +198,18 @@ var controller = controller || {};
             vueModel.playerInfo = playerInfo
         }
     
-    
         var start = async ()=>{
             await model.loadContract()
+            var info = await model.getContract().getInfo()
+            var [phase, openTime] = info
+            vueModel.info.phase = phase
+            vueModel.info.openTime = openTime.toNumber()
+            
+            if(vueModel.info.phase == 0){
+                alert('尚未開盤')
+                return
+            }
+            
             await loadData()
             await updateKeyPrice(vueModel.temp.keyAmount)
         

@@ -16,9 +16,9 @@ contract TestShare {
         data.init(); 
     }
     
+    uint constant fixPointFactor = 1 ether;
     address constant userA = 0x0;
     address constant userB = 0x1;
-    uint constant FixPointFactor = 1000000000;
     
     function testShareLimit() public {
         YAMDAlg.PlayerInfo memory plyrInfo;
@@ -32,11 +32,11 @@ contract TestShare {
         data.buy(userB, 100 ether, 0, 0);
         
         plyrInfo = data.getPlayerInfo(userA);
-        offset = 2 ether.sub(plyrInfo.alreadyShareFromKey/FixPointFactor);
+        offset = 2 ether.sub(plyrInfo.alreadyShareFromKey/fixPointFactor);
         Assert.equal(offset < 10000, true, "share limit must limit to 2 ether");
         
         plyr = data.plyrs[data.getPlayerId(userA)];
-        offset = 2 ether.sub(data.vaults[plyr.genVaultId]/FixPointFactor);
+        offset = 2 ether.sub(data.vaults[plyr.genVaultId]/fixPointFactor);
         Assert.equal(offset < 10000, true, "share limit must limit to 2 ether");
     }
     

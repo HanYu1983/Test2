@@ -38,8 +38,8 @@ contract YAMDMain {
             PartnerMgr.open(data.partnerMgr);
         }
     }
-    function getInfo() public view returns (Phase){
-        return (phase);
+    function getInfo() public view returns (Phase, uint){
+        return (phase, data.partnerMgr.openTime);
     }
     //
     // 分潤

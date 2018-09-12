@@ -48,7 +48,11 @@ library YAMDAlg {
     // 計算固定點小數的係數
     // 越高越精確
     // 注意，若修改這個值則前台js部分也要一並修改
-    uint constant FixPointFactor = 1000000000;
+    uint constant FixPointFactor = 1 ether;
+    
+    function getFixPointFactor() public pure returns (uint){
+        return FixPointFactor;
+    }
     
     struct Player{
         address addr;
@@ -151,18 +155,30 @@ library YAMDAlg {
     }
     
     function calcKeyAmount(uint totalValue, uint value) internal pure returns (uint){
-        //return value.keys().mul(FixPointFactor)/KeysCalc.fixPointFactor();
+        /*
         uint totalEth = totalValue;
         uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
         uint format = keyAmountWithCalcFixPoint.mul(FixPointFactor)/KeysCalc.fixPointFactor();
         return format;
+        */
+        
+        uint totalEth = totalValue;
+        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
+        // 固定點小數同樣都是1 ether, 不必轉換
+        uint format = keyAmountWithCalcFixPoint;
+        return format;
     }
     
     function calcKeyPrice(Data memory data, uint keyAmount) internal pure returns (uint){
-        //return ((keyAmount * KeysCalc.fixPointFactor())/FixPointFactor).eth();
+        /*
         uint totalKey = getTotalKeyAmount(data).add(keyAmount);
         uint format = (totalKey * KeysCalc.fixPointFactor())/FixPointFactor;
         return format.ethRec(keyAmount.mul(KeysCalc.fixPointFactor())/FixPointFactor);
+        */
+        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
+        // 固定點小數同樣都是1 ether, 不必轉換
+        uint format = totalKey;
+        return format.ethRec(keyAmount);
     }
     
     function reduceHistory(Data storage data) internal {
