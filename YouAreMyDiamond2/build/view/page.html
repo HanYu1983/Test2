@@ -91,8 +91,8 @@
                 <span>{{ playerInfo.par }}</span>
               </li>
             </ul>
-            <button class="right" v-on:click="withdraw()" style='margin:auto 5px'>提款</button>
-            <button class="right" v-on:click="copyLink()" style='margin:auto 5px'>复制推薦連結</button>
+            <button class="right" v-on:click="withdraw()" style='margin:10px 5px'>提款</button>
+            <button class="right" v-on:click="copyLink()" style='margin:10px 5px'>复制推薦連結</button>
           </div>
 
           <div class="tabBox" id="tab3">
@@ -191,13 +191,27 @@
   <script>
       // 處理推薦人連結
       var useLink = url("?link")
+      // !!"string" is true
+      // !!"" is false
+      // !!undefined is false
       if(!!useLink){
+          // not empty string
           controller.setLink(useLink)
       } else {
           useLink = controller.getLink();
           if(!!useLink){
+              // not empty string
               controller.setLink(useLink)
-              window.location.href = window.location.href + "?link=" + useLink
+              
+              // === 支援本機測試 start === //
+              var port = url("port")
+              if(port == "8080"){
+                  port = ":"+port
+              } else {
+                  port = ""
+              }
+              // === 支援本機測試 end === //
+              window.location.href = url('protocol') +"://"+ url('hostname') + port + url("path") + "?link="+useLink
           }
       }
       // 必須使用jquery的$()，不然會覆寫到別人的window.onload
