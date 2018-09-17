@@ -81,7 +81,7 @@ contract TestFns {
     }
     
     function testOther() public {
-        data.shareToCom(1);
+        data.depositToCom(1);
         data.withdrawCom();
         data.withdrawPub();
     }

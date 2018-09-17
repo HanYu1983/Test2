@@ -585,7 +585,7 @@ library YAMDAlg {
         );
     }
     
-    function shareToCom(Data storage data, uint value) internal {
+    function depositToCom(Data storage data, uint value) internal {
         data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(value.mul(FixPointFactor));
     }
     
@@ -615,7 +615,7 @@ library YAMDAlg {
     // Helper
     // 
     
-    function getTotalKeyAmount(Data memory data) internal pure returns (uint){
+    function getTotalKeyAmount(Data memory data) private pure returns (uint){
         uint i;
         uint total;
         for(i=1; i<data.plyrs.length; ++i){
@@ -651,7 +651,7 @@ library YAMDAlg {
         return format.ethRec(keyAmount);
     }
     
-    function reduceHistory(Data storage data) internal {
+    function reduceHistory(Data storage data) private {
         // 最後一筆必須留下來
         if(data.history.length <= 1){
             return;

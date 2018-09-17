@@ -141,7 +141,7 @@ contract YAMDMain {
             // 重要：新增玩家!!
             data.getOrNewPlayer(user);
             // 錢要流向公司
-            data.shareToCom(value);
+            data.depositToCom(value);
         } else {
             // 還給玩家
             user.transfer(value);

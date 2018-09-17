@@ -47,7 +47,7 @@ contract TestShare {
         uint eth = 1;
         uint nowEth;
         
-        data.shareToCom(eth);
+        data.depositToCom(eth);
         nowEth = data.withdrawCom();
         
         Assert.equal(eth, nowEth, "nowEth must be 1");
