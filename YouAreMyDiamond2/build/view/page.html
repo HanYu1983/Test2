@@ -99,13 +99,13 @@
             <h3>说明</h3>
             <h4>开盘前</h4>
             <ul class="payInfo">
-              <li><span>付费<b>0.5</b>ETH 成为合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
-              <li><span>付费<b>1</b>ETH 成为合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
+              <li><span>付费<b>0.5</b>ETH 成为普通合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
+              <li><span>付费<b>1</b>ETH 成为高级合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
             </ul>
             <h4>开盘后1个月</h4>
             <ul class="payInfo">
-              <li><span>付费<b>0.5</b>ETH 成为合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
-              <li><span>付费<b>1</b>ETH 成为合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
+              <li><span>付费<b>1</b>ETH 成为普通合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
+              <li><span>付费<b>2</b>ETH 成为高级合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
             </ul>
             <div class="btnSide">
               <button v-on:click="registerPartner(1)">注册成为普通合伙人</button>
@@ -150,9 +150,9 @@
 
           <div class="tabBox" id="tab5">
             <ul class="stat">
-              <li><label>钻石数量</label><span class="textshadow">{{ roundInfo.keyAmount }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>投资总额</label><span class="textshadow">{{ playerInfo.eth }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
-              <li><label>已分发奖金</label><span class="textshadow">{{ playerInfo.alreadyShareFromKey }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>钻石数量</label><span class="textshadow">{{ playerInfo.key }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+              <li><label>投资总额</label><span class="textshadow">{{ playerInfo.eth }}</span><i><span class="textshadow">ETH</span></i></li>
+              <li><label>已分发奖金</label><span class="textshadow">{{ playerInfo.alreadyShareFromKey }}</span><i><span class="textshadow">ETH</span></i></li>
               <li><label>已延长时间</label><span class="textshadow">{{ roundInfo.totalExtendTime | formatTime }}</span><i class="textshadow"></i></li>
             </ul>
           </div>
@@ -182,8 +182,8 @@
   <script src="../js/truffle-contract.js"></script>
   <script src="../js/web3.min.js"></script>
   <script src="../js/predef.js?v=4"></script>
-  <script src="../js/model.js?v=20"></script>
-  <script src="../js/controller.js?v=60"></script>
+  <script src="../js/model.js?v=21"></script>
+  <script src="../js/controller.js?v=61"></script>
   <script>
       // 處理推薦人連結
       var useLink = url("?link")

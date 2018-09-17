@@ -49,7 +49,8 @@ var controller = controller || {};
                   par: 0,
                   friendLink: "link",
                   eth: 0,
-                  id: "未有領先玩家"
+                  id: "未有領先玩家",
+                  alreadyShareFromKey: 0
               },
               info: {
                   phase: 0,
