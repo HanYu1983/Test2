@@ -94,7 +94,8 @@ library YAMDAlg {
     }
     
     enum GameState{
-        Idle, Playing
+        Idle,       // 等待第一顆鑽石被買
+        Playing     // 倒計中
     }
     
     function init(Data storage data) internal {
@@ -130,6 +131,7 @@ library YAMDAlg {
         data.plyrIdByAddr[addr] = id;
 
         Player memory plyr;
+        plyr.addr = addr;
         plyr.winVaultId = genVaultId(data);
         plyr.genVaultId = genVaultId(data);
         plyr.friVaultId = genVaultId(data);
@@ -139,76 +141,6 @@ library YAMDAlg {
         data.plyrs.push(plyr);
         data.plyrIdByFriendLink[plyr.friendLink] = id;
         return id;
-    }
-  
-    function getTotalKeyAmount(Data memory data) internal pure returns (uint){
-        uint i;
-        uint total;
-        for(i=1; i<data.plyrs.length; ++i){
-            total += data.plyrs[i].key;
-        }
-        return total;
-    }
-    
-    function calcKeyAmount(uint totalValue, uint value) internal pure returns (uint){
-        /*
-        uint totalEth = totalValue;
-        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
-        uint format = keyAmountWithCalcFixPoint.mul(FixPointFactor)/KeysCalc.fixPointFactor();
-        return format;
-        */
-        
-        uint totalEth = totalValue;
-        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
-        // 固定點小數同樣都是1 ether, 不必轉換
-        uint format = keyAmountWithCalcFixPoint;
-        return format;
-    }
-    
-    function calcKeyPrice(Data memory data, uint keyAmount) internal pure returns (uint){
-        /*
-        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
-        uint format = (totalKey * KeysCalc.fixPointFactor())/FixPointFactor;
-        return format.ethRec(keyAmount.mul(KeysCalc.fixPointFactor())/FixPointFactor);
-        */
-        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
-        // 固定點小數同樣都是1 ether, 不必轉換
-        uint format = totalKey;
-        return format.ethRec(keyAmount);
-    }
-    
-    function reduceHistory(Data storage data) internal {
-        // 最後一筆必須留下來
-        if(data.history.length <= 1){
-            return;
-        }
-        // 最後1%鑽石
-        uint lastOneTotalKeys = getTotalKeyAmount(data).mul(LastWinP)/100;
-        uint currKey = 0;
-        uint i;
-        for(i=data.history.length-1;; --i){
-            // 佔最後1%鑽石的比例
-            currKey += data.history[i].key;
-            if(currKey >= lastOneTotalKeys){
-                break;
-            }
-            if(i == 0){
-                break;
-            }
-        }
-        if(i == 0){
-            return;
-        }
-        uint copyStart = i;
-        uint finalLen = data.history.length - i;
-        // 最後一筆必須留下來
-        if(finalLen == 0){
-            return;
-        }
-        for(i=0; i<finalLen; ++i){
-            data.history[i] = data.history[i+copyStart];
-        }
-        data.history.length = finalLen;
     }
     
     struct buyLocal{
@@ -252,7 +184,6 @@ library YAMDAlg {
         // 取得玩家
         local.plyrId = getOrNewPlayer(data, addr);
         local.plyr = data.plyrs[local.plyrId];
-        local.plyr.addr = addr;
         // 只能使用之前綁定的 
         /*if(local.plyr.usedPartnerLink == 0){
             local.plyr.usedPartnerLink = partnerLink;
@@ -301,7 +232,7 @@ library YAMDAlg {
         }*/
         // 找出最根部的合夥人
         local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
-        // 合夥人不能是自己 || 沒找到專案
+        // 合夥人是自己 || 沒找到專案
         if(local.partner.addr == addr || local.partner.proj == PartnerMgr.Project.Unknow){
             // 不是合夥人的下線，分紅給公司
             local.com = value.mul(ComRate).mul(FixPointFactor)/100;
@@ -419,52 +350,6 @@ library YAMDAlg {
         return false;
     }
     
-    function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
-        if(friendLink == 0){
-            return data.partnerMgr.getPartner(0);
-        }
-        bool[] memory alreadyUse = new bool[](data.plyrs.length);
-        
-        uint friendId = data.plyrIdByFriendLink[friendLink];
-        Player memory friend = data.plyrs[friendId];
-        
-        alreadyUse[friendId] = true;
-        
-        for(;friend.usedFriendLink != 0;){
-            friendId = data.plyrIdByFriendLink[friend.usedFriendLink];
-            // 如果有循環參照，就當成沒有找到
-            if(alreadyUse[friendId]){
-                return data.partnerMgr.getPartner(0);
-            }
-            alreadyUse[friendId] = true;
-            friend = data.plyrs[friendId];
-        }
-        return data.partnerMgr.getPartner(friend.addr);
-    }
-    
-    function calcShareLimit(uint rateFP, Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
-        uint shareToPlyr = genPlus;
-        uint shareToCom = 0;
-        // 玩家最大鑽石分紅為所買鑽石的2倍
-        uint maxShareFromKey = plyr.eth.mul(rateFP)/FixPointFactor; // (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(rateFP);
-        // 如果超過最大分紅，則只取補足的值
-        if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
-            shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
-            // 記錄取得分紅
-            plyr.alreadyShareFromKey = maxShareFromKey;
-        } else {
-            // 記錄取得分紅
-            plyr.alreadyShareFromKey = plyr.alreadyShareFromKey.add(shareToPlyr);
-        }
-        // 有剩餘的話分到公司
-        if(shareToPlyr < genPlus){
-            shareToCom = genPlus.sub(shareToPlyr);
-        } else {
-            shareToCom = 0;
-        }
-        return (plyr, shareToPlyr, shareToCom);
-    }
-    
     function buyWithVault(Data storage data, address addr, uint value, bytes32 partnerLink, bytes32 friendLink) internal returns(uint8) {
         uint plyrId = getOrNewPlayer(data, addr);
         Player memory plyr = data.plyrs[plyrId];
@@ -477,8 +362,6 @@ library YAMDAlg {
         data.vaults[plyr.genVaultId] = remainVault * FixPointFactor;
         buy(data, addr, value, partnerLink, friendLink);
     }
-    
-    
  
     struct endRoundLocal{
         uint i;
@@ -561,19 +444,23 @@ library YAMDAlg {
             local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
         }
         */
-        // 找出最根部的合夥人
-        local.partner = calcRootPartner(data, local.plyr.usedFriendLink);
-        if(local.partner.proj == PartnerMgr.Project.Unknow){
-            // 如果不是合夥人的下線
-            // 公益
-            data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].add(local.par);
-        }else{
-            // 如果是合夥人的下線（用合夥人提供的連結玩遊戲）
-            // 分紅給合夥人
-            local.plyrId = getPlayerId(data, local.partner.addr);
-            if(local.plyrId != 0){
-                local.plyr = data.plyrs[local.plyrId];
-                data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
+        if(data.lastPlyrId != 0){
+            local.lastPlyrId = data.lastPlyrId;
+            local.lastPlyr = data.plyrs[local.lastPlyrId];
+            // 找出最根部的合夥人
+            local.partner = calcRootPartner(data, local.lastPlyr.usedFriendLink);
+            if(local.partner.proj == PartnerMgr.Project.Unknow){
+                // 如果不是合夥人的下線
+                // 公益
+                data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].add(local.par);
+            }else{
+                // 如果是合夥人的下線（用合夥人提供的連結玩遊戲）
+                // 分紅給合夥人
+                local.plyrId = getPlayerId(data, local.partner.addr);
+                if(local.plyrId != 0){
+                    local.plyr = data.plyrs[local.plyrId];
+                    data.vaults[local.plyr.parVaultId] = data.vaults[local.plyr.parVaultId].add(local.par);
+                }
             }
         }
         // 公益
@@ -698,22 +585,6 @@ library YAMDAlg {
         );
     }
     
-    function hasFriendLinkPointToAddr(Data storage data, address addr) internal view returns (bool){
-        uint i;
-        uint id = getPlayerId(data, addr);
-        if(id == 0){
-            return false;
-        }
-        for(i=1; i<data.plyrs.length; ++i){
-            Player memory plyr = data.plyrs[i];
-            uint linkToPlyrId = data.plyrIdByFriendLink[plyr.usedFriendLink];
-            if(id == linkToPlyrId){
-                return true;
-            }
-        }
-        return false;
-    }
-    
     function shareToCom(Data storage data, uint value) internal {
         data.vaults[data.comVaultId] = data.vaults[data.comVaultId].add(value.mul(FixPointFactor));
     }
@@ -738,5 +609,157 @@ library YAMDAlg {
         // 保留小數點
         data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].sub(total.mul(FixPointFactor));
         return total;
+    }
+    
+    //
+    // Helper
+    // 
+    
+    function getTotalKeyAmount(Data memory data) internal pure returns (uint){
+        uint i;
+        uint total;
+        for(i=1; i<data.plyrs.length; ++i){
+            total += data.plyrs[i].key;
+        }
+        return total;
+    }
+    
+    function calcKeyAmount(uint totalValue, uint value) internal pure returns (uint){
+        /*
+        uint totalEth = totalValue;
+        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
+        uint format = keyAmountWithCalcFixPoint.mul(FixPointFactor)/KeysCalc.fixPointFactor();
+        return format;
+        */
+        
+        uint totalEth = totalValue;
+        uint keyAmountWithCalcFixPoint = totalEth.keysRec(value);
+        // 固定點小數同樣都是1 ether, 不必轉換
+        uint format = keyAmountWithCalcFixPoint;
+        return format;
+    }
+    
+    function calcKeyPrice(Data memory data, uint keyAmount) internal pure returns (uint){
+        /*
+        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
+        uint format = (totalKey * KeysCalc.fixPointFactor())/FixPointFactor;
+        return format.ethRec(keyAmount.mul(KeysCalc.fixPointFactor())/FixPointFactor);
+        */
+        uint totalKey = getTotalKeyAmount(data).add(keyAmount);
+        // 固定點小數同樣都是1 ether, 不必轉換
+        uint format = totalKey;
+        return format.ethRec(keyAmount);
+    }
+    
+    function reduceHistory(Data storage data) internal {
+        // 最後一筆必須留下來
+        if(data.history.length <= 1){
+            return;
+        }
+        // 最後1%鑽石
+        uint lastOneTotalKeys = getTotalKeyAmount(data).mul(LastWinP)/100;
+        uint currKey = 0;
+        uint i;
+        for(i=data.history.length-1;; --i){
+            // 佔最後1%鑽石的比例
+            currKey += data.history[i].key;
+            if(currKey >= lastOneTotalKeys){
+                break;
+            }
+            if(i == 0){
+                break;
+            }
+        }
+        if(i == 0){
+            return;
+        }
+        uint copyStart = i;
+        uint finalLen = data.history.length - i;
+        // 最後一筆必須留下來
+        if(finalLen == 0){
+            return;
+        }
+        for(i=0; i<finalLen; ++i){
+            data.history[i] = data.history[i+copyStart];
+        }
+        data.history.length = finalLen;
+    }
+    
+    function hasFriendLinkPointToAddr(Data storage data, address addr) internal view returns (bool){
+        uint i;
+        uint id = getPlayerId(data, addr);
+        if(id == 0){
+            return false;
+        }
+        for(i=1; i<data.plyrs.length; ++i){
+            Player memory plyr = data.plyrs[i];
+            uint linkToPlyrId = data.plyrIdByFriendLink[plyr.usedFriendLink];
+            if(id == linkToPlyrId){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    function calcRootPlayerId(Data storage data, bytes32 friendLink) private view returns (uint){
+        if(friendLink == 0){
+            return 0;
+        }
+        bool[] memory alreadyUse = new bool[](data.plyrs.length);
+        
+        uint friendId = data.plyrIdByFriendLink[friendLink];
+        Player memory friend = data.plyrs[friendId];
+        alreadyUse[friendId] = true;
+        
+        for(;friend.usedFriendLink != 0;){
+            friendId = data.plyrIdByFriendLink[friend.usedFriendLink];
+            if(friendId == 0){
+                break;
+            }
+            // 如果有循環參照，就當成沒有找到
+            if(alreadyUse[friendId]){
+                return 0;
+            }
+            alreadyUse[friendId] = true;
+            friend = data.plyrs[friendId];
+        }
+        return friendId;
+    }
+    
+    function calcRootPartner(Data storage data, bytes32 friendLink) private view returns (PartnerMgr.Partner){
+        uint friendId = calcRootPlayerId(data, friendLink);
+        Player memory friend = data.plyrs[friendId];
+        return data.partnerMgr.getPartner(friend.addr);
+    }
+    
+    function calcShareLimit(uint rateFP, Player memory plyr, uint genPlus) private pure returns (Player, uint, uint){
+        uint shareToPlyr = genPlus;
+        uint shareToCom = 0;
+        // 玩家最大鑽石分紅為所買鑽石的2倍
+        uint maxShareFromKey = plyr.eth.mul(rateFP)/FixPointFactor; // (plyr.key.mul(KeysCalc.fixPointFactor())/FixPointFactor).eth().mul(rateFP);
+        // 如果超過最大分紅，則只取補足的值
+        if(plyr.alreadyShareFromKey.add(genPlus) > maxShareFromKey){
+            shareToPlyr = maxShareFromKey - plyr.alreadyShareFromKey;
+            // 記錄取得分紅
+            plyr.alreadyShareFromKey = maxShareFromKey;
+        } else {
+            // 記錄取得分紅
+            plyr.alreadyShareFromKey = plyr.alreadyShareFromKey.add(shareToPlyr);
+        }
+        // 有剩餘的話分到公司
+        if(shareToPlyr < genPlus){
+            shareToCom = genPlus.sub(shareToPlyr);
+        } else {
+            shareToCom = 0;
+        }
+        return (plyr, shareToPlyr, shareToCom);
+    }
+    
+    //
+    // public for test
+    //
+    
+    function testCalcRootPlayerId(Data storage data, bytes32 friendLink) internal view returns (uint){
+        return calcRootPlayerId(data, friendLink);
     }
 }

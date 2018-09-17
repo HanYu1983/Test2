@@ -57,6 +57,7 @@ contract TestRootPartner {
         // ver1 end.
         
         // ver2. 用推薦人連結，會分紅給頂部合夥人，也會分給推薦人
+        // B用A的連結買
         data.buy(userB, 1 ether, 0, data.plyrs[data.getPlayerId(userA)].friendLink);
         parVault = data.vaults[data.plyrs[data.getPlayerId(userA)].parVaultId];
         comVault = data.vaults[data.comVaultId];
@@ -73,6 +74,7 @@ contract TestRootPartner {
         
         // 合夥人下線的推薦人連結，會分紅給推薦人和頂部合夥人，不會分紅給公司
         // 沒有使用合夥人連結，會從推薦人找到合夥人
+        // C用B的連結買
         for(i=0; i<3; ++i){
             lastFriVault = data.vaults[data.plyrs[data.getPlayerId(userB)].friVaultId];
             
@@ -88,7 +90,7 @@ contract TestRootPartner {
             lastParVault = parVault;
             lastComVault = comVault;
         }
-        
+        // D用C的連結買
         for(i=0; i<3; ++i){
             lastFriVault = data.vaults[data.plyrs[data.getPlayerId(userC)].friVaultId];
             
