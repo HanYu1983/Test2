@@ -68,8 +68,10 @@
                 <td><button v-on:click="addKeyAmount(100)">+<span>100</span></button></td>
               </tr>
             </table>
-            <button v-on:click="buy(temp.keyAmount)" style='margin:10px auto'>确认购买</button>
-            <button v-on:click="vaultBuy(temp.keyAmount)" style='margin:10px auto'>钱包购买</button>
+            <div class="btnSide">
+                <button v-on:click="buy(temp.keyAmount)">确认购买</button>
+                <button v-on:click="vaultBuy(temp.keyAmount)">钱包购买</button>
+            </div>
           </div>
 
           <div class="tabBox" id="tab2">
@@ -91,8 +93,10 @@
                 <span>{{ playerInfo.par }}</span>
               </li>
             </ul>
-            <button class="right" v-on:click="withdraw()" style='margin:10px 5px'>提款</button>
-            <button class="right" v-on:click="copyLink()" style='margin:10px 5px'>复制推薦連結</button>
+            <div class="btnSide">
+                <button v-on:click="withdraw()">提款</button>
+                <button v-on:click="copyLink()">复制推薦連結</button>
+            </div>
           </div>
 
           <div class="tabBox" id="tab3">
