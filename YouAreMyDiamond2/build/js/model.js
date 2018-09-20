@@ -1,7 +1,7 @@
 var model = model || {};
 (function(module){
     
-    var ContractAddress = "0x7d330d16de27bfe37663f46e2581837cf309b8e4"
+    var ContractAddress = "0x0977c275fd3cc7b7d315990eb881b5cee4348c59"
     var contract = 0
     
     async function loadContract(){
@@ -51,7 +51,7 @@ var model = model || {};
             "alreadyShareFromKey": alreadyShareFromKey.dividedBy(model.fixPointFactor*oneEther).toNumber(),
             "eth": eth.dividedBy(model.fixPointFactor*oneEther).toNumber(),
             "id": id.toNumber(),
-            "partnerProj": partnerProj
+            "partnerProj": partnerProj.toNumber()
         }
     }
     

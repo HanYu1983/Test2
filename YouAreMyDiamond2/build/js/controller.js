@@ -144,6 +144,11 @@ var controller = controller || {};
                   })()
               },
               withdraw: ()=>{
+                  if(vueModel.info.phase == 0){
+                      alert('尚未開盤')
+                      return
+                  }
+                  
                   (async function(){
                       var contract = model.getContract()
                       try{
@@ -169,6 +174,7 @@ var controller = controller || {};
                           }
                           var fee = await contract.getPartnerProjectFee(level)
                           await contract.registerPartner(level, {value: fee})
+                          await loadData()
                       }catch(e){
                           console.log(e)
                       }
@@ -187,6 +193,11 @@ var controller = controller || {};
                   }, 500)
               },
               copyLink: ()=>{
+                  if(vueModel.info.phase == 0){
+                      alert('尚未開盤')
+                      return
+                  }
+                  
                   var urlstr = url('protocol') + "://" +url('hostname') +":"+ url("port") + url("path") + "?link=" + vueModel.playerInfo.friendLink
                   copyToClipboard(urlstr)
                   alert("成功copy到剪貼簿");
