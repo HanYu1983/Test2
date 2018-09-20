@@ -41,3 +41,7 @@ function formatTime(seconds){
 
 var oneEther = 1000000000000000000;
 var fixPointFactor = oneEther;
+var txt_alert_notopen = "尚未开盘";
+var txt_alert_youcannotregister = "无法注册";
+var txt_alert_ethnotenougth = "馀额不足，你的钱包剩";
+var txt_alert_copylinksuccess = "成功copy到剪贴簿";

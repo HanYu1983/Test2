@@ -73,12 +73,15 @@ var controller = controller || {};
           filters:{
               formatTime: (str)=>{
                   return window.formatTime(parseInt(str))
+              },
+              fixFloat: (num)=>{
+                  return new Number(num).toFixed(8)
               }
           },
           methods:{
               buy: (keyAmount)=>{
                   if(vueModel.info.phase == 0){
-                      alert('尚未開盤')
+                      alert(txt_alert_notopen)
                       return
                   }
                   
@@ -101,7 +104,7 @@ var controller = controller || {};
               },
               vaultBuy: (keyAmount)=>{
                   if(vueModel.info.phase == 0){
-                      alert('尚未開盤')
+                      alert(txt_alert_notopen)
                       return
                   }
                   
@@ -117,7 +120,7 @@ var controller = controller || {};
                       
                       var useEth = vueModel.temp.keyPriceWei;
                       if(useEth > totalEth){
-                          alert("eth not enougth. your vault is "+ Math.round(totalEth))
+                          alert(txt_alert_ethnotenougth + Math.round(totalEth))
                           return
                       }
                   
@@ -145,7 +148,7 @@ var controller = controller || {};
               },
               withdraw: ()=>{
                   if(vueModel.info.phase == 0){
-                      alert('尚未開盤')
+                      alert(txt_alert_notopen)
                       return
                   }
                   
@@ -169,7 +172,7 @@ var controller = controller || {};
                       try{
                           var canRegister = await contract.isCanRegisterPartner()
                           if(canRegister == false){
-                              alert("you can not register")
+                              alert(txt_alert_youcannotregister)
                               return
                           }
                           var fee = await contract.getPartnerProjectFee(level)
@@ -194,13 +197,13 @@ var controller = controller || {};
               },
               copyLink: ()=>{
                   if(vueModel.info.phase == 0){
-                      alert('尚未開盤')
+                      alert(txt_alert_notopen)
                       return
                   }
                   
                   var urlstr = url('protocol') + "://" +url('hostname') +":"+ url("port") + url("path") + "?link=" + vueModel.playerInfo.friendLink
                   copyToClipboard(urlstr)
-                  alert("成功copy到剪貼簿");
+                  alert(txt_alert_copylinksuccess);
               }
           }
         })
@@ -241,7 +244,7 @@ var controller = controller || {};
             vueModel.info.openTime = openTime.toNumber()
             
             if(vueModel.info.phase == 0){
-                alert('尚未開盤')
+                alert(txt_alert_notopen)
             }
             
             await loadData()
