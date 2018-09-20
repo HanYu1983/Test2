@@ -449,7 +449,8 @@ library YAMDAlg {
             local.lastPlyr = data.plyrs[local.lastPlyrId];
             // 找出最根部的合夥人
             local.partner = calcRootPartner(data, local.lastPlyr.usedFriendLink);
-            if(local.partner.proj == PartnerMgr.Project.Unknow){
+            // 合夥人是自己 || 沒找到專案
+            if(local.partner.addr == local.lastPlyr.addr || local.partner.proj == PartnerMgr.Project.Unknow){
                 // 如果不是合夥人的下線
                 // 公益
                 data.vaults[data.pubVaultId] = data.vaults[data.pubVaultId].add(local.par);
@@ -526,6 +527,7 @@ library YAMDAlg {
         uint lastPlyrId;
         uint keyAmount;
         uint totalExtendTime;   // 總延長時間
+        address lastPlyrAddr;
     }
     
     function getRoundInfo(Data storage data) internal view returns (RoundInfo){
@@ -535,6 +537,7 @@ library YAMDAlg {
         }
         // ver1.
         uint lastPlyrId = data.lastPlyrId;
+        Player memory lastPlyr = data.plyrs[lastPlyrId];
         // ver2.
         /*uint lastPlyrId = 0;
         // 避免error
@@ -553,7 +556,8 @@ library YAMDAlg {
             data.state,
             lastPlyrId,
             keyAmount,
-            data.totalExtendTime
+            data.totalExtendTime,
+            lastPlyr.addr
         );
     }
     
@@ -567,11 +571,13 @@ library YAMDAlg {
         uint alreadyShareFromKey;   // 已分發獎金
         uint eth;                   // 總投資額
         uint id;
+        PartnerMgr.Project proj;
     }
     
     function getPlayerInfo(Data storage data, address addr) internal view returns (PlayerInfo){
         uint id = getPlayerId(data, addr);
         YAMDAlg.Player memory plyr = data.plyrs[id];
+        PartnerMgr.Partner memory partner = data.partnerMgr.getPartner(addr);
         return PlayerInfo(
             plyr.key,
             data.vaults[plyr.winVaultId],
@@ -581,7 +587,8 @@ library YAMDAlg {
             plyr.friendLink,
             plyr.alreadyShareFromKey,
             plyr.eth,
-            id
+            id,
+            partner.proj
         );
     }
     

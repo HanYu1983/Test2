@@ -192,7 +192,7 @@ contract YAMDMain {
         return YAMDAlg.calcKeyPrice(data, keyAmount);
     }
     
-    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint,uint,uint){
+    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,address,uint,uint,address){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (
             info.rnd,
@@ -203,16 +203,16 @@ contract YAMDMain {
             info.potVault,
             info.pubVault,
             info.state,
-            info.lastPlyrId,
+            info.lastPlyrAddr,
             info.keyAmount,
-            info.totalExtendTime
+            info.totalExtendTime,
+            info.lastPlyrAddr
         );
     }
     
     function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32, uint, uint, uint, PartnerMgr.Project){
         address user = msg.sender;
         YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(user);
-        PartnerMgr.Partner memory partner = data.partnerMgr.getPartner(user);
         return (
             info.key,
             info.winVault,
@@ -223,7 +223,7 @@ contract YAMDMain {
             info.alreadyShareFromKey,
             info.eth,
             info.id,
-            partner.proj
+            info.proj
         );
     }
     
