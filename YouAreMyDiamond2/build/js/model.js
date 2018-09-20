@@ -39,7 +39,7 @@ var model = model || {};
     
     async function loadPlayerInfo(){
         var info = await contract.getPlayerInfo()
-        var [key, win, gen, fri, par, friendLink, alreadyShareFromKey, eth, id] = info
+        var [key, win, gen, fri, par, friendLink, alreadyShareFromKey, eth, id, partnerProj] = info
         console.log(info)
         return {
             "key": key.dividedBy(model.fixPointFactor).toNumber(),
@@ -50,7 +50,8 @@ var model = model || {};
             "friendLink": friendLink,
             "alreadyShareFromKey": alreadyShareFromKey.dividedBy(model.fixPointFactor*oneEther).toNumber(),
             "eth": eth.dividedBy(model.fixPointFactor*oneEther).toNumber(),
-            "id": id.toNumber()
+            "id": id.toNumber(),
+            "partnerProj": partnerProj
         }
     }
     

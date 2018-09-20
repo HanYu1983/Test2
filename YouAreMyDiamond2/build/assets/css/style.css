@@ -610,7 +610,7 @@ body{
   font-size: 0;
 }
 .playerInfo li:not(:last-child){
-  margin-bottom: 100px;
+  margin-bottom: 50px;
 }
 .playerInfo li label, .playerInfo li span{
   display: inline-block;

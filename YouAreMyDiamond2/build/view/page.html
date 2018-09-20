@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>You Are My Diamond</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=1">
 </head>
 
 <body>
@@ -92,6 +92,10 @@
                 <label>合伙奖金</label>
                 <span>{{ playerInfo.par }}</span>
               </li>
+              <li>
+                <label>推荐連結</label>
+                <span><input v-model="temp.friendLinkForUserCopy"></span>
+              </li>
             </ul>
             <div class="btnSide">
                 <button v-on:click="withdraw()">提款</button>
@@ -111,6 +115,11 @@
               <li><span>付费<b>1</b>ETH 成为普通合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
               <li><span>付费<b>2</b>ETH 成为高级合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
             </ul>
+            <div>
+                <h3 v-show="playerInfo.partnerProj == 0">你還沒注册</h3>
+                <h3 v-show="playerInfo.partnerProj == 1">你已是普通合伙人</h3>
+                <h3 v-show="playerInfo.partnerProj == 2">你已是高级合伙人</h3>
+            </div>
             <div class="btnSide">
               <button v-on:click="registerPartner(1)">注册成为普通合伙人</button>
               <button v-on:click="registerPartner(2)">注册成为高级合伙人</button>
@@ -186,8 +195,8 @@
   <script src="../js/truffle-contract.js"></script>
   <script src="../js/web3.min.js"></script>
   <script src="../js/predef.js?v=4"></script>
-  <script src="../js/model.js?v=21"></script>
-  <script src="../js/controller.js?v=61"></script>
+  <script src="../js/model.js?v=23"></script>
+  <script src="../js/controller.js?v=63"></script>
   <script>
       // 處理推薦人連結
       var useLink = url("?link")
@@ -202,16 +211,7 @@
           if(!!useLink){
               // not empty string
               controller.setLink(useLink)
-              
-              // === 支援本機測試 start === //
-              var port = url("port")
-              if(port == "8080"){
-                  port = ":"+port
-              } else {
-                  port = ""
-              }
-              // === 支援本機測試 end === //
-              window.location.href = url('protocol') +"://"+ url('hostname') + port + url("path") + "?link="+useLink
+              window.location.href = controller.formatLinkForUserCopy(useLink)
           }
       }
       // 必須使用jquery的$()，不然會覆寫到別人的window.onload

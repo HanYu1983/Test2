@@ -15,6 +15,18 @@ var controller = controller || {};
         return !!getLink()
     }
     
+    function formatLinkForUserCopy(link){
+        // === 支援本機測試 start === //
+        var port = url("port")
+        if(port == "8080"){
+            port = ":"+port
+        } else {
+            port = ""
+        }
+        // === 支援本機測試 end === //
+        return url('protocol') +"://"+ url('hostname') + port + url("path") + "?link="+link
+    }
+    
     function startApp(){
         var keyAmountChangeRunner = 0
     
@@ -28,7 +40,8 @@ var controller = controller || {};
                   remainTime:0,
                   usedFriendLink: getLink(),
                   useFriend: isUseLink(),
-                  lastPlayerIdFormat: ""
+                  lastPlayerIdFormat: "",
+                  friendLinkForUserCopy: ""
               },
               roundInfo: {
                 "rnd": 0,
@@ -205,6 +218,8 @@ var controller = controller || {};
                 roundInfo.lastPlyrId == 0 ? "尚未有人领先" :
                 roundInfo.lastPlyrId == playerInfo.id ? "我" :
                 "玩家" + roundInfo.lastPlyrId
+            
+            vueModel.temp.friendLinkForUserCopy = formatLinkForUserCopy(playerInfo.friendLink)
         }
     
         var start = async ()=>{
@@ -245,5 +260,6 @@ var controller = controller || {};
     
     module.setLink = setLink
     module.getLink = getLink
+    module.formatLinkForUserCopy = formatLinkForUserCopy
     module.startApp = startApp
 })(controller)

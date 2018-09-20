@@ -209,8 +209,10 @@ contract YAMDMain {
         );
     }
     
-    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32, uint, uint, uint){
-        YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(msg.sender);
+    function getPlayerInfo() public view returns (uint, uint, uint, uint, uint, bytes32, uint, uint, uint, PartnerMgr.Project){
+        address user = msg.sender;
+        YAMDAlg.PlayerInfo memory info = data.getPlayerInfo(user);
+        PartnerMgr.Partner memory partner = data.partnerMgr.getPartner(user);
         return (
             info.key,
             info.winVault,
@@ -220,7 +222,8 @@ contract YAMDMain {
             info.friendLink,
             info.alreadyShareFromKey,
             info.eth,
-            info.id
+            info.id,
+            partner.proj
         );
     }
     

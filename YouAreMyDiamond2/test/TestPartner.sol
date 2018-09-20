@@ -16,6 +16,18 @@ contract TestPartner {
         data.init();
     }
     
+    function testPartnerInfo() public {
+        address han = 0x1234123412;
+        PartnerMgr.Partner memory partner;
+        
+        partner = data.partnerMgr.getPartner(han);
+        Assert.equal(partner.proj == PartnerMgr.Project.Unknow, true, "must has no proj");
+        
+        data.partnerMgr.register(han, PartnerMgr.projFee(data.partnerMgr, PartnerMgr.Project.Two), PartnerMgr.Project.Two);
+        partner = data.partnerMgr.getPartner(han);
+        Assert.equal(partner.proj == PartnerMgr.Project.Two, true, "must has proj two");
+    }
+    
     function testHasFriendLink() public {
         address user1 = 0x1000;
         address user2 = 0x2000;
