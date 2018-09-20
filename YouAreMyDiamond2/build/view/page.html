@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>You Are My Diamond</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=1">
 </head>
 
 <body>
@@ -77,12 +77,8 @@
           <div class="tabBox" id="tab2">
             <ul class="playerInfo">
               <li>
-                <label>获胜奖金</label>
-                <span>{{ playerInfo.win | fixFloat }}</span>
-              </li>
-              <li>
                 <label>游戏钱包</label>
-                <span>{{ playerInfo.gen | fixFloat }}</span>
+                <span>{{ (playerInfo.win + playerInfo.gen) | fixFloat }}</span>
               </li>
               <li>
                 <label>推荐奖金</label>
