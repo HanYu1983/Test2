@@ -192,7 +192,7 @@ contract YAMDMain {
         return YAMDAlg.calcKeyPrice(data, keyAmount);
     }
     
-    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,address,uint,uint,address){
+    function getRoundInfo() public view returns (uint,uint,uint,uint,uint,uint,uint,YAMDAlg.GameState,uint,uint,uint,address){
         YAMDAlg.RoundInfo memory info = data.getRoundInfo();
         return (
             info.rnd,
@@ -203,7 +203,7 @@ contract YAMDMain {
             info.potVault,
             info.pubVault,
             info.state,
-            info.lastPlyrAddr,
+            info.lastPlyrId,
             info.keyAmount,
             info.totalExtendTime,
             info.lastPlyrAddr
