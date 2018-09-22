@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-hans">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>You Are My Diamond</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=1">
+</head>
+
+<body>
+  <div id="app">
+    
+  <div class="navBar">
+    <div class="inner">
+      <div class="left">
+        <div class="logo"><img src="../assets/img/symbols-diamond-logo.png"></div>
+        <h1 class="textshadow">You Are My Diamond 买钻石</h1>
+      </div>
+      <div class="links">
+        <a href="./index.html">介紹</a>
+        <a href="../index.html">首頁</a>
+      </div>
+    </div>
+  </div>
+  <div class="contentPage">
+    <h3 class="textshadow">最后一个下订钻石的将获得</h3>
+    <div class="point">
+      <img src="../assets/img/symbols.png" />
+      <img src="../assets/img/symbols-arrow.png" alt="">
+      <div class="num">{{ (roundInfo.pot/2) | fixFloat }}</div>
+      <img src="../assets/img/symbols-ethereum-logo.png">
+    </div>
+    <div class="time textshadow">
+      <h4>下订倒数</h4>
+      <div>{{ temp.remainTime | formatTime }}</div>
+    </div>
+    <a v-on:click="buy(1)">
+      1x
+      <img src="../assets/img/symbols-ring.png"> 买个钻石讨老婆
+    </a>
+    <img src="../assets/img/symbols-diamond-.png" class="center">
+    <div class="tabSide">
+      <div class="leftTab">
+        <ul class="tab" data-tabgroup="first-tab-group">
+          <li class="active"><a href="#tab1">买钻石</a></li>
+          <li><a href="#tab2">玩家资讯</a></li>
+          <li><a href="#tab3">成为合伙人</a></li>
+        </ul>
+
+        <div class="tabContent" id = "first-tab-group">
+          <div class="tabBox" id="tab1">
+            <h4>立即购买钻石 </h4>
+            <span>立即购买钻石，加入钻石竞标会！</span>
+            <!--<div class="f-right"><label for="">当前钻价:</label><span>{{temp.keyPriceEth}}</span><span>ＥＴＨ</span></div>-->
+            <div class="greenBox">
+              <img src="../assets/img/symbols.png" alt="">
+              <div><input type="text" v-model="temp.keyAmount" v-on:keyup="onKeyAmountChange()">颗钻石</div>
+              <div>约为<span>{{temp.keyPriceEth | fixFloat }}</span>ETH</div>
+            </div>
+            <table class="greenTable">
+              <tr>
+                <td><button v-on:click="addKeyAmount(1)">+<span>1</span>钻石</button></td>
+                <td><button v-on:click="addKeyAmount(2)">+<span>2</span>钻石</button></td>
+                <td><button v-on:click="addKeyAmount(5)">+<span>5</span></button></td>
+                <td><button v-on:click="addKeyAmount(10)">+<span>10</span></button></td>
+                <td><button v-on:click="addKeyAmount(100)">+<span>100</span></button></td>
+              </tr>
+            </table>
+            <div class="btnSide">
+                <button v-on:click="buy(temp.keyAmount)">确认购买</button>
+                <button v-on:click="vaultBuy(temp.keyAmount)">钱包购买</button>
+            </div>
+          </div>
+
+          <div class="tabBox" id="tab2">
+            <ul class="playerInfo">
+              <li>
+                <label>游戏钱包</label>
+                <span>{{ (playerInfo.win + playerInfo.gen) | fixFloat }}</span>
+              </li>
+              <li>
+                <label>推荐奖金</label>
+                <span>{{ playerInfo.fri | fixFloat }}</span>
+              </li>
+              <li>
+                <label>合伙奖金</label>
+                <span>{{ playerInfo.par | fixFloat }}</span>
+              </li>
+              <li>
+                <label>推荐連結</label>
+                <span><input v-model="temp.friendLinkForUserCopy"></span>
+              </li>
+            </ul>
+            <div class="btnSide">
+                <button v-on:click="withdraw()">提款</button>
+                <button v-on:click="copyLink()">复制推薦連結</button>
+            </div>
+          </div>
+
+          <div class="tabBox" id="tab3">
+            <h3>说明</h3>
+            <h4>开盘前</h4>
+            <ul class="payInfo">
+              <li><span>付费<b>0.5</b>ETH 成为普通合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
+              <li><span>付费<b>1</b>ETH 成为高级合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
+            </ul>
+            <h4>开盘后1个月</h4>
+            <ul class="payInfo">
+              <li><span>付费<b>1</b>ETH 成为普通合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>2%</b></span></li>
+              <li><span>付费<b>2</b>ETH 成为高级合伙人</span><i><img src="../assets/img/whiteArrow.png"></i><span>抽成整个团队业绩的<b>4%</b></span></li>
+            </ul>
+            <div>
+                <h3 v-show="playerInfo.partnerProj == 0">你還沒注册</h3>
+                <h3 v-show="playerInfo.partnerProj == 1">你已是普通合伙人</h3>
+                <h3 v-show="playerInfo.partnerProj == 2">你已是高级合伙人</h3>
+            </div>
+            <div class="btnSide">
+              <button v-on:click="registerPartner(1)">注册成为普通合伙人</button>
+              <button v-on:click="registerPartner(2)">注册成为高级合伙人</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <div class="rightTab">
+        <ul class="tab" data-tabgroup="second-tab-group">
+          <li class="active"><a href="#tab5">个人摘要</a></li>
+          <li><a href="#tab4">游戏摘要</a></li>
+        </ul>
+        <div class="tabContent" id="second-tab-group">
+            <div class="tabBox" id="tab5">
+              <ul class="stat">
+                <li><label>钻石数量</label><span class="textshadow">{{ playerInfo.key | fixFloat }}</span><i><img src="../assets/img/symbols-ethereum-logo.png"></i></li>
+                <li><label>投资总额</label><span class="textshadow">{{ playerInfo.eth | fixFloat }}</span><i><span class="textshadow">ETH</span></i></li>
+                <li><label>已分发奖金</label><span class="textshadow">{{ playerInfo.alreadyShareFromKey | fixFloat }}</span><i><span class="textshadow">ETH</span></i></li>
+                <li><label>已延长时间</label><span class="textshadow">{{ roundInfo.totalExtendTime | formatTime }}</span><i class="textshadow"></i></li>
+              </ul>
+            </div>
+            
+          <div class="tabBox" id="tab4">
+            <ul class="summaryBox">
+              <li>
+                <label for="">当前回合数：</label>
+                <span>{{ roundInfo.rnd }}</span>
+              </li>
+              <li>
+                <label for="">领先玩家：</label>
+                <span>{{ temp.lastPlayerIdFormat }}</span>
+              </li>
+              <li>
+                <label for="">游戏剩余时间：</label>
+                <span>{{ temp.remainTime | formatTime }}</span>
+              </li>
+              <li>
+                <label for="">彩池：</label>
+                <span>{{ roundInfo.pot | fixFloat }}</span>
+              </li>
+              <li>
+                <label for="">游戏状态：
+                    <span v-show="roundInfo.state == 1">游戏进行中，时间持续倒数</span>
+                    <span v-show="roundInfo.state == 0">前一局已结束，新局开始，等待玩家开局，时间不到数</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  
+  <footer>
+    2018 You Are My Diamond All Right Reserved
+  </footer>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <script src="../assets/js/main.js"></script>
+  <!-- 以上是view -->
+  <!-- 以下是model/controller-->
+  <!-- 注意：不要更新這裡使用的jquery版本 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-url/2.5.3/url.min.js"></script>
+  <script src="../js/truffle-contract.js"></script>
+  <script src="../js/web3.min.js"></script>
+  <script src="../js/predef.js?v=7"></script>
+  <script src="../js/model.js?v=27"></script>
+  <script src="../js/controller.js?v=67"></script>
+  <script>
+      // 處理推薦人連結
+      var useLink = url("?link")
+      // !!"string" is true
+      // !!"" is false
+      // !!undefined is false
+      if(!!useLink){
+          // not empty string
+          controller.setLink(useLink)
+      } else {
+          useLink = controller.getLink();
+          if(!!useLink){
+              // not empty string
+              controller.setLink(useLink)
+              window.location.href = controller.formatLinkForUserCopy(useLink)
+          }
+      }
+      // 必須使用jquery的$()，不然會覆寫到別人的window.onload
+      $(controller.startApp)
+  </script>
+</body>
+
+</html>
