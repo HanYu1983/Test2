@@ -1,0 +1,1 @@
+lsc -o js -wc src

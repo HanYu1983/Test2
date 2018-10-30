@@ -8,3 +8,5 @@ ProjectSettings/
 UnityPackageManager/
 YouAreMyDiamond/build/contracts/
 YouAreMyDiamond2/build/contracts/
+node_modules
+package-lock.json

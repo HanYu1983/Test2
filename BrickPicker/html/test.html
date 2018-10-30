@@ -1,0 +1,36 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/livescript/1.6.0/livescript-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/ls">
+/*
+getUrl = (url, cb) -->
+    $.ajax do
+        url: url
+        method: 'GET'
+        success: (res)->
+            cb null, res
+        error: (res, req, error)->
+            cb error
+
+[err, res] <- getUrl 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+console.log(err, res)
+*/
+
+ws = new WebSocket 'wss://stream.binance.com:9443/ws/bnbbtc@depth'
+    ..onopen = (evt) ->
+        console.log evt
+
+    ..onclose = (evt) ->
+        console.log evt
+    
+    ..onmessage = ({data}) ->
+        console.log JSON.parse(data)
+        
+    ..onerror = (evt) ->
+        console.log evt
+    
+    
+</script>
+<script>
+    var LiveScript = require("livescript");
+    LiveScript.go();
+</script>
