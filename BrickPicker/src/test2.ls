@@ -51,25 +51,8 @@ huobiWs = new WebSocket 'wss://api.huobi.pro/ws'
     ..on 'error', (err) ->
         console.log err
 */
+
 /*
-if (data.hasOwnProperty ('M')) {
-    if (data.M[0]) {
-      if (data.M[0].hasOwnProperty ('A')) {
-        if (data.M[0].A[0]) {
-          b64 = data.M[0].A[0];
-          raw = new Buffer.from(b64, 'base64');
-
-          zlib.inflateRaw (raw, function (err, inflated) {
-            if (! err) {
-              json = JSON.parse (inflated.toString ('utf8'));
-              console.log (json);
-            }
-          });
-        }
-      }
-    }
-*/
-
 bittrexWs  = new signalR.client 'wss://socket.bittrex.com/signalr' ['c2']
     ..serviceHandlers.connected = (conn)->
         console.log 'connected'
@@ -100,3 +83,25 @@ bittrexWs  = new signalR.client 'wss://socket.bittrex.com/signalr' ['c2']
                 console.log err
             data = JSON.parse inflated.toString ('utf8')
             console.log data
+*/
+
+
+/*
+poloniexWs = new WebSocket 'wss://api2.poloniex.com'
+    ..on 'open', ->
+        console.log 'open'
+        sendData = 
+            {subscribe: 'subscribe', channel: 1000} |>
+            JSON.stringify _, 2
+        console.log sendData
+        poloniexWs.send(sendData, (err)->console.log(err))
+        
+    ..on 'close', ->
+        console.log 'close'
+
+    ..on 'message', (data) ->
+        console.log data
+        
+    ..on 'error', (err) ->
+        console.log err
+*/
