@@ -104,6 +104,21 @@ checkBuy = (storage, ma, mb, dir = '>')->
         volumn: volumn
         guess: guess
 
+markets = ['binance', 'huobi', 'bittrex', 'poloniex']
+    ..sort()
+
+(err, storage) <- updatePrice
+
+earn = 
+    [[ma, mb] for ma in markets for mb in markets when ma != mb] |>
+    (Array.prototype.map.call _, ([ma,mb])->[ma, mb, if ma > mb then '>' else '<']) |>
+    (Array.prototype.map.call _, (args)->(checkBuy.apply null, [storage].concat(args))) |>
+    (Array.prototype.filter.call _, (info)->info.space > 0) |>
+    (Array.prototype.reduce.call _, (acc, info)->(acc+info.guess[0]), 0)
+
+console.log earn, earn* 30
+
+/*
 (err, storage) <- updatePrice
 
 info = checkBuy storage, 'binance', 'huobi'
@@ -141,3 +156,4 @@ console.log info
 
 info = checkBuy storage, 'bittrex', 'poloniex', '<'
 console.log info
+*/
