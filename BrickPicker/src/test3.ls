@@ -94,7 +94,7 @@ checkBuy = (storage, ma, mb, dir = '>')->
     volumn = [sellEarn[1], buyCost[1]]
         ..sort!
     # 預估獲利[美元, 台幣]
-    guess = [space* volumn[0], space* volumn[0] *30]
+    guess = space* volumn[0]
     
     return
         dir: "#{ma} #{dir} #{mb}"
@@ -114,7 +114,7 @@ earn =
     (Array.prototype.map.call _, ([ma,mb])->[ma, mb, if ma > mb then '>' else '<']) |>
     (Array.prototype.map.call _, (args)->(checkBuy.apply null, [storage].concat(args))) |>
     (Array.prototype.filter.call _, (info)->info.space > 0) |>
-    (Array.prototype.reduce.call _, (acc, info)->(acc+info.guess[0]), 0)
+    (Array.prototype.reduce.call _, (acc, info)->(acc+info.guess), 0)
 
 console.log earn, earn* 30
 

@@ -88,7 +88,7 @@
     space = sellEarn[0] - buyCost[0];
     x$ = volumn = [sellEarn[1], buyCost[1]];
     x$.sort();
-    guess = [space * volumn[0], space * volumn[0] * 30];
+    guess = space * volumn[0];
     return {
       dir: ma + " " + dir + " " + mb,
       buyCost: buyCost[0],
@@ -105,7 +105,7 @@
     earn = partialize$.apply(Array.prototype.reduce, [
       Array.prototype.reduce.call, [
         void 8, function(acc, info){
-          return acc + info.guess[0];
+          return acc + info.guess;
         }, 0
       ], [0]
     ])(
