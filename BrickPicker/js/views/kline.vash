@@ -2,47 +2,48 @@
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        var origin = @html.raw(model.data)
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(start);
-      
-      function start(){
-          drawKline()
-          drawKd()
-      }
+var origin = @html.raw(model.data)
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(start);
 
-  function drawKline() {
+function start(){
+    drawKline()
+    drawKd()
+}
+
+function drawKline() {
     var data = google.visualization.arrayToDataTable(origin, true);
 
     var options = {
-      legend:'none'
+        legend:'none'
     };
 
     var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
 
     chart.draw(data, options);
-  }
-  
-  function drawKd() {
-    
-    
+}
+
+var startKdCount = 8
+
+function drawKd() {
     var rsvLine = []
+
     
-    for(var i=9; i<origin.length; ++i){
+    for(var i=startKdCount; i<origin.length; ++i){
         [openTime, low, open, close, high] = origin[i]
-        var before9k = origin.slice(i-9, i)
-        var min9k = Math.min.apply(null, before9k.map(([_, low])=>low))
-        var max9k = Math.max.apply(null, before9k.map(([_, _2, _3, _4, h])=>h))
+        var before8k = origin.slice(i-startKdCount, i)
+        var min9k = Math.min.apply(null, before8k.map(([_, low])=>low).concat([low]))
+        var max9k = Math.max.apply(null, before8k.map(([_, _2, _3, _4, high])=>high).concat([high]))
         var rsv = (close - min9k)*100/(max9k - min9k)
         rsvLine.push(rsv)
     }
-    
+
     var kline = []
     var dline = []
     for(var i=0; i<rsvLine.length; ++i){
         var rsv = rsvLine[i]
-        var prevK = 0
-        var prevD = 0
+        var prevK = 50
+        var prevD = 50
         if(i>0){
             prevK = kline[i-1]
             prevD = dline[i-1]
@@ -53,30 +54,107 @@
         dline.push(d)
     }
     
+    checkEarn(origin, kline, dline)
+
     var data = []
     for(var i=0; i<origin.length; ++i){
         [openTime] = origin[i]
-        if(i<9){
-            data.push([openTime, 0, 0])
+        if(i<startKdCount){
+            data.push([openTime, 50, 50])
             continue
         }
-        data.push([openTime, kline[i-9], dline[i-9]])
+        data.push([openTime, kline[i-startKdCount], dline[i-startKdCount]])
     }
-    
+
     data = [['time', 'k', 'd']].concat(data)
     data = google.visualization.arrayToDataTable(data)
-    
+
     var options = {
-      title: 'Company Performance',
-      curveType: 'function',
-      legend: { position: 'bottom' }
+        title: 'Company Performance',
+        curveType: 'function',
+        legend: { position: 'bottom' }
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
     chart.draw(data, options);
-  }
-  
+}
+
+function checkEarn(origin, kline, dline){
+    var orders = []
+    for(var i=1; i<kline.length; ++i){
+        var prevK = kline[i-1]
+        var prevD = dline[i-1]
+        var k = kline[i]
+        var d = dline[i]
+        if(prevK <= prevD && k > d && i<kline.length-1){
+            // cold cross
+            var originId = startKdCount+i+1
+            var date = origin[originId][0]
+            var open = origin[originId][2]
+            var buyPrice = open
+            orders.push({
+                "action":"buy",
+                "date":date,
+                "price":buyPrice
+            })
+        }
+        
+        if(prevK >= prevD && k < d && i<kline.length-1){
+            // died cross
+            var originId = startKdCount+i+1
+            var date = origin[originId][0]
+            var open = origin[originId][2]
+            var buyPrice = open
+            orders.push({
+                "action":"sell",
+                "date":date,
+                "price":buyPrice
+            })
+        }
+    }
+    
+    console.log(orders)
+    
+    var amount = 1
+    var storage = 0
+    var money = 0
+    var useMoney = 0
+    var rate = []
+
+    for(var i=0; i<orders.length; ++i){
+        var order = orders[i]
+        if(order.action == "buy"){
+            if(storage != 0){
+                console.log('has storage')
+            } else {
+                var price = order.price*amount
+                money -= price
+                money -= price/1000
+                storage = price
+                useMoney = price
+            }
+        }
+        
+        if(order.action == "sell"){
+            if(storage == 0){
+                console.log("no storage")
+            } else {
+                var price = order.price*amount
+                money += price
+                money -= price/1000
+                storage = 0
+                
+                earnRate = (price - useMoney)/useMoney
+                rate.push(earnRate)
+            }
+        }
+    }
+    
+    console.log(storage, money, rate.reduce((a,b)=>a+b, 0)/rate.length)
+    console.log(rate)
+}
+
     </script>
   </head>
   <body>

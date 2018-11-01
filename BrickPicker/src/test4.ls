@@ -24,9 +24,12 @@ app = express()
 app.set 'port', 8080
 app.set 'views', path.join( __dirname, '/views')
 app.set 'view engine', 'vash'
-app.get '/view/kline/:count', (req, res)->
+app.get '/view/kline/:ma/:mb/:range/:count', (req, res)->
     count = req.params.count
-    (err, data) <- getUrl "https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=#{count}"
+    ma = req.params.ma
+    mb = req.params.mb
+    range = req.params.range
+    (err, data) <- getUrl "https://api.binance.com/api/v1/klines?interval=#{range}&limit=#{count}&symbol="+mb.toUpperCase()+ma.toUpperCase()
     if err
         res.render 'error'
     else

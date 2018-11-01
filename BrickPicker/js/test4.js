@@ -28,10 +28,13 @@
   app.set('port', 8080);
   app.set('views', path.join(__dirname, '/views'));
   app.set('view engine', 'vash');
-  app.get('/view/kline/:count', function(req, res){
-    var count;
+  app.get('/view/kline/:ma/:mb/:range/:count', function(req, res){
+    var count, ma, mb, range;
     count = req.params.count;
-    return getUrl("https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=" + count, function(err, data){
+    ma = req.params.ma;
+    mb = req.params.mb;
+    range = req.params.range;
+    return getUrl(("https://api.binance.com/api/v1/klines?interval=" + range + "&limit=" + count + "&symbol=") + mb.toUpperCase() + ma.toUpperCase(), function(err, data){
       var format;
       if (err) {
         return res.render('error');
