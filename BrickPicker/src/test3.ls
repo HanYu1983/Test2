@@ -3,6 +3,7 @@ async = require('async')
 
 # --> : use for curry
 getUrl = (url, cb) -->
+    console.log url
     options =
         url: url
         method: 'GET'
@@ -15,14 +16,14 @@ getUrl = (url, cb) -->
             cb null, JSON.parse(body)
     request(options, callback)
 
-updatePrice = (cb) ->
+updatePrice = (a, b, cb) ->
     storage = {}
     
     (err, results) <- async.parallel [
-        getUrl 'https://api.binance.com/api/v1/depth?symbol=BTCUSDT'
-        getUrl 'https://api.huobipro.com/market/depth?symbol=btcusdt&type=step0'
-        getUrl 'https://bittrex.com/api/v1.1/public/getorderbook?market=USDT-BTC&type=both'
-        getUrl 'https://poloniex.com/public?command=returnOrderBook&currencyPair=USDT_BTC&depth=10'
+        getUrl "https://api.binance.com/api/v1/depth?symbol="+b.toUpperCase()+a.toUpperCase()
+        getUrl "https://api.huobipro.com/market/depth?symbol=#{b}#{a}&type=step0"
+        getUrl "https://bittrex.com/api/v1.1/public/getorderbook?type=both&market="+a.toUpperCase()+"-"+b.toUpperCase()
+        getUrl "https://poloniex.com/public?command=returnOrderBook&depth=10&currencyPair="+a.toUpperCase()+"_"+b.toUpperCase()
     ]
     if err 
         return cb err
@@ -93,7 +94,7 @@ checkBuy = (storage, ma, mb, dir = '>')->
     # 最小最大量
     volumn = [sellEarn[1], buyCost[1]]
         ..sort!
-    # 預估獲利[美元, 台幣]
+    # 預估獲利美元
     guess = space* volumn[0]
     
     return
@@ -101,25 +102,17 @@ checkBuy = (storage, ma, mb, dir = '>')->
         buyCost: buyCost[0]
         sellEarn: sellEarn[0]
         space: space
+        spaceR: space/buyCost[0]
         volumn: volumn
         guess: guess
+        realCost: (buyCost[0]* volumn[0])
+        earnP: guess/(buyCost[0]* volumn[0])
 
-markets = ['binance', 'huobi', 'bittrex', 'poloniex']
-    ..sort()
-
-(err, storage) <- updatePrice
-
-earn = 
-    [[ma, mb] for ma in markets for mb in markets when ma != mb] |>
-    (Array.prototype.map.call _, ([ma,mb])->[ma, mb, if ma > mb then '>' else '<']) |>
-    (Array.prototype.map.call _, (args)->(checkBuy.apply null, [storage].concat(args))) |>
-    (Array.prototype.filter.call _, (info)->info.space > 0) |>
-    (Array.prototype.reduce.call _, (acc, info)->(acc+info.guess), 0)
-
-console.log earn, earn* 30
 
 /*
 (err, storage) <- updatePrice
+if err
+    return console.log err
 
 info = checkBuy storage, 'binance', 'huobi'
 console.log info
@@ -156,4 +149,34 @@ console.log info
 
 info = checkBuy storage, 'bittrex', 'poloniex', '<'
 console.log info
+
 */
+
+markets = ['binance', 'huobi', 'bittrex', 'poloniex']
+    ..sort()
+
+total = [0, 0]
+
+setInterval do
+    ->
+        (err, storage) <- updatePrice 'btc' 'xrp'
+        if err
+            return console.log err
+            
+        orders = 
+            [[ma, mb] for ma in markets for mb in markets when ma != mb] |>
+            (Array.prototype.map.call _, ([ma,mb])->[ma, mb, if ma > mb then '>' else '<']) |>
+            (Array.prototype.map.call _, (args)->(checkBuy.apply null, [storage].concat(args))) |>
+            (Array.prototype.filter.call _, (info)->info.spaceR > 0)
+            
+        if orders.length == 0
+            return console.log 'wait for next'
+            
+        earn = orders |>
+            (Array.prototype.reduce.call _, ([guess, cost], info)->[guess+info.guess, cost+(info.buyCost*info.volumn[0])], [0,0])
+        console.log 'curr', earn, earn[0]/earn[1]
+        
+        total[0] += earn[0]
+        total[1] += earn[1]
+        console.log 'total:', total, total[0]/total[1]
+    1000
