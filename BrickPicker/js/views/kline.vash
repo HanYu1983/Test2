@@ -204,6 +204,7 @@ function checkEarn(origin, kline, dline){
     var money = 0
     var useMoney = 0
     var rate = []
+    var gas = 0.001425
 
     for(var i=0; i<orders.length; ++i){
         var order = orders[i]
@@ -212,10 +213,9 @@ function checkEarn(origin, kline, dline){
                 console.log('has storage')
             } else {
                 var price = order.price*amount
-                money -= price
-                money -= price/1000
+                money -= price + price * gas
                 storage = price
-                useMoney = price
+                useMoney = price + price * gas
             }
         }
         
@@ -224,17 +224,29 @@ function checkEarn(origin, kline, dline){
                 console.log("no storage")
             } else {
                 var price = order.price*amount
-                money += price
-                money -= price/1000
+                var earn = price - price * gas
+                money += earn
                 storage = 0
                 
-                earnRate = (price - useMoney)/useMoney
+                earnRate = ((earn - useMoney)/useMoney)
                 rate.push(earnRate)
             }
         }
     }
     
-    console.log(storage, money, rate.reduce((a,b)=>a+b, 0)/rate.length)
+    var earnRateAvg = rate.reduce((a,b)=>a+b, 0)/rate.length
+    var transactionTime = rate.length
+    var useMoneyPerTranaction = 100000
+    var totalEarn = (useMoneyPerTranaction*earnRateAvg)*transactionTime
+    var totalEarnRate = (totalEarn + useMoneyPerTranaction)/useMoneyPerTranaction
+    console.log(
+        "股價", storage,
+        "股數", useMoneyPerTranaction/ storage,
+        "金流", money, 
+        "單筆交易平均獲利率", earnRateAvg, 
+        "獲利", totalEarn, 
+        "獲利率", totalEarnRate
+    )
     //console.log(rate)
 }
 
