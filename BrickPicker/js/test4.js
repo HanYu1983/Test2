@@ -28,6 +28,41 @@
   app.set('port', 8080);
   app.set('views', path.join(__dirname, '/views'));
   app.set('view engine', 'vash');
+  app.get('/view/stock/:cnt/:stockId', function(req, res){
+    var stockId, cnt;
+    stockId = req.params.stockId;
+    cnt = parseInt(req.params.cnt);
+    return async.series((function(){
+      var i$, to$, results$ = [];
+      for (i$ = 1, to$ = cnt; i$ <= to$; ++i$) {
+        results$.push(i$);
+      }
+      return results$;
+    }()).map(function(m){
+      return getUrl("http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=2017" + (m + '').padStart(2, '0') + "01&stockNo=" + stockId);
+    }), function(err, results){
+      var data, format;
+      if (err) {
+        return res.json(err);
+      } else {
+        data = results.reduce(function(acc, arg$){
+          var data;
+          data = arg$.data;
+          return acc.concat(data);
+        }, []);
+        format = function(arg$){
+          var openTime, _, _2, open, high, low, close;
+          openTime = arg$[0], _ = arg$[1], _2 = arg$[2], open = arg$[3], high = arg$[4], low = arg$[5], close = arg$[6];
+          return [new Date(openTime).toString()].concat([low, open, close, high].map(parseFloat));
+        };
+        data = JSON.stringify(partialize$.apply(Array.prototype.map, [Array.prototype.map.call, [void 8, format], [0]])(
+        data));
+        return res.render("kline", {
+          data: data
+        });
+      }
+    });
+  });
   app.get('/view/kline/:ma/:mb/:range/:count', function(req, res){
     var count, ma, mb, range;
     count = req.params.count;

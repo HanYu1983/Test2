@@ -7,8 +7,12 @@ google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(start);
 
 function start(){
+    checkStyle(origin)
     drawKline()
     drawKd()
+    drawAvg("curve_chart2", 5, 10)
+    drawAvg("curve_chart3", 2, 20)
+    drawEnergy('curve_chart4', 20)
 }
 
 function drawKline() {
@@ -23,17 +27,96 @@ function drawKline() {
     chart.draw(data, options);
 }
 
+function drawEnergy(div, cnt){
+    var line = []
+    for(var i=(cnt-1); i<origin.length; ++i){
+        var total = 0
+        for(var j=0; j<(cnt-1); ++j){
+            var currPos = i-j
+            var prevPos = currPos-1
+            var rate = (origin[currPos][3]-origin[prevPos][3])/origin[prevPos][3]
+            total += rate
+        }
+        total /= cnt
+        line.push(total)
+    }
+    
+    var data = []
+    for(var i=0; i<origin.length; ++i){
+        [openTime] = origin[i]
+        if(i<(cnt-1)){
+            data.push([openTime, line[0]])
+            continue
+        }
+        data.push([openTime, line[i-(cnt-1)]])
+    }
+
+    data = [['time', cnt+'']].concat(data)
+    data = google.visualization.arrayToDataTable(data)
+
+    var options = {
+        title: 'Company Performance',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById(div));
+
+    chart.draw(data, options);
+}
+
+function drawAvg(div, cnt, cnt2) {
+    var avgLine = []
+    for(var i=cnt-1; i<origin.length; ++i){
+        var avg = origin.slice(i-(cnt-1), i+1).map(([_, _2, _3, close])=>close).reduce((acc, curr)=>acc+curr, 0)/cnt
+        avgLine.push(avg)
+    }
+
+    var avgLine2 = []
+    for(var i=cnt2-1; i<origin.length; ++i){
+        var avg = origin.slice(i-(cnt2-1), i+1).map(([_, _2, _3, close])=>close).reduce((acc, curr)=>acc+curr, 0)/cnt2
+        avgLine2.push(avg)
+    }
+    
+    checkEarn(origin, avgLine2, avgLine)
+
+    var data = []
+    for(var i=0; i<origin.length; ++i){
+        [openTime] = origin[i]
+        if(i<(cnt-1)){
+            data.push([openTime, avgLine[0], avgLine2[0]])
+            continue
+        } else if(i < (cnt2-1)){
+            data.push([openTime, avgLine[i-(cnt-1)], avgLine2[0]])
+            continue
+        }
+        data.push([openTime, avgLine[i-(cnt-1)], avgLine2[i-(cnt2-1)]])
+    }
+
+    data = [['time', cnt+'', cnt2+'']].concat(data)
+    data = google.visualization.arrayToDataTable(data)
+
+    var options = {
+        title: 'Company Performance',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById(div));
+
+    chart.draw(data, options);
+}
+
 var startKdCount = 8
 
 function drawKd() {
     var rsvLine = []
 
-    
     for(var i=startKdCount; i<origin.length; ++i){
         [openTime, low, open, close, high] = origin[i]
-        var before8k = origin.slice(i-startKdCount, i)
-        var min9k = Math.min.apply(null, before8k.map(([_, low])=>low).concat([low]))
-        var max9k = Math.max.apply(null, before8k.map(([_, _2, _3, _4, high])=>high).concat([high]))
+        var before9k = origin.slice(i-startKdCount, i+1)
+        var min9k = Math.min.apply(null, before9k.map(([_, low])=>low))
+        var max9k = Math.max.apply(null, before9k.map(([_, _2, _3, _4, high])=>high))
         var rsv = (close - min9k)*100/(max9k - min9k)
         rsvLine.push(rsv)
     }
@@ -95,8 +178,8 @@ function checkEarn(origin, kline, dline){
             var buyPrice = open
             orders.push({
                 "action":"buy",
-                "date":date,
-                "price":buyPrice
+                "price":buyPrice,
+                "date":date
             })
         }
         
@@ -108,8 +191,8 @@ function checkEarn(origin, kline, dline){
             var buyPrice = open
             orders.push({
                 "action":"sell",
-                "date":date,
-                "price":buyPrice
+                "price":buyPrice,
+                "date":date
             })
         }
     }
@@ -152,7 +235,18 @@ function checkEarn(origin, kline, dline){
     }
     
     console.log(storage, money, rate.reduce((a,b)=>a+b, 0)/rate.length)
-    console.log(rate)
+    //console.log(rate)
+}
+
+function checkStyle(origin){
+    var total = 0
+    for(var i=1; i<origin.length; ++i){
+        var prev = origin[i-1][3]
+        var curr = origin[i][3]
+        var rate = (curr-prev)/prev
+        total += rate
+    }
+    console.log('style:', total/(origin.length-1))
 }
 
     </script>
@@ -160,5 +254,8 @@ function checkEarn(origin, kline, dline){
   <body>
     <div id="chart_div" style="width: 900px; height: 500px;"></div>
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart2" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart3" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart4" style="width: 900px; height: 500px"></div>
   </body>
 </html>
