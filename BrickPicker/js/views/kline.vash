@@ -16,7 +16,8 @@ function start(){
 }
 
 function drawKline() {
-    var data = google.visualization.arrayToDataTable(origin, true);
+    var temp = origin.map((ary)=>ary.slice(0, 5))
+    var data = google.visualization.arrayToDataTable(temp, true);
 
     var options = {
         legend:'none'
