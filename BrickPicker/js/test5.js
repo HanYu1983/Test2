@@ -285,7 +285,7 @@
     };
   };
   fetchStockData(2475, [2017], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function(err, data){
-    var stockData, close, kd, orders, result;
+    var stockData, close, kd, orders, result, reductions, map2, YuMA, EMA, MACDDIF, MACDDEM, dif, dem;
     if (err) {
       return console.log(err);
     }
@@ -304,6 +304,72 @@
     orders);
     console.log(result);
     orders = checkSignal(MA(2, close), MA(20, close), stockData);
+    result = checkEarn(
+    orders);
+    console.log(result);
+    reductions = function(f, i, seq){
+      return seq.reduce(function(acc, v){
+        var prev, curr;
+        prev = acc[acc.length - 1];
+        curr = f(prev, v);
+        return acc.concat([curr]);
+      }, [i]);
+    };
+    map2 = function(f, vs1, vs2){
+      var i$, len$, i, _, results$ = [];
+      for (i$ = 0, len$ = vs1.length; i$ < len$; ++i$) {
+        i = i$;
+        _ = vs1[i$];
+        results$.push(f(vs1[i], i < vs2.length ? vs2[i] : 0));
+      }
+      return results$;
+    };
+    YuMA = function(n, vs){
+      var fv;
+      if (vs.length >= n) {
+        fv = vs.slice(0, n).reduce(curry$(function(x$, y$){
+          return x$ + y$;
+        }), 0) / n;
+        return reductions(function(ma, v){
+          return ma * ((n - 1) / n) + v / n;
+        }, fv, vs.slice(n, vs.length));
+      }
+    };
+    EMA = function(n, vs){
+      var fv, alpha;
+      if (vs.length >= n) {
+        fv = vs.slice(0, n).reduce(curry$(function(x$, y$){
+          return x$ + y$;
+        }), 0) / n;
+        alpha = 2 / (n + 1);
+        return reductions(function(ema, v){
+          return (v - ema) * alpha + ema;
+        }, fv, vs.slice(n, vs.length));
+      }
+    };
+    MACDDIF = function(n, m, vs){
+      return map2(curry$(function(x$, y$){
+        return x$ - y$;
+      }), EMA(n, vs), EMA(m, vs));
+    };
+    MACDDEM = EMA;
+    dif = MACDDIF(12, 26, close.slice(0, -1).reverse());
+    dem = MACDDEM(9, dif);
+    dif = dif.concat((function(){
+      var i$, to$, results$ = [];
+      for (i$ = 0, to$ = close.length - dif.length; i$ < to$; ++i$) {
+        results$.push(0);
+      }
+      return results$;
+    }())).reverse();
+    dem = dem.concat((function(){
+      var i$, to$, results$ = [];
+      for (i$ = 0, to$ = close.length - dem.length; i$ < to$; ++i$) {
+        results$.push(0);
+      }
+      return results$;
+    }())).reverse();
+    orders = checkSignal(dem, dif, stockData);
     result = checkEarn(
     orders);
     return console.log(result);
