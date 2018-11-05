@@ -179,7 +179,7 @@ checkEarn = (orders)->
         earnRate: totalEarnRate
         times: rate.length
     
-(err, data) <- fetchStockData 2475, [2017], [1 to 6]
+(err, data) <- fetchStockData 2475, [2017], [1 to 12]
 if err
     return console.log err
 

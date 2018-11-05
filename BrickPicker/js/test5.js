@@ -284,7 +284,7 @@
       times: rate.length
     };
   };
-  fetchStockData(2475, [2017], [1, 2, 3, 4, 5, 6], function(err, data){
+  fetchStockData(2475, [2017], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function(err, data){
     var stockData, close, kd, orders, result;
     if (err) {
       return console.log(err);
