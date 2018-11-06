@@ -44,10 +44,13 @@ export formatStockData = (data) ->
         .reduce ((acc, {data})->acc ++ data), []
 
     format = ([openTime, _, _, open, high, low, close, _, volumn])->
+        [openTime] ++ ([low, open, close, high, volumn].map parseFloat)
+        /*
         tmp = new Date(openTime)
         y = tmp.getFullYear() + 1911
         m = tmp.getMonth() + 1
         d = tmp.getDay() + 1 
         [new Date("#{y}/#{m}/#{d}").getTime()] ++ ([low, open, close, high, volumn].map parseFloat)
+        */
 
     return data.map format

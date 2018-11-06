@@ -41,7 +41,7 @@
     }
   };
   out$.checkSignal = checkSignal = function(line, buyLine, sellLine, data){
-    var orders, i$, ref$, len$, i, prevL, prevB, prevS, l, b, s, date, open, buyPrice;
+    var orders, i$, ref$, len$, i, prevL, prevB, prevS, l, b, s, ref1$, date, _, open, close, buyPrice;
     orders = [];
     for (i$ = 0, len$ = (ref$ = (fn$())).length; i$ < len$; ++i$) {
       i = ref$[i$];
@@ -51,24 +51,24 @@
       l = line[i];
       b = buyLine[i];
       s = sellLine[i];
-      if (prevL <= prevB && l > b && i < line.length - 1) {
-        date = data[i][0];
-        open = data[i][2];
+      if (prevL <= prevB && l > b && i < line.length) {
+        ref1$ = data[i], date = ref1$[0], _ = ref1$[1], open = ref1$[2], close = ref1$[3], _ = ref1$[4];
         buyPrice = open;
         orders.push({
           action: "buy",
           price: buyPrice,
-          date: date
+          date: date,
+          idx: i
         });
       }
-      if (prevL >= prevS && l < s && i < line.length - 1) {
-        date = data[i][0];
-        open = data[i][2];
-        buyPrice = open;
+      if (prevL >= prevS && l < s && i < line.length) {
+        ref1$ = data[i], date = ref1$[0], _ = ref1$[1], open = ref1$[2], close = ref1$[3], _ = ref1$[4];
+        buyPrice = (open + close) / 2;
         orders.push({
           action: "sell",
           price: buyPrice,
-          date: date
+          date: date,
+          idx: i
         });
       }
     }
@@ -81,8 +81,8 @@
       return results$;
     }
   };
-  out$.checkEarn = checkEarn = function(orders){
-    var storage, money, useMoney, rate, gas, i$, len$, order, price, cost, earn, earnRate, earnRateAvg, transactionTime, useMoneyPerTranaction, totalEarn, totalEarnRate;
+  out$.checkEarn = checkEarn = function(data, orders){
+    var storage, money, useMoney, rate, gas, i$, len$, order, ref$, date, low, open, close, high, price, cost, earn, earnRate, earnRateAvg, transactionTime, useMoneyPerTranaction, totalEarn, totalEarnRate;
     storage = 0;
     money = 0;
     useMoney = 0;
@@ -90,10 +90,17 @@
     gas = 0.001425;
     for (i$ = 0, len$ = orders.length; i$ < len$; ++i$) {
       order = orders[i$];
+      if (order.idx >= data.length - 1) {
+        break;
+      }
       if (order.action === "buy") {
         if (storage !== 0) {
           console.log("has storage");
         } else {
+          ref$ = data[order.idx + 1], date = ref$[0], low = ref$[1], open = ref$[2], close = ref$[3], high = ref$[4];
+          if (order.price < low || order.price > high) {
+            continue;
+          }
           price = order.price;
           cost = price + price * gas;
           money -= cost;
@@ -105,7 +112,8 @@
         if (storage === 0) {
           console.log("no storage");
         } else {
-          price = order.price;
+          ref$ = data[order.idx + 1], date = ref$[0], low = ref$[1], open = ref$[2], close = ref$[3], high = ref$[4];
+          price = open;
           earn = price - price * gas;
           money += earn;
           earnRate = (earn - useMoney) / useMoney;

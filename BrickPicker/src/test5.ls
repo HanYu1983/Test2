@@ -67,6 +67,7 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
         
         checks = [
             ["ma", ma5, ma10, ma10]
+            ["ema2-20", ema5, ema10, ema10]
             ["kd", kdK, kdD, kdD]
             ["macd", dif, dem, dem]
             ["bbi", close, bbi, bbi]

@@ -84,7 +84,7 @@
         ref$ = Trix(12, 12, stockData), trix = ref$[0], matrix = ref$[1];
         yuClock = YuClock(20, 5, stockData);
         checks = [
-          ["ma", ma5, ma10, ma10], ["kd", kdK, kdD, kdD], ["macd", dif, dem, dem], ["bbi", close, bbi, bbi], ["chaikin", chaikin, line0, line0], ["uos", uos, line50, line50], ["trix", trix, matrix, matrix], [
+          ["ma", ma5, ma10, ma10], ["ema2-20", ema5, ema10, ema10], ["kd", kdK, kdD, kdD], ["macd", dif, dem, dem], ["bbi", close, bbi, bbi], ["chaikin", chaikin, line0, line0], ["uos", uos, line50, line50], ["trix", trix, matrix, matrix], [
             "yuClock", yuClock, (function(){
               var i$, to$, results$ = [];
               for (i$ = 0, to$ = stockData.length; i$ < to$; ++i$) {

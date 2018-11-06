@@ -35,36 +35,42 @@ export checkSignal = (line, buyLine, sellLine, data)->
         b = buyLine[i]
         s = sellLine[i]
         
-        if prevL <= prevB && l > b && i<line.length-1
-            date = data[i][0]
-            open = data[i][2]
-            buyPrice = open
+        if prevL <= prevB && l > b && i<line.length
+            [date, _, open, close, _] = data[i]
+            buyPrice = open #(open + close)/2
             orders.push do
-                action:"buy",
-                price:buyPrice,
+                action:"buy"
+                price:buyPrice
                 date:date
+                idx:i
                 
-        if prevL >= prevS && l < s && i<line.length-1
-            date = data[i][0]
-            open = data[i][2]
-            buyPrice = open
+        if prevL >= prevS && l < s && i<line.length
+            [date, _, open, close, _] = data[i]
+            buyPrice = (open + close)/2
             orders.push do
-                action:"sell",
-                price:buyPrice,
+                action:"sell"
+                price:buyPrice
                 date:date
+                idx:i
     orders
 
-export checkEarn = (orders)->
+export checkEarn = (data, orders)->
     storage = 0
     money = 0
     useMoney = 0
     rate = []
     gas = 0.001425
     for order in orders
-        if order.action == "buy"
+        if order.idx >= data.length - 1
+            break
+            
+        if order.action == "buy"    
             if storage != 0
                 console.log "has storage"
             else
+                [date, low, open, close, high] = data[order.idx+1]
+                if order.price < low || order.price > high
+                    continue
                 price = order.price
                 cost = price + price * gas
                 money -= cost
@@ -75,7 +81,9 @@ export checkEarn = (orders)->
             if storage == 0
                 console.log "no storage"
             else
-                price = order.price
+                [date, low, open, close, high] = data[order.idx+1]
+                price = open
+                #price = order.price
                 earn = price - price * gas
                 money += earn
                 earnRate = ((earn - useMoney)/useMoney)

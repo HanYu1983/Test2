@@ -67,6 +67,13 @@ startExpress = ->
         userdata.formulas.push ['kd', arg1]
         (err) <- saveUserData
         res.json [err, userdata]
+    
+    app.get '/fn/addFormula/ma/:arg1/:arg2', (req, res)->
+        arg1 = parseInt req.params.arg1
+        arg2 = parseInt req.params.arg2
+        userdata.formulas.push ['ma', arg1, arg2]
+        (err) <- saveUserData
+        res.json [err, userdata]
 
     app.get '/fn/addFormula/bbi/:arg1/:arg2/:arg3/:arg4', (req, res)->
         arg1 = parseInt req.params.arg1
@@ -112,12 +119,18 @@ startExpress = ->
                         | "kd" =>
                             [kdK, kdD] = stockData |> Formula.RSV arg1, _ |> Formula.KD _
                             signals = Earn.checkSignal kdK, kdD, kdD, stockData
-                            earn = Earn.checkEarn2 signals
+                            earn = Earn.checkEarn stockData, signals
                             [formula, earn, signals]
                         | "bbi" =>
                             bbi = close |> Formula.BBI arg1, arg2, arg3, arg4, _
                             signals = Earn.checkSignal close, bbi, bbi, stockData
-                            earn = Earn.checkEarn2 signals
+                            earn = Earn.checkEarn stockData, signals
+                            [formula, earn, signals]
+                        | "ma" =>
+                            ma1 = close |> Formula.MA arg1, _
+                            ma2 = close |> Formula.MA arg2, _
+                            signals = Earn.checkSignal ma1, ma2, ma2, stockData
+                            earn = Earn.checkEarn stockData, signals
                             [formula, earn, signals]
                         | otherwise =>
                 cb null, {stockId: stockId, year: year, style: style, results: results}
@@ -135,6 +148,52 @@ startExpress = ->
         
         res.json [null, data]
     
+    
+    app.get '/fn/test/:stockId/:year/:earnRate', (req, res)->
+        stockId = req.params.stockId
+        year = req.params.year
+        earnRate = req.params.earnRate
+        
+        (err, data) <- Tool.fetchStockData stockId, [year], [1 to 12]
+        if err
+            return res.json [err]
+            
+        stockData = data |> Tool.formatStockData
+        style = Earn.checkStyle stockData
+
+        stocks = []
+        tx = []
+        for day in stockData
+            if stocks.length == 0
+                stocks.push day
+            else
+                [_, low, open, close, high] = day
+                sellOk = false
+                
+                for i in [0 til stocks.length].reverse()
+                    [_, _, prevOpen, _, _] = stocks[i]
+                    rate = (open - prevOpen)*100 / prevOpen
+                    if rate >= earnRate
+                        tx.push [stocks[i], day]
+                        stocks = stocks.slice(0, i) ++ stocks.slice(i+1, stocks.length)
+                        sellOk = true
+                
+                if sellOk == false
+                    stocks.push day
+        
+        res.json [null, {
+            style: style, 
+            txRate: tx.length/(tx.length + stocks.length),
+            earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
+            price:{
+                open: tx.map(([[_, _, open]])->open).reduce((+), 0) / tx.length
+                high: tx.map(([[_, _, _, _, high]])->high).reduce((+), 0) / tx.length
+                low: tx.map(([[_, low, _, _, _]])->low).reduce((+), 0) / tx.length
+            }
+            stocks: stocks
+            tx: tx
+        }]
+        
     app.listen 8080
 
 

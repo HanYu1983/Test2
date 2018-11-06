@@ -72,6 +72,15 @@
         return res.json([err, userdata]);
       });
     });
+    app.get('/fn/addFormula/ma/:arg1/:arg2', function(req, res){
+      var arg1, arg2;
+      arg1 = parseInt(req.params.arg1);
+      arg2 = parseInt(req.params.arg2);
+      userdata.formulas.push(['ma', arg1, arg2]);
+      return saveUserData(function(err){
+        return res.json([err, userdata]);
+      });
+    });
     app.get('/fn/addFormula/bbi/:arg1/:arg2/:arg3/:arg4', function(req, res){
       var arg1, arg2, arg3, arg4;
       arg1 = parseInt(req.params.arg1);
@@ -125,18 +134,24 @@
             stockData);
             style = Earn.checkStyle(stockData);
             results = userdata.formulas.map(function(formula){
-              var name, arg1, arg2, arg3, arg4, ref$, kdK, kdD, signals, earn, bbi;
+              var name, arg1, arg2, arg3, arg4, ref$, kdK, kdD, signals, earn, bbi, ma1, ma2;
               name = formula[0], arg1 = formula[1], arg2 = formula[2], arg3 = formula[3], arg4 = formula[4];
               switch (name) {
               case "kd":
                 ref$ = Formula.KD(Formula.RSV(arg1, stockData)), kdK = ref$[0], kdD = ref$[1];
                 signals = Earn.checkSignal(kdK, kdD, kdD, stockData);
-                earn = Earn.checkEarn2(signals);
+                earn = Earn.checkEarn(stockData, signals);
                 return [formula, earn, signals];
               case "bbi":
                 bbi = Formula.BBI(arg1, arg2, arg3, arg4, close);
                 signals = Earn.checkSignal(close, bbi, bbi, stockData);
-                earn = Earn.checkEarn2(signals);
+                earn = Earn.checkEarn(stockData, signals);
+                return [formula, earn, signals];
+              case "ma":
+                ma1 = Formula.MA(arg1, close);
+                ma2 = Formula.MA(arg2, close);
+                signals = Earn.checkSignal(ma1, ma2, ma2, stockData);
+                earn = Earn.checkEarn(stockData, signals);
                 return [formula, earn, signals];
               default:
 
@@ -167,6 +182,84 @@
           return res.json([err]);
         }
         return res.json([null, data]);
+      });
+    });
+    app.get('/fn/test/:stockId/:year/:earnRate', function(req, res){
+      var stockId, year, earnRate;
+      stockId = req.params.stockId;
+      year = req.params.year;
+      earnRate = req.params.earnRate;
+      return Tool.fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function(err, data){
+        var stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate;
+        if (err) {
+          return res.json([err]);
+        }
+        stockData = Tool.formatStockData(
+        data);
+        style = Earn.checkStyle(stockData);
+        stocks = [];
+        tx = [];
+        for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
+          day = stockData[i$];
+          if (stocks.length === 0) {
+            stocks.push(day);
+          } else {
+            _ = day[0], low = day[1], open = day[2], close = day[3], high = day[4];
+            sellOk = false;
+            for (j$ = 0, len1$ = (ref$ = (fn$()).reverse()).length; j$ < len1$; ++j$) {
+              i = ref$[j$];
+              ref1$ = stocks[i], _ = ref1$[0], _ = ref1$[1], prevOpen = ref1$[2], _ = ref1$[3], _ = ref1$[4];
+              rate = (open - prevOpen) * 100 / prevOpen;
+              if (rate >= earnRate) {
+                tx.push([stocks[i], day]);
+                stocks = stocks.slice(0, i).concat(stocks.slice(i + 1, stocks.length));
+                sellOk = true;
+              }
+            }
+            if (sellOk === false) {
+              stocks.push(day);
+            }
+          }
+        }
+        return res.json([
+          null, {
+            style: style,
+            txRate: tx.length / (tx.length + stocks.length),
+            earnRate: Math.pow((earnRate / 100 - 0.001425) + 1, tx.length),
+            price: {
+              open: tx.map(function(arg$){
+                var ref$, _, open;
+                ref$ = arg$[0], _ = ref$[0], _ = ref$[1], open = ref$[2];
+                return open;
+              }).reduce(curry$(function(x$, y$){
+                return x$ + y$;
+              }), 0) / tx.length,
+              high: tx.map(function(arg$){
+                var ref$, _, high;
+                ref$ = arg$[0], _ = ref$[0], _ = ref$[1], _ = ref$[2], _ = ref$[3], high = ref$[4];
+                return high;
+              }).reduce(curry$(function(x$, y$){
+                return x$ + y$;
+              }), 0) / tx.length,
+              low: tx.map(function(arg$){
+                var ref$, _, low;
+                ref$ = arg$[0], _ = ref$[0], low = ref$[1], _ = ref$[2], _ = ref$[3], _ = ref$[4];
+                return low;
+              }).reduce(curry$(function(x$, y$){
+                return x$ + y$;
+              }), 0) / tx.length
+            },
+            stocks: stocks,
+            tx: tx
+          }
+        ]);
+        function fn$(){
+          var i$, to$, results$ = [];
+          for (i$ = 0, to$ = stocks.length; i$ < to$; ++i$) {
+            results$.push(i$);
+          }
+          return results$;
+        }
       });
     });
     return app.listen(8080);
