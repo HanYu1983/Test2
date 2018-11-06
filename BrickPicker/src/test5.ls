@@ -2,11 +2,8 @@
 require! {
     express
     path
-    request
     async
-    crypto
-    fs
-    "./stock/formula": {Close, Low, High, MA, EMA, RSV, KD, BBI, EBBI, MACD-DIF, MACD-DEM, Chaikin, UOS}
+    "./stock/formula": {Close, Low, High, MA, EMA, RSV, KD, BBI, EBBI, MACD-DIF, MACD-DEM, Chaikin, UOS, Trix, YuClock}
     "./stock/tool": {fetchStockData, formatStockData}
     "./stock/earn": {checkSignal, checkEarn}
 }
@@ -65,6 +62,8 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
         bbi = close |> BBI 3, 6, 12, 24, _
         chaikin = stockData |> Chaikin 3, 10, _
         uos = stockData |> UOS 5, 10, 20, _
+        [trix, matrix] = stockData |> Trix 12, 12, _
+        yuClock = stockData |> YuClock 20, 5, _ 
         
         checks = [
             ["ma", ma5, ma10, ma10]
@@ -73,6 +72,8 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
             ["bbi", close, bbi, bbi]
             ["chaikin", chaikin, line0, line0]
             ["uos", uos, line50, line50]
+            ["trix", trix, matrix, matrix]
+            ["yuClock", yuClock, [-0.5 for til stockData.length], [0.5 for til stockData.length]]
         ]
         
         for [name, l, l2, l3] in checks
@@ -96,6 +97,9 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
             bbi: JSON.stringify bbi
             chaikin: JSON.stringify chaikin
             uos: JSON.stringify uos
+            trix: JSON.stringify trix
+            matrix: JSON.stringify matrix
+            yuClock: JSON.stringify yuClock
     catch e
         console.log e
         res.json 'error'

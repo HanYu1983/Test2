@@ -2,114 +2,103 @@
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-var origin = @html.raw(model.data)
-var close = @html.raw(model.close)
-var ma5 = @html.raw(model.ma5)
-var ma10 = @html.raw(model.ma10)
-var kdK = @html.raw(model.kdK)
-var kdD = @html.raw(model.kdD)
-var ema5 = @html.raw(model.ema5)
-var ema10 = @html.raw(model.ema10)
-var macdDem = @html.raw(model.macdDem)
-var macdDif = @html.raw(model.macdDif)
-var bbi = @html.raw(model.bbi)
-var chaikin = @html.raw(model.chaikin)
-var uos = @html.raw(model.uos)
+        var origin = @html.raw(model.data)
+        var close = @html.raw(model.close)
+        var ma5 = @html.raw(model.ma5)
+        var ma10 = @html.raw(model.ma10)
+        var kdK = @html.raw(model.kdK)
+        var kdD = @html.raw(model.kdD)
+        var ema5 = @html.raw(model.ema5)
+        var ema10 = @html.raw(model.ema10)
+        var macdDem = @html.raw(model.macdDem)
+        var macdDif = @html.raw(model.macdDif)
+        var bbi = @html.raw(model.bbi)
+        var chaikin = @html.raw(model.chaikin)
+        var uos = @html.raw(model.uos)
+        var trix = @html.raw(model.trix)
+        var matrix = @html.raw(model.matrix)
+        var yuClock = @html.raw(model.yuClock)
 
-console.log(origin.length)
-console.log(ma5.length)
-console.log(ma10.length)
-console.log(kdK.length)
-console.log(kdD.length)
-console.log(ema5.length)
-console.log(ema10.length)
-console.log(macdDem.length)
-console.log(macdDif.length)
-console.log(bbi.length)
-console.log(chaikin.length)
-console.log(uos.length)
+        console.log(origin.length)
+        console.log(ma5.length)
+        console.log(ma10.length)
+        console.log(kdK.length)
+        console.log(kdD.length)
+        console.log(ema5.length)
+        console.log(ema10.length)
+        console.log(macdDem.length)
+        console.log(macdDif.length)
+        console.log(bbi.length)
+        console.log(chaikin.length)
+        console.log(uos.length)
+        console.log(trix.length)
+        console.log(matrix.length)
+        console.log(yuClock.length)
         
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(start);
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(start);
 
-function start(){
-    checkStyle(origin)
-    drawKline()
-    drawLine("curve_chart", "k", kdK, "d", kdD)
-    drawLine("curve_chart2", "ma5", ma5, "ma10", ma10)
-    drawLine("curve_chart3", "ema5", ema5, "ema10", ema10)
-    drawLine("curve_chart4", "macdDif", macdDif, "macdDem", macdDem)
-    drawLine("curve_chart5", "close", close, "bbi", bbi)
-    drawLine("curve_chart6", "chaikin", chaikin, "chaikin", chaikin)
-    drawLine("curve_chart7", "uos", uos, "uos", uos)
-}
+        function start(){
+            checkStyle(origin)
+            drawKline()
+            drawLine("curve_chart", "yuClock", yuClock, "yuClock", yuClock)
+            drawLine("curve_chart2", "k", kdK, "d", kdD)
+            drawLine("curve_chart3", "ma5", ma5, "ma10", ma10)
+            drawLine("curve_chart4", "ema5", ema5, "ema10", ema10)
+            drawLine("curve_chart5", "macdDif", macdDif, "macdDem", macdDem)
+            drawLine("curve_chart6", "close", close, "bbi", bbi)
+            drawLine("curve_chart7", "chaikin", chaikin, "chaikin", chaikin)
+            drawLine("curve_chart8", "uos", uos, "uos", uos)
+            drawLine("curve_chart9", "trix", trix, "matrix", matrix)
+        }
 
-function drawKline() {
-    var temp = origin.map((ary)=>ary.slice(0, 5))
-    var data = google.visualization.arrayToDataTable(temp, true);
+        function drawKline() {
+            var temp = origin.map((ary)=>ary.slice(0, 5))
+            var data = google.visualization.arrayToDataTable(temp, true);
 
-    var options = {
-        legend:'none'
-    };
+            var options = {
+                legend:'none'
+            };
 
-    var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
+            var chart = new google.visualization.CandlestickChart(document.getElementById('chart_div'));
 
-    chart.draw(data, options);
-}
+            chart.draw(data, options);
+        }
 
-function drawLine(div, name1, line1, name2, line2) {
-    var avgLine = line1
-    var avgLine2 = line2
+        function drawLine(div, name1, line1, name2, line2) {
+            var avgLine = line1
+            var avgLine2 = line2
 
-    var data = []
-    for(var i=0; i<origin.length; ++i){
-        [openTime] = origin[i]
-        data.push([openTime, avgLine[i], avgLine2[i]])
-    }
+            var data = []
+            for(var i=0; i<origin.length; ++i){
+                [openTime] = origin[i]
+                data.push([openTime, avgLine[i], avgLine2[i]])
+            }
 
-    data = [['time', name1, name2]].concat(data)
-    data = google.visualization.arrayToDataTable(data)
+            data = [['time', name1, name2]].concat(data)
+            data = google.visualization.arrayToDataTable(data)
 
-    var options = {
-        title: 'Company Performance',
-        curveType: 'function',
-        legend: { position: 'bottom' }
-    };
+            var options = {
+                title: 'Company Performance',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
 
-    var chart = new google.visualization.LineChart(document.getElementById(div));
+            var chart = new google.visualization.LineChart(document.getElementById(div));
 
-    chart.draw(data, options);
-}
+            chart.draw(data, options);
+        }
 
-
-function drawKd() {
-    
-/*
-    data = [['time', 'k', 'd']].concat(data)
-    data = google.visualization.arrayToDataTable(data)
-
-    var options = {
-        title: 'Company Performance',
-        curveType: 'function',
-        legend: { position: 'bottom' }
-    };
-
-    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-    chart.draw(data, options);
-    */
-}
-
-function checkStyle(origin){
-    var total = 0
-    for(var i=1; i<origin.length; ++i){
-        var prev = origin[i-1][3]
-        var curr = origin[i][3]
-        var rate = (curr-prev)/prev
-        total += rate
-    }
-    console.log('style:', total/(origin.length-1))
-}
+        function checkStyle(origin){
+            var total = 0
+            for(var i=1; i<origin.length; ++i){
+                var prev = origin[i-1][3]
+                var curr = origin[i][3]
+                var rate = (curr-prev)/prev
+                total += rate
+            }
+            console.log('style:', total/(origin.length-1))
+        }
 
     </script>
   </head>
@@ -122,5 +111,7 @@ function checkStyle(origin){
     <div id="curve_chart5" style="width: 900px; height: 500px"></div>
     <div id="curve_chart6" style="width: 900px; height: 500px"></div>
     <div id="curve_chart7" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart8" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart9" style="width: 900px; height: 500px"></div>
   </body>
 </html>
