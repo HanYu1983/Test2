@@ -96,3 +96,43 @@ export checkEarn = (orders)->
         earn: totalEarn
         earnRate: totalEarnRate
         times: rate.length
+        
+
+export checkEarn2 = (orders)->
+    storage = []
+    money = 0
+    rate = []
+    gas = 0.001425
+    for order in orders
+        if order.action == "buy"
+            price = order.price
+            cost = price + price * gas
+            money -= cost
+            storage.push cost
+        
+        if order.action == "sell"
+            if storage.length == 0
+                console.log "no storage"
+            else
+                for useMoney in storage
+                    price = order.price
+                    earn = price - price * gas
+                    money += earn
+                    earnRate = ((earn - useMoney)/useMoney)
+                    rate.push earnRate
+                storage = []
+        
+    earnRateAvg = rate.reduce(((a,b)->a+b), 0)/rate.length
+    transactionTime = rate.length
+    useMoneyPerTranaction = 100000
+    totalEarn = (useMoneyPerTranaction*earnRateAvg)*transactionTime
+    totalEarnRate = (totalEarn + useMoneyPerTranaction)/useMoneyPerTranaction
+
+    return
+        price: storage.reduce((+), 0)
+        amount: storage.length
+        moneyFlow: money + storage.reduce((+), 0)
+        ratePerTx: earnRateAvg
+        earn: totalEarn
+        earnRate: totalEarnRate
+        times: rate.length

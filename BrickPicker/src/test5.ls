@@ -5,7 +5,7 @@ require! {
     async
     "./stock/formula": {Close, Low, High, MA, EMA, RSV, KD, BBI, EBBI, MACD-DIF, MACD-DEM, Chaikin, UOS, Trix, YuClock}
     "./stock/tool": {fetchStockData, formatStockData}
-    "./stock/earn": {checkSignal, checkEarn}
+    "./stock/earn": {checkSignal, checkEarn, checkEarn2}
 }
 
 /*
@@ -79,7 +79,7 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
         for [name, l, l2, l3] in checks
             console.log name
             checkSignal l, l2, l3, stockData |>
-            checkEarn |>
+            checkEarn2 |>
             console.log  _
             
         res.render do
