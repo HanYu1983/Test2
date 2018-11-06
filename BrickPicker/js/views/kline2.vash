@@ -3,6 +3,7 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
 var origin = @html.raw(model.data)
+var close = @html.raw(model.close)
 var ma5 = @html.raw(model.ma5)
 var ma10 = @html.raw(model.ma10)
 var kdK = @html.raw(model.kdK)
@@ -11,6 +12,22 @@ var ema5 = @html.raw(model.ema5)
 var ema10 = @html.raw(model.ema10)
 var macdDem = @html.raw(model.macdDem)
 var macdDif = @html.raw(model.macdDif)
+var bbi = @html.raw(model.bbi)
+var chaikin = @html.raw(model.chaikin)
+var uos = @html.raw(model.uos)
+
+console.log(origin.length)
+console.log(ma5.length)
+console.log(ma10.length)
+console.log(kdK.length)
+console.log(kdD.length)
+console.log(ema5.length)
+console.log(ema10.length)
+console.log(macdDem.length)
+console.log(macdDif.length)
+console.log(bbi.length)
+console.log(chaikin.length)
+console.log(uos.length)
         
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(start);
@@ -22,6 +39,9 @@ function start(){
     drawLine("curve_chart2", "ma5", ma5, "ma10", ma10)
     drawLine("curve_chart3", "ema5", ema5, "ema10", ema10)
     drawLine("curve_chart4", "macdDif", macdDif, "macdDem", macdDem)
+    drawLine("curve_chart5", "close", close, "bbi", bbi)
+    drawLine("curve_chart6", "chaikin", chaikin, "chaikin", chaikin)
+    drawLine("curve_chart7", "uos", uos, "uos", uos)
 }
 
 function drawKline() {
@@ -99,5 +119,8 @@ function checkStyle(origin){
     <div id="curve_chart2" style="width: 900px; height: 500px"></div>
     <div id="curve_chart3" style="width: 900px; height: 500px"></div>
     <div id="curve_chart4" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart5" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart6" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart7" style="width: 900px; height: 500px"></div>
   </body>
 </html>

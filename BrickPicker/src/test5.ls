@@ -70,7 +70,12 @@ formatStockData = (data) ->
 Close = (data)->
     data.map(([_, _, _, close])->close)
 
+Low = (data)->
+    data.map(([_, low, _, _])->low)
 
+High = (data)->
+    data.map(([_, _, _, _, high])->high)
+        
 MA = (cnt, data)->
     ret = 
         for i in [cnt-1 til data.length]
@@ -109,12 +114,10 @@ reductions = (f, i, seq)->
             acc ++ [curr]
         [i]
 
-map2 = (f, vs1, vs2)->
-    maxLength = Math.max(vs1.length, vs2.length)
+mapn = (f, ...args)->
+    maxLength = Math.min.apply(null, args.map (.length))
     for i in [0 til maxLength]
-        f do
-            if i < vs1.length then vs1[i] else vs1[*-1]
-            if i < vs2.length then vs2[i] else vs2[*-1]
+        f.apply(null, args.map((ary)->ary[i]))
             
 YuMA = (n, data)->
     if data.length >= n
@@ -138,11 +141,79 @@ EMA = (n, data)->
         [ret[0] for til (n - 1)].concat ret
 
 MACD-DIF = (n, m, data)->
-    map2 (-), EMA(n, data), EMA(m, data)
+    mapn (-), EMA(n, data), EMA(m, data)
 
 MACD-DEM = EMA
 
-checkSignal = (line1, line2, data)->
+
+BBI = (n, m, o, p, data)->
+    l1 = MA n, data
+    l2 = MA m, data
+    l3 = MA o, data
+    l4 = MA p, data
+    mapn do
+        (...args)->
+            args.reduce((+), 0)/args.length
+        l1, l2, l3, l4
+
+EBBI = (n, m, o, p, data)->
+    l1 = EMA n, data
+    l2 = EMA m, data
+    l3 = EMA o, data
+    l4 = EMA p, data
+    mapn do
+        (...args)->
+            args.reduce((+), 0)/args.length
+        l1, l2, l3, l4
+        
+AccDist = (data)->
+    ret = reductions do
+        (+)
+        0
+        data.map ([_, low, open, close, high, volume])->
+            if high == low
+                0
+            else
+                ((close - low) - (high - close)) * volume / (high - low)
+    # 去掉reductions中產生的初始值0
+    ret.slice(1, ret.length)
+
+Chaikin = (n, m, data)->
+    acc = AccDist data
+    mapn (-), EMA(n, acc), EMA(m, acc)
+
+TrueLow = (data)->
+    ret = mapn do
+        Math.min
+        Close data
+        Low data.slice(1, data.length)
+    (Low [data[0]]).concat ret 
+
+TrueWave = (data)->
+    ret = mapn do
+        (close, high, low)->
+            Math.max high - low, Math.abs(high - close), Math.abs(low - close)
+        Close data
+        High(data).slice(1, data.length)
+        Low(data).slice(1, data.length)
+    (High [data[0]]).concat ret
+        
+UOS = (m, n, o, data)->
+    tl = TrueLow data
+    bp = mapn (-), Close(data), tl
+    tr = TrueWave data
+    ruo = mapn do
+        (b1, b2, b3, t1, t2, t3)->
+            (b1 / t1)*4 + (b2 / t2)*2 + b3 / t3
+        MA(m, bp).map (* m)
+        MA(n, bp).map (* n)
+        MA(o, bp).map (* o)
+        MA(m, tr).map (* m)
+        MA(n, tr).map (* n)
+        MA(o, tr).map (* o)
+    uos = ruo.map (n)-> n*(100/7)
+        
+checkSignal2 = (line1, line2, data)->
     orders = []
     for i in [0 til line1.length]
         prevK = line1[i-1]
@@ -167,6 +238,35 @@ checkSignal = (line1, line2, data)->
                 date:date
     orders
 
+checkSignal = (line, buyLine, sellLine, data)->
+    orders = []
+    for i in [0 til line.length]
+        prevL = line[i-1]
+        prevB = buyLine[i-1]
+        prevS = sellLine[i-1]
+        
+        l = line[i]
+        b = buyLine[i]
+        s = sellLine[i]
+        
+        if prevL <= prevB && l > b && i<line.length-1
+            date = data[i][0]
+            open = data[i][2]
+            buyPrice = open
+            orders.push do
+                action:"buy",
+                price:buyPrice,
+                date:date
+                
+        if prevL >= prevS && l < s && i<line.length-1
+            date = data[i][0]
+            open = data[i][2]
+            buyPrice = open
+            orders.push do
+                action:"sell",
+                price:buyPrice,
+                date:date
+    orders
 
 checkEarn = (orders)->
     storage = 0
@@ -211,44 +311,6 @@ checkEarn = (orders)->
         earnRate: totalEarnRate
         times: rate.length
 
-/*
-(err, data) <- fetchStockData 2475, [2017], [1 to 3]
-if err
-    return console.log err
-
-stockData = data |> formatStockData
-close = stockData |> Close
-
-kd = stockData |> RSV 9, _ |> KD
-orders = checkSignal kd[0], kd[1], stockData
-result = orders |> checkEarn
-#console.log orders
-console.log result
-
-orders = checkSignal (close |> MA 5, _), (close |> MA 10, _), stockData
-result = orders |> checkEarn
-#console.log orders
-console.log result
-
-orders = checkSignal (close |> MA 2, _), (close |> MA 20, _), stockData
-result = orders |> checkEarn
-#console.log orders
-console.log result
-
-
-dif = MACD-DIF(12, 26, close.slice(0, -1).reverse())
-dem = MACD-DEM(9, dif)
-
-dif = dif.concat([0 for til close.length - dif.length]).reverse()
-dem = dem.concat([0 for til close.length - dem.length]).reverse()
-
-orders = checkSignal dem, dif, stockData
-result = orders |> checkEarn
-#console.log orders
-console.log result
-*/
-
-
 app = express()
 
 app.set 'port', 8080
@@ -266,32 +328,59 @@ app.get '/view/stock/:year/:cnt/:stockId', (req, res)->
         
     try
         stockData = data |> formatStockData
+        line25 = [25 for til stockData.length]
+        line50 = [50 for til stockData.length]
+        line75 = [75 for til stockData.length]
+        line0 = [0 for til stockData.length]
+        
         close = stockData |> Close
         ma5 = close |> MA 5, _
         ma10 = close |> MA 10, _
-        kd = stockData |> RSV 9, _ |> KD _
-        ema5 = close |> EMA 5, _
-        ema10 = close |> EMA 10, _
+        [kdK, kdD] = stockData |> RSV 9, _ |> KD _
+        ema5 = close |> EMA 2, _
+        ema10 = close |> EMA 20, _
         dif = close |> MACD-DIF 12, 26, _
         dem = dif |> MACD-DEM 9, _
+        bbi = close |> BBI 3, 6, 12, 24, _
+        chaikin = stockData |> Chaikin 3, 10, _
+        uos = stockData |> UOS 5, 10, 20, _
         
-        for [line1, line2] in [[ma5, ma10], [kd[0], kd[1]], [ema5, ema10], [dif, dem]]
+        checks = [
+            ["ma", ma5, ma10, ma10]
+            ["kd", kdK, kdD, kdD]
+            ["macd", dif, dem, dem]
+            ["bbi", close, bbi, bbi]
+            ["chaikin", chaikin, line0, line0]
+            ["uos", uos, line50, line50]
+        ]
+        
+        for [name, l, l2, l3] in checks
+            console.log name
+            checkSignal l, l2, l3, stockData |>
+            checkEarn |>
+            console.log  _
+            
+        /*
+        for [line1, line2] in [[ma5, ma10], [kd[0], kd[1]], [ema5, ema10], [dif, dem], [close, bbi]]
             checkSignal line1, line2, stockData |>
             checkEarn |>
             console.log
-        
+        */
         res.render do
             "kline2",
             data: JSON.stringify stockData
             close: JSON.stringify close
             ma5: JSON.stringify ma5
             ma10: JSON.stringify ma10
-            kdK: JSON.stringify kd[0]
-            kdD: JSON.stringify kd[1]
+            kdK: JSON.stringify kdK
+            kdD: JSON.stringify kdD
             ema5: JSON.stringify ema5
             ema10: JSON.stringify ema10
             macdDem: JSON.stringify dem
             macdDif: JSON.stringify dif
+            bbi: JSON.stringify bbi
+            chaikin: JSON.stringify chaikin
+            uos: JSON.stringify uos
     catch e
         console.log e
         res.json 'error'
