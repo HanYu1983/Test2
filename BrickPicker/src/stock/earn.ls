@@ -136,3 +136,13 @@ export checkEarn2 = (orders)->
         earn: totalEarn
         earnRate: totalEarnRate
         times: rate.length
+        
+
+export checkStyle = (origin)->
+    total = 0
+    for i in [1 til origin.length]
+        prev = origin[i - 1][3]
+        curr = origin[i][3]
+        rate = (curr - prev)/prev
+        total += rate
+    total

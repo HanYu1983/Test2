@@ -27,7 +27,7 @@ export fetch = (url, dontUseCache, cb) -->
           .on('error', cb)
           .pipe ws
 
-export fetchStockData = (stockId, years, months, cb)->
+export fetchStockData = (stockId, years, months, cb)-->
     urls = [[y, m] for y in years for m in months] |>
         Array.prototype.map.call _, ([y, m])->"http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}"
 
@@ -44,6 +44,10 @@ export formatStockData = (data) ->
         .reduce ((acc, {data})->acc ++ data), []
 
     format = ([openTime, _, _, open, high, low, close, _, volumn])->
-        [new Date(openTime).toString()] ++ ([low, open, close, high, volumn].map parseFloat)
+        tmp = new Date(openTime)
+        y = tmp.getFullYear() + 1911
+        m = tmp.getMonth() + 1
+        d = tmp.getDay() + 1 
+        [new Date("#{y}/#{m}/#{d}").getTime()] ++ ([low, open, close, high, volumn].map parseFloat)
 
     return data.map format

@@ -23,7 +23,7 @@
       return request.get(url).on('error', cb).pipe(ws);
     }
   });
-  out$.fetchStockData = fetchStockData = function(stockId, years, months, cb){
+  out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cb){
     var urls, y, m;
     urls = Array.prototype.map.call((function(){
       var i$, ref$, len$, j$, ref1$, len1$, results$ = [];
@@ -45,7 +45,7 @@
     }), function(err, results){
       return cb(err, results);
     });
-  };
+  });
   out$.formatStockData = formatStockData = function(data){
     var format;
     data = data.filter(function(r){
@@ -60,9 +60,13 @@
       return acc.concat(data);
     }, []);
     format = function(arg$){
-      var openTime, _, open, high, low, close, volumn;
+      var openTime, _, open, high, low, close, volumn, tmp, y, m, d;
       openTime = arg$[0], _ = arg$[1], _ = arg$[2], open = arg$[3], high = arg$[4], low = arg$[5], close = arg$[6], _ = arg$[7], volumn = arg$[8];
-      return [new Date(openTime).toString()].concat([low, open, close, high, volumn].map(parseFloat));
+      tmp = new Date(openTime);
+      y = tmp.getFullYear() + 1911;
+      m = tmp.getMonth() + 1;
+      d = tmp.getDay() + 1;
+      return [new Date(y + "/" + m + "/" + d).getTime()].concat([low, open, close, high, volumn].map(parseFloat));
     };
     return data.map(format);
   };
