@@ -269,10 +269,20 @@ startExpress = ->
         avg = txPrice |> Formula.avg _
         sd = txPrice |> Formula.StandardDeviation avg, _
         
+        min = max = 0
+        if stocks.length > 0
+            min = stocks |> Formula.Open |> Math.min.apply null, _ 
+            max = stocks |> Formula.Open |> Math.max.apply null, _
+     
         res.json [null, {
             style: style, 
             txRate: tx.length/(tx.length + stocks.length),
             earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
+            check:{
+                min: min
+                max: max
+                rate: if min != 0 then (max - min)/min else 0
+            }
             price:{
                 avg: avg
                 sd: sd

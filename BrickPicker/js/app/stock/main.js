@@ -259,7 +259,7 @@
       range = req.params.range;
       earnRate = parseInt(req.params.earnRate);
       return Tool.fetch(("https://api.binance.com/api/v1/klines?interval=" + range + "&limit=" + count + "&symbol=") + mb.toUpperCase() + ma.toUpperCase(), false, function(err, data){
-        var format, stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, txPrice, avg, sd;
+        var format, stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, txPrice, avg, sd, min, max;
         if (err) {
           return res.json([err.error]);
         }
@@ -302,11 +302,23 @@
         }));
         avg = Formula.avg(txPrice);
         sd = Formula.StandardDeviation(avg, txPrice);
+        min = max = 0;
+        if (stocks.length > 0) {
+          min = Math.min.apply(null, Formula.Open(
+          stocks));
+          max = Math.max.apply(null, Formula.Open(
+          stocks));
+        }
         return res.json([
           null, {
             style: style,
             txRate: tx.length / (tx.length + stocks.length),
             earnRate: Math.pow((earnRate / 100 - 0.001425) + 1, tx.length),
+            check: {
+              min: min,
+              max: max,
+              rate: min !== 0 ? (max - min) / min : 0
+            },
             price: {
               avg: avg,
               sd: sd
