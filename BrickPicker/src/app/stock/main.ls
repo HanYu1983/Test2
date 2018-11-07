@@ -178,18 +178,9 @@ startExpress = ->
         res.json [null, data]
     
     
-    app.get '/fn/test/:stockId/:year/:earnRate', (req, res)->
-        stockId = req.params.stockId
-        year = req.params.year
-        earnRate = parseInt req.params.earnRate
-        
-        (err, data) <- Tool.fetchStockData stockId, [year], [1 to 12]
-        if err
-            return res.json [err]
-            
-        stockData = data |> Tool.formatStockData
-        style = Earn.checkStyle stockData
-
+    
+    
+    checkLowHighEarn = (earnRate, stockData)->
         stocks = []
         tx = []
         for day in stockData
@@ -201,7 +192,7 @@ startExpress = ->
                 
                 for i in [0 til stocks.length].reverse()
                     [_, _, prevOpen, _, _] = stocks[i]
-                    rate = (open - prevOpen)*100 / prevOpen
+                    rate = (open - prevOpen)*1000 / prevOpen
                     if rate >= earnRate
                         tx.push [stocks[i], day]
                         stocks = stocks.slice(0, i) ++ stocks.slice(i+1, stocks.length)
@@ -213,20 +204,51 @@ startExpress = ->
         txPrice = tx.map(([first])->first) |> Formula.Open
         avg = txPrice |> Formula.avg _
         sd = txPrice |> Formula.StandardDeviation avg, _
+        z = txPrice |> Formula.ZScore avg, sd, _
         
-        res.json [null, {
-            style: style, 
-            txRate: tx.length/(tx.length + stocks.length),
-            earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
+        min = max = 0
+        if stocks.length > 0
+            min = stocks |> Formula.Open |> Math.min.apply null, _ 
+            max = stocks |> Formula.Open |> Math.max.apply null, _
+     
+        txRate = tx.length/(tx.length + stocks.length)
+        
+        ret =
+            txRate: txRate
+            earnRate: Math.pow(((earnRate/1000) - 0.001425)+1, tx.length* txRate)
+            maxEarnRate: Math.pow(((earnRate/1000) - 0.001425)+1, tx.length)
+            check:{
+                min: min
+                max: max
+                rate: if min != 0 then (max - min)/min else 0
+            }
             price:{
                 avg: avg
                 sd: sd
+                z: z
             }
             stocks: stocks
             tx: tx
-        }]
     
-    
+    app.get '/fn/test/:stockId/:year/:count/:earnRate', (req, res)->
+        stockId = req.params.stockId
+        year = req.params.year
+        count = parseInt req.params.count
+        earnRate = parseInt req.params.earnRate
+
+        (err, data) <- Tool.fetchStockData stockId, [year], [1 to 12]
+        if err
+            return res.json [err]
+        stockData = data |> Tool.formatStockData
+        
+        # limit to count form last
+        cnt = Math.min count, stockData.length
+        stockData = stockData.slice(stockData.length - cnt, stockData.length)
+        
+        earnInfo = checkLowHighEarn(earnRate, stockData)
+        earnInfo.style = Earn.checkStyle stockData
+        res.json [null, earnInfo]
+        
     app.get '/fn/block/:ma/:mb/:range/:count/:earnRate', (req, res)->
         count = req.params.count
         ma = req.params.ma
@@ -242,54 +264,9 @@ startExpress = ->
             [new Date(openTime).toString()] ++ ([low, open, close, high].map parseFloat)
             
         stockData = data |> JSON.parse _ |> Array.prototype.map.call _, format
-        
-        style = Earn.checkStyle stockData
-        
-        stocks = []
-        tx = []
-        for day in stockData
-            if stocks.length == 0
-                stocks.push day
-            else
-                [_, low, open, close, high] = day
-                sellOk = false
-                
-                for i in [0 til stocks.length].reverse()
-                    [_, _, prevOpen, _, _] = stocks[i]
-                    rate = (open - prevOpen)*100 / prevOpen
-                    if rate >= earnRate
-                        tx.push [stocks[i], day]
-                        stocks = stocks.slice(0, i) ++ stocks.slice(i+1, stocks.length)
-                        sellOk = true
-                
-                if sellOk == false
-                    stocks.push day
-        
-        txPrice = tx.map(([first])->first) |> Formula.Open
-        avg = txPrice |> Formula.avg _
-        sd = txPrice |> Formula.StandardDeviation avg, _
-        
-        min = max = 0
-        if stocks.length > 0
-            min = stocks |> Formula.Open |> Math.min.apply null, _ 
-            max = stocks |> Formula.Open |> Math.max.apply null, _
-     
-        res.json [null, {
-            style: style, 
-            txRate: tx.length/(tx.length + stocks.length),
-            earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
-            check:{
-                min: min
-                max: max
-                rate: if min != 0 then (max - min)/min else 0
-            }
-            price:{
-                avg: avg
-                sd: sd
-            }
-            stocks: stocks
-            tx: tx
-        }]
+        earnInfo = checkLowHighEarn(earnRate, stockData)
+        earnInfo.style = Earn.checkStyle stockData
+        res.json [null, earnInfo]
         
     app.listen 8080
 
