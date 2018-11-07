@@ -121,6 +121,35 @@ startExpress = ->
                             signals = Earn.checkSignal kdK, kdD, kdD, stockData
                             earn = Earn.checkEarn stockData, signals
                             [formula, earn, signals]
+                            /*
+                            [kdK, kdD] = stockData |> Formula.RSV arg1, _ |> Formula.KD _
+                            buys = Earn.checkSignal(kdK, kdD, kdD, stockData).filter(({action})->action == "buy")
+                            
+                            ma1 = close |> Formula.MA 2, _
+                            ma2 = close |> Formula.MA 20, _
+                            sells = Earn.checkSignal(ma1, ma2, ma2, stockData)
+                            
+                            signals = []
+                            lastSellIdx = -1
+                            for b in buys
+                                if b.idx <= lastSellIdx
+                                    continue
+                                signals.push b
+                                
+                                firstBuy = false
+                                for s in sells
+                                    if s.idx <= b.idx
+                                        continue
+                                    if firstBuy == false && s.action == "buy"
+                                        firstBuy = true
+                                    if firstBuy == true && s.action == "sell"
+                                        signals.push s
+                                        lastSellIdx = s.idx
+                                        break
+                                        
+                            earn = Earn.checkEarn stockData, signals
+                            [formula, earn, signals]
+                            */
                         | "bbi" =>
                             bbi = close |> Formula.BBI arg1, arg2, arg3, arg4, _
                             signals = Earn.checkSignal close, bbi, bbi, stockData
@@ -152,7 +181,7 @@ startExpress = ->
     app.get '/fn/test/:stockId/:year/:earnRate', (req, res)->
         stockId = req.params.stockId
         year = req.params.year
-        earnRate = req.params.earnRate
+        earnRate = parseInt req.params.earnRate
         
         (err, data) <- Tool.fetchStockData stockId, [year], [1 to 12]
         if err
@@ -181,14 +210,72 @@ startExpress = ->
                 if sellOk == false
                     stocks.push day
         
+        txPrice = tx.map(([first])->first) |> Formula.Open
+        avg = txPrice |> Formula.avg _
+        sd = txPrice |> Formula.StandardDeviation avg, _
+        
         res.json [null, {
             style: style, 
             txRate: tx.length/(tx.length + stocks.length),
             earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
             price:{
-                open: tx.map(([[_, _, open]])->open).reduce((+), 0) / tx.length
-                high: tx.map(([[_, _, _, _, high]])->high).reduce((+), 0) / tx.length
-                low: tx.map(([[_, low, _, _, _]])->low).reduce((+), 0) / tx.length
+                avg: avg
+                sd: sd
+            }
+            stocks: stocks
+            tx: tx
+        }]
+    
+    
+    app.get '/fn/block/:ma/:mb/:range/:count/:earnRate', (req, res)->
+        count = req.params.count
+        ma = req.params.ma
+        mb = req.params.mb
+        range = req.params.range
+        earnRate = parseInt req.params.earnRate
+        
+        (err, data) <- Tool.fetch "https://api.binance.com/api/v1/klines?interval=#{range}&limit=#{count}&symbol="+mb.toUpperCase()+ma.toUpperCase(), false
+        if err
+            return res.json [err.error]
+        
+        format = ([openTime, open, high, low, close])->
+            [new Date(openTime).toString()] ++ ([low, open, close, high].map parseFloat)
+            
+        stockData = data |> JSON.parse _ |> Array.prototype.map.call _, format
+        
+        style = Earn.checkStyle stockData
+        
+        stocks = []
+        tx = []
+        for day in stockData
+            if stocks.length == 0
+                stocks.push day
+            else
+                [_, low, open, close, high] = day
+                sellOk = false
+                
+                for i in [0 til stocks.length].reverse()
+                    [_, _, prevOpen, _, _] = stocks[i]
+                    rate = (open - prevOpen)*100 / prevOpen
+                    if rate >= earnRate
+                        tx.push [stocks[i], day]
+                        stocks = stocks.slice(0, i) ++ stocks.slice(i+1, stocks.length)
+                        sellOk = true
+                
+                if sellOk == false
+                    stocks.push day
+        
+        txPrice = tx.map(([first])->first) |> Formula.Open
+        avg = txPrice |> Formula.avg _
+        sd = txPrice |> Formula.StandardDeviation avg, _
+        
+        res.json [null, {
+            style: style, 
+            txRate: tx.length/(tx.length + stocks.length),
+            earnRate: Math.pow(((earnRate/100) - 0.001425)+1, tx.length)
+            price:{
+                avg: avg
+                sd: sd
             }
             stocks: stocks
             tx: tx

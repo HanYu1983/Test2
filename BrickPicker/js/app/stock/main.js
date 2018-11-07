@@ -188,9 +188,9 @@
       var stockId, year, earnRate;
       stockId = req.params.stockId;
       year = req.params.year;
-      earnRate = req.params.earnRate;
+      earnRate = parseInt(req.params.earnRate);
       return Tool.fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function(err, data){
-        var stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate;
+        var stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, txPrice, avg, sd;
         if (err) {
           return res.json([err]);
         }
@@ -221,33 +221,95 @@
             }
           }
         }
+        txPrice = Formula.Open(
+        tx.map(function(arg$){
+          var first;
+          first = arg$[0];
+          return first;
+        }));
+        avg = Formula.avg(txPrice);
+        sd = Formula.StandardDeviation(avg, txPrice);
         return res.json([
           null, {
             style: style,
             txRate: tx.length / (tx.length + stocks.length),
             earnRate: Math.pow((earnRate / 100 - 0.001425) + 1, tx.length),
             price: {
-              open: tx.map(function(arg$){
-                var ref$, _, open;
-                ref$ = arg$[0], _ = ref$[0], _ = ref$[1], open = ref$[2];
-                return open;
-              }).reduce(curry$(function(x$, y$){
-                return x$ + y$;
-              }), 0) / tx.length,
-              high: tx.map(function(arg$){
-                var ref$, _, high;
-                ref$ = arg$[0], _ = ref$[0], _ = ref$[1], _ = ref$[2], _ = ref$[3], high = ref$[4];
-                return high;
-              }).reduce(curry$(function(x$, y$){
-                return x$ + y$;
-              }), 0) / tx.length,
-              low: tx.map(function(arg$){
-                var ref$, _, low;
-                ref$ = arg$[0], _ = ref$[0], low = ref$[1], _ = ref$[2], _ = ref$[3], _ = ref$[4];
-                return low;
-              }).reduce(curry$(function(x$, y$){
-                return x$ + y$;
-              }), 0) / tx.length
+              avg: avg,
+              sd: sd
+            },
+            stocks: stocks,
+            tx: tx
+          }
+        ]);
+        function fn$(){
+          var i$, to$, results$ = [];
+          for (i$ = 0, to$ = stocks.length; i$ < to$; ++i$) {
+            results$.push(i$);
+          }
+          return results$;
+        }
+      });
+    });
+    app.get('/fn/block/:ma/:mb/:range/:count/:earnRate', function(req, res){
+      var count, ma, mb, range, earnRate;
+      count = req.params.count;
+      ma = req.params.ma;
+      mb = req.params.mb;
+      range = req.params.range;
+      earnRate = parseInt(req.params.earnRate);
+      return Tool.fetch(("https://api.binance.com/api/v1/klines?interval=" + range + "&limit=" + count + "&symbol=") + mb.toUpperCase() + ma.toUpperCase(), false, function(err, data){
+        var format, stockData, style, stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, txPrice, avg, sd;
+        if (err) {
+          return res.json([err.error]);
+        }
+        format = function(arg$){
+          var openTime, open, high, low, close;
+          openTime = arg$[0], open = arg$[1], high = arg$[2], low = arg$[3], close = arg$[4];
+          return [new Date(openTime).toString()].concat([low, open, close, high].map(parseFloat));
+        };
+        stockData = Array.prototype.map.call(JSON.parse(data), format);
+        style = Earn.checkStyle(stockData);
+        stocks = [];
+        tx = [];
+        for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
+          day = stockData[i$];
+          if (stocks.length === 0) {
+            stocks.push(day);
+          } else {
+            _ = day[0], low = day[1], open = day[2], close = day[3], high = day[4];
+            sellOk = false;
+            for (j$ = 0, len1$ = (ref$ = (fn$()).reverse()).length; j$ < len1$; ++j$) {
+              i = ref$[j$];
+              ref1$ = stocks[i], _ = ref1$[0], _ = ref1$[1], prevOpen = ref1$[2], _ = ref1$[3], _ = ref1$[4];
+              rate = (open - prevOpen) * 100 / prevOpen;
+              if (rate >= earnRate) {
+                tx.push([stocks[i], day]);
+                stocks = stocks.slice(0, i).concat(stocks.slice(i + 1, stocks.length));
+                sellOk = true;
+              }
+            }
+            if (sellOk === false) {
+              stocks.push(day);
+            }
+          }
+        }
+        txPrice = Formula.Open(
+        tx.map(function(arg$){
+          var first;
+          first = arg$[0];
+          return first;
+        }));
+        avg = Formula.avg(txPrice);
+        sd = Formula.StandardDeviation(avg, txPrice);
+        return res.json([
+          null, {
+            style: style,
+            txRate: tx.length / (tx.length + stocks.length),
+            earnRate: Math.pow((earnRate / 100 - 0.001425) + 1, tx.length),
+            price: {
+              avg: avg,
+              sd: sd
             },
             stocks: stocks,
             tx: tx

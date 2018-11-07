@@ -1,3 +1,6 @@
+export Open = (data)->
+    data.map(([_, _, open, _])->open)
+    
 export Close = (data)->
     data.map(([_, _, _, close])->close)
 

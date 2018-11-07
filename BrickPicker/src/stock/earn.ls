@@ -69,9 +69,12 @@ export checkEarn = (data, orders)->
                 console.log "has storage"
             else
                 [date, low, open, close, high] = data[order.idx+1]
+                /*
                 if order.price < low || order.price > high
                     continue
                 price = order.price
+                */
+                price = open
                 cost = price + price * gas
                 money -= cost
                 useMoney = cost

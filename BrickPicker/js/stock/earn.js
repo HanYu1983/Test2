@@ -98,10 +98,12 @@
           console.log("has storage");
         } else {
           ref$ = data[order.idx + 1], date = ref$[0], low = ref$[1], open = ref$[2], close = ref$[3], high = ref$[4];
-          if (order.price < low || order.price > high) {
-            continue;
-          }
-          price = order.price;
+          /*
+          if order.price < low || order.price > high
+              continue
+          price = order.price
+          */
+          price = open;
           cost = price + price * gas;
           money -= cost;
           useMoney = cost;
