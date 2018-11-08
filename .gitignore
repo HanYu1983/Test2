@@ -11,3 +11,4 @@ YouAreMyDiamond2/build/contracts/
 node_modules
 package-lock.json
 cache/
+private/

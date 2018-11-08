@@ -4,7 +4,7 @@ signalR = require ('signalr-client')
 zlib = require('zlib')
 
 /*
-binanceWs = new WebSocket 'wss://stream.binance.com:9443/ws/btcusdt@depth10'
+binanceWs = new WebSocket 'wss://stream.binance.com:9443/ws/btcusdt@depth5'
     ..on 'open', ->
         console.log 'open'
 
@@ -16,9 +16,37 @@ binanceWs = new WebSocket 'wss://stream.binance.com:9443/ws/btcusdt@depth10'
         
     ..on 'error', (err) ->
         console.log err
-
 */
 
+/*
+binanceWs = new WebSocket 'wss://stream.binance.com:9443/ws/btcusdt@kline_1m'
+    ..on 'open', ->
+        console.log 'open'
+
+    ..on 'close', ->
+        console.log 'close'
+
+    ..on 'message', (data) ->
+        console.log JSON.parse(data)
+
+    ..on 'error', (err) ->
+        console.log err
+*/
+
+# 用這個查即時現價
+binanceWs = new WebSocket 'wss://stream.binance.com:9443/ws/btcusdt@aggTrade'
+    ..on 'open', ->
+        console.log 'open'
+
+    ..on 'close', ->
+        console.log 'close'
+
+    ..on 'message', (data) ->
+        console.log JSON.parse(data)
+
+    ..on 'error', (err) ->
+        console.log err
+        
 /*
 huobiWs = new WebSocket 'wss://api.huobi.pro/ws'
     ..on 'open', ->
