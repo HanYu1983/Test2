@@ -8,6 +8,8 @@ require! {
     "signalr-client": signalR
     zlib
     "./private/apiKey": ApiKey
+    
+    websocket: {client: WebSocketClient}
 }
 
 /*
@@ -75,6 +77,7 @@ path = "/ws/v1"
 url = "wss://#{baseurl}#{path}"
 console.log url
 
+/*
 huobiWs2 = new WebSocket url
     ..on 'open', ->
         console.log 'open'
@@ -113,3 +116,73 @@ huobiWs2 = new WebSocket url
         
     ..on 'error', (err) ->
         console.log err
+*/
+
+
+callbackPool = {}
+callbackSeq = 0
+
+
+
+sendAuth = (connection, cb)->
+    method = "GET"
+    data = 
+        AccessKeyId: ApiKey.huobi.AccessKey
+        SignatureMethod: "HmacSHA256"
+        SignatureVersion: "2"
+        Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss')
+
+    p = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).sort().join("&")
+    meta = [method, baseurl, path, p].join('\n');
+    hash = crypto.createHmac('sha256', ApiKey.huobi.SecretKey).update(meta).digest('base64')
+    signature = hash
+    data.Signature = signature
+
+    pkg = {op: "auth", cid:callbackSeq++}
+    for k, v of data
+        pkg[k] = v
+    
+    sendData = JSON.stringify(pkg)
+    connection.sendUTF(sendData)
+    callbackPool[pkg.cid] = cb
+
+
+sendPkg = (connection, pkg, cb)->
+    if pkg.op != "sub"
+        pkg.cid = callbackSeq++
+        callbackPool[pkg.cid] = cb
+    sendData = JSON.stringify(pkg)
+    connection.sendUTF(sendData)
+    
+
+
+client = new WebSocketClient()
+
+client.on 'connectFailed', (error)->
+    console.log('Connect Error: ' + error.toString())
+
+client.on 'connect', (connection)->
+    console.log('WebSocket Client Connected')
+    
+    connection.on 'error', (error)->
+        console.log "Connection Error: " + error.toString()
+
+    connection.on 'close', ->
+        console.log 'echo-protocol Connection Closed'
+
+    connection.on 'message', (message)->
+        if message.type === 'binary'
+            res = 
+                pako.inflate(message.binaryData, {to:'string'}) |> 
+                JSON.parse _
+            console.log res
+            {op, cid, data} = res
+            if op != "sub" && callbackPool.hasOwnProperty(cid)
+                callbackPool[cid](res)
+                delete callbackPool[cid]
+
+    data <- sendAuth connection
+    console.log data
+    sendPkg connection, {op: "sub", topic: "accounts"}
+    
+client.connect(url);

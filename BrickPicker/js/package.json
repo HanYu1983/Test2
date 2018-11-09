@@ -17,6 +17,7 @@
     "signalr-client": "0.0.19",
     "sqlite3": "^4.0.3",
     "vash": "^0.12.4",
+    "websocket": "^1.0.28",
     "ws": "6.1.0",
     "zlib": "*"
   }
