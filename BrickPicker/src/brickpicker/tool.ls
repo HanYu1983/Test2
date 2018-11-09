@@ -43,7 +43,7 @@ export huobiSignedOption = (baseurl, path, args, method)->
     data = 
         AccessKeyId: ApiKey.huobi.AccessKey
         SignatureMethod: "HmacSHA256"
-        SignatureVersion: 2
+        SignatureVersion: "2"
         Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss')
 
     # get，要加密，所以放在算法前面

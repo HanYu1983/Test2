@@ -56,7 +56,7 @@
     data = {
       AccessKeyId: ApiKey.huobi.AccessKey,
       SignatureMethod: "HmacSHA256",
-      SignatureVersion: 2,
+      SignatureVersion: "2",
       Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss')
     };
     if (method === "GET") {

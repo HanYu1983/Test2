@@ -1,5 +1,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/livescript/1.6.0/livescript-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="../js/private/apiKey.js"></script>
 <script type="text/ls">
 /*
 getUrl = (url, cb) -->
@@ -14,7 +18,7 @@ getUrl = (url, cb) -->
 [err, res] <- getUrl 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
 console.log(err, res)
 */
-
+/*
 ws = new WebSocket 'wss://stream.binance.com:9443/ws/bnbbtc@depth'
     ..onopen = (evt) ->
         console.log evt
@@ -27,8 +31,50 @@ ws = new WebSocket 'wss://stream.binance.com:9443/ws/bnbbtc@depth'
         
     ..onerror = (evt) ->
         console.log evt
+    */
+
+baseurl = "api.huobi.com"
+path = "/ws/v1"
+url = "wss://#{baseurl}#{path}"
+console.log url
+
+ws = new WebSocket url
+    ..onopen = (evt) ->
+        console.log evt
+        
+        method = "GET"
+        data = 
+            AccessKeyId: huobi.AccessKey
+            SignatureMethod: "HmacSHA256"
+            SignatureVersion: "2"
+            Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss')
     
-    
+        p = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).sort().join("&")
+        meta = [method, baseurl, path, p].join('\n');
+        hash = CryptoJS.HmacSHA256(meta, huobi.SecretKey).toString(CryptoJS.enc.Base64)
+        signature = hash
+        data.Signature = signature
+
+        pkg = {op: "auth"}
+        for k, v of data
+            pkg[k] = v
+        
+        console.log pkg
+        ws.send(JSON.stringify(pkg))
+
+    ..onclose = (evt) ->
+        console.log evt
+
+    ..onmessage = ({data}:evt) ->
+        reader = new FileReader
+            ..addEventListener 'loadend', (e)->
+                buf = this.result
+                text = pako.inflate(buf, {to: "string"})
+                console.log text
+        reader.readAsArrayBuffer data
+        
+    ..onerror = (evt) ->
+        console.log evt
 </script>
 <script>
     var LiveScript = require("livescript");
