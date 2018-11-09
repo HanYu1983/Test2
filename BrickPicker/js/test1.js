@@ -103,25 +103,41 @@
   */
   getUrl(binanceSignedOption("https://api.binance.com/api/v3/account", {}, "GET"), function(err, result){
     console.log(err, result);
-    return getUrl(binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST"), function(err, result){
-      var listenKey, x$, binanceWs;
-      listenKey = JSON.parse(
-      result).listenKey;
+    return getUrl(binanceSignedOption("https://api.binance.com/api/v3/openOrders", {}, "GET"), function(err, result){
       console.log(err, result);
-      x$ = binanceWs = new WebSocket("wss://stream.binance.com:9443/ws/" + listenKey);
-      x$.on('open', function(){
-        return console.log('open');
+      return getUrl(binanceSignedOption("https://api.binance.com/api/v3/myTrades", {
+        symbol: "BTCUSDT"
+      }, "GET"), function(err, result){
+        console.log(err, result);
+        return getUrl(binanceSignedOption("https://api.binance.com/api/v3/order/test", {
+          symbol: "BTCUSDT",
+          side: "SELL",
+          type: "MARKET",
+          quantity: 1
+        }, "POST"), function(err, result){
+          console.log(err, result);
+          return getUrl(binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST"), function(err, result){
+            var listenKey, x$, dataStream;
+            listenKey = JSON.parse(
+            result).listenKey;
+            console.log(err, result);
+            x$ = dataStream = new WebSocket("wss://stream.binance.com:9443/ws/" + listenKey);
+            x$.on('open', function(){
+              return console.log('open');
+            });
+            x$.on('close', function(){
+              return console.log('close');
+            });
+            x$.on('message', function(data){
+              return console.log(JSON.parse(data));
+            });
+            x$.on('error', function(err){
+              return console.log(err);
+            });
+            return x$;
+          });
+        });
       });
-      x$.on('close', function(){
-        return console.log('close');
-      });
-      x$.on('message', function(data){
-        return console.log(JSON.parse(data));
-      });
-      x$.on('error', function(err){
-        return console.log(err);
-      });
-      return x$;
     });
   });
   function curry$(f, bound){

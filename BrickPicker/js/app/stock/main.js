@@ -56,7 +56,7 @@
     });
   };
   startExpress = function(){
-    var app, checkLowHighEarn;
+    var app;
     app = express();
     app.set('port', 8080);
     app.set('views', path.join(__dirname, '/views'));
@@ -184,74 +184,6 @@
         return res.json([null, data]);
       });
     });
-    checkLowHighEarn = function(earnRate, stockData){
-      var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, txPrice, avg, sd, z, min, max, txRate, ret;
-      stocks = [];
-      tx = [];
-      for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
-        day = stockData[i$];
-        if (stocks.length === 0) {
-          stocks.push(day);
-        } else {
-          _ = day[0], low = day[1], open = day[2], close = day[3], high = day[4];
-          sellOk = false;
-          for (j$ = 0, len1$ = (ref$ = (fn$()).reverse()).length; j$ < len1$; ++j$) {
-            i = ref$[j$];
-            ref1$ = stocks[i], _ = ref1$[0], _ = ref1$[1], prevOpen = ref1$[2], _ = ref1$[3], _ = ref1$[4];
-            rate = (open - prevOpen) * 1000 / prevOpen;
-            if (rate >= earnRate) {
-              tx.push([stocks[i], day]);
-              stocks = stocks.slice(0, i).concat(stocks.slice(i + 1, stocks.length));
-              sellOk = true;
-            }
-          }
-          if (sellOk === false) {
-            stocks.push(day);
-          }
-        }
-      }
-      txPrice = Formula.Open(
-      tx.map(function(arg$){
-        var first;
-        first = arg$[0];
-        return first;
-      }));
-      avg = Formula.avg(txPrice);
-      sd = Formula.StandardDeviation(avg, txPrice);
-      z = Formula.ZScore(avg, sd, txPrice);
-      min = max = 0;
-      if (stocks.length > 0) {
-        min = Math.min.apply(null, Formula.Open(
-        stocks));
-        max = Math.max.apply(null, Formula.Open(
-        stocks));
-      }
-      txRate = tx.length / (tx.length + stocks.length);
-      return ret = {
-        txRate: txRate,
-        earnRate: Math.pow((earnRate / 1000 - 0.001425) + 1, tx.length * txRate),
-        maxEarnRate: Math.pow((earnRate / 1000 - 0.001425) + 1, tx.length),
-        check: {
-          min: min,
-          max: max,
-          rate: min !== 0 ? (max - min) / min : 0
-        },
-        price: {
-          avg: avg,
-          sd: sd,
-          z: z
-        },
-        stocks: stocks,
-        tx: tx
-      };
-      function fn$(){
-        var i$, to$, results$ = [];
-        for (i$ = 0, to$ = stocks.length; i$ < to$; ++i$) {
-          results$.push(i$);
-        }
-        return results$;
-      }
-    };
     app.get('/fn/test/:stockId/:year/:count/:earnRate', function(req, res){
       var stockId, year, count, earnRate;
       stockId = req.params.stockId;
@@ -267,7 +199,7 @@
         data);
         cnt = Math.min(count, stockData.length);
         stockData = stockData.slice(stockData.length - cnt, stockData.length);
-        earnInfo = checkLowHighEarn(earnRate, stockData);
+        earnInfo = Earn.checkLowHighEarn(earnRate, stockData);
         earnInfo.style = Earn.checkStyle(stockData);
         return res.json([null, earnInfo]);
       });
@@ -290,7 +222,7 @@
           return [new Date(openTime).toString()].concat([low, open, close, high].map(parseFloat));
         };
         stockData = Array.prototype.map.call(JSON.parse(data), format);
-        earnInfo = checkLowHighEarn(earnRate, stockData);
+        earnInfo = Earn.checkLowHighEarn(earnRate, stockData);
         earnInfo.style = Earn.checkStyle(stockData);
         return res.json([null, earnInfo]);
       });

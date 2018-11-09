@@ -101,12 +101,20 @@ updatePrice = (cb) ->
 (err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/account", {}, "GET")
 console.log err, result
 
+(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/openOrders", {}, "GET")
+console.log err, result
+
+(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/myTrades", {symbol: "BTCUSDT"}, "GET")
+console.log err, result
+
+(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/order/test", {symbol: "BTCUSDT", side: "SELL", type: "MARKET", quantity: 1}, "POST")
+console.log err, result
 
 (err, result) <- getUrl binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST")
 {listenKey} = result |> JSON.parse
 console.log err, result
 
-binanceWs = new WebSocket "wss://stream.binance.com:9443/ws/#{listenKey}"
+dataStream = new WebSocket "wss://stream.binance.com:9443/ws/#{listenKey}"
     ..on 'open', ->
         console.log 'open'
 
