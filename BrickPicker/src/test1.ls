@@ -6,45 +6,10 @@ require! {
     pako
     "signalr-client": signalR
     zlib
-    "./private/apiKey": ApiKey
+    "./brickpicker/tool": Tool
 }
 
-console.log ApiKey
-
 # --> : use for curry
-getUrl = (opt, cb) -->
-    callback = (error, response, body) ->
-        if error
-            cb error
-        else
-            cb null, body
-    request(opt, callback);
-
-
-binanceApiOption = (url, data, method)->
-    query = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).join("&")
-    opt = 
-        url: url + '?' + query
-        qs: data
-        method: method
-        timeout: 5000
-        headers:
-            'Content-type': "application/x-www-form-urlencoded"
-            'X-MBX-APIKEY': ApiKey.binance.ApiKey
-
-binanceSignedOption = (url, data, method)->
-    data.timestamp = new Date().getTime()
-    data.recvWindow = 5000
-    query = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).join("&")
-    signature = crypto.createHmac('sha256', ApiKey.binance.SecretKey).update(query).digest('hex')
-    opt = 
-        url: url + '?' + query + '&signature=' + signature
-        qs: data
-        method: method
-        timeout: 5000
-        headers:
-            'Content-type': "application/x-www-form-urlencoded"
-            'X-MBX-APIKEY': ApiKey.binance.ApiKey
 
 /*
 (err, {bids, asks}) <- getUrl 'https://api.binance.com/api/v1/depth?symbol=BTCUSDT'
@@ -98,19 +63,19 @@ updatePrice = (cb) ->
 # <- updatePrice
 
 
-(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/account", {}, "GET")
+(err, result) <- Tool.getUrl Tool.binanceSignedOption("https://api.binance.com/api/v3/account", {}, "GET")
 console.log err, result
 
-(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/openOrders", {}, "GET")
+(err, result) <- Tool.getUrl Tool.binanceSignedOption("https://api.binance.com/api/v3/openOrders", {}, "GET")
 console.log err, result
 
-(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/myTrades", {symbol: "BTCUSDT"}, "GET")
+(err, result) <- Tool.getUrl Tool.binanceSignedOption("https://api.binance.com/api/v3/myTrades", {symbol: "BTCUSDT"}, "GET")
 console.log err, result
 
-(err, result) <- getUrl binanceSignedOption("https://api.binance.com/api/v3/order/test", {symbol: "BTCUSDT", side: "SELL", type: "MARKET", quantity: 1}, "POST")
+(err, result) <- Tool.getUrl Tool.binanceSignedOption("https://api.binance.com/api/v3/order/test", {symbol: "BTCUSDT", side: "SELL", type: "MARKET", quantity: 1}, "POST")
 console.log err, result
 
-(err, result) <- getUrl binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST")
+(err, result) <- Tool.getUrl Tool.binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST")
 {listenKey} = result |> JSON.parse
 console.log err, result
 
