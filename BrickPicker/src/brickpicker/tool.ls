@@ -2,6 +2,8 @@ require! {
     request
     crypto
     "../private/apiKey": ApiKey
+    
+    moment
 }
 
 export getUrl = (opt, cb) -->
@@ -36,3 +38,33 @@ export binanceSignedOption = (url, data, method)->
         headers:
             'Content-type': "application/x-www-form-urlencoded"
             'X-MBX-APIKEY': ApiKey.binance.ApiKey
+
+export huobiSignedOption = (baseurl, path, args, method)->
+    data = 
+        AccessKeyId: ApiKey.huobi.AccessKey
+        SignatureMethod: "HmacSHA256"
+        SignatureVersion: 2
+        Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss')
+
+    # get，要加密，所以放在算法前面
+    if method == "GET"
+        for k, v of args
+            data[k] = v
+
+    p = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).sort().join("&")
+    meta = [method, baseurl, path, p].join('\n');
+    hash = crypto.createHmac('sha256', ApiKey.huobi.SecretKey).update(meta).digest('base64')
+    signature = encodeURIComponent(hash)
+
+    # post的話，不必加密，所以放在算法後面
+    if method == "POST"
+        for k, v of args
+            data[k] = v
+
+    opt = 
+        url: "https://"+ baseurl + path + "?" + p + '&Signature=' + signature
+        body: JSON.stringify(data)
+        method: method
+        timeout: 5000
+        headers:
+            'Content-type': "application/json"
