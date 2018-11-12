@@ -56,6 +56,8 @@ startExpress = (cfg)->
     app.set 'views', path.join( __dirname, '/views')
     app.set 'view engine', 'vash'
 
+    app.use('/', express.static(path.join( __dirname, '/www')));
+
     app.get '/fn/userdata', (req, res)->
         (err, userdata) <- loadUserData
         if err
@@ -171,6 +173,11 @@ startExpress = (cfg)->
             return res.json [err]
         
         res.json [null, data]
+    
+    
+    #app.get '/fn/'
+    
+    
     
     app.get '/fn/test/:stockId/:year/:count/:earnRate', (req, res)->
         stockId = req.params.stockId

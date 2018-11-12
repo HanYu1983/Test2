@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        
+    </head>
+    <body>
+    
+        <table id="peopleList" class="easyui-datagrid" 
+            sortName = "code"
+            multiSort = "true" 
+            sortOrder="asc"
+            rownumbers="true" 
+            pagination="true">
+            <thead>
+                <tr>
+                    <th data-options="field:'stock'">Code</th>
+                    <th data-options="field:'style'">Name</th>
+                    <th data-options="field:'price'">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td><td>name1</td><td>2323</td>
+                </tr>
+                <tr>
+                    <td>002</td><td>name2</td><td>4612</td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+    <link rel="stylesheet" type="text/css" href="./lib/jquery-easyui-1.6.7/themes/black/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./lib/jquery-easyui-1.6.7/themes/icon.css">
+    <script src="./lib/jquery-easyui-1.6.7/jquery.min.js"></script>
+    <script src="./lib/jquery-easyui-1.6.7/jquery.easyui.min.js"></script>
+    <script>
+    /*
+    $('#peopleList').datagrid({
+        data: [
+            {code:'value11', name:'value12', price: 20},
+            {code:'value11', name:'value12', price: 30},
+            {code:'value11', name:'value12', price: 10},
+            {code:'value11', name:'value12', price: 240}
+        ]
+    });
+    */
+    </script>
+</html>

@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+    </head>
+    <body>
+        <canvas id="canvas" width=300 height=300></canvas>
+    </body>
+    <script src="lib/drawer.js"></script>
+    <script>
+    
+    var kline = [
+        ["1", 100, 140, 154, 180, 100], 
+        ["2", 150, 150, 134, 110, 50],
+        ["3", 150, 150, 134, 110, 50],
+        ["4", 150, 150, 134, 110, 50]
+    ]
+    
+    var draw1 = {
+        type: "kline", 
+        line:[0, 140, 250, 50], 
+        kline: kline, 
+        color: "red"
+    }
+    
+    var draw2 = {
+        type: "line", 
+        line:[0, 140, 250, 50], 
+        color: "green"
+    }
+    
+    var draw3 = {
+        type: "grid",
+        kline: kline,
+        color: "gray"
+    }
+    
+    var drawList = [draw3, draw1, draw2]
+    var D = drawer()
+    var canvas = document.getElementById("canvas")
+    var ctx = canvas.getContext("2d")
+    var base = D.graphicBase(300, 300, drawList)
+    
+    for(var i in drawList){
+        D.drawIt(drawList[i], base, ctx)
+    }
+    
+    </script>
+</html>
