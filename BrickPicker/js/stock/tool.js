@@ -6,11 +6,33 @@
   crypto = require('crypto');
   async = require('async');
   fs = require('fs');
-  out$.fetch = fetch = curry$(function(url, dontUseCache, cb){
+  /*
+  export fetch = (url, dontUseCache, cb) -->
+    urlKey = crypto.createHash('md5').update(url).digest('hex')
+    path = "cache/"+urlKey+".html"
+    
+    if (!!dontUseCache) == false && fs.existsSync path
+        fs.readFile path, 'utf8', cb
+    else
+        ws = fs.createWriteStream path
+            .on('error', cb)
+            .on('finish', ->
+                if (fs.existsSync path) == false
+                    cb 'save lost'
+                else
+                    fs.readFile path, 'utf8', cb
+            )
+        request
+            .get(url)
+            .on('error', cb)
+            .pipe ws
+  */
+  out$.fetch = fetch = curry$(function(url, cacheDir, cb){
     var urlKey, path, ws;
+    console.log(url);
     urlKey = crypto.createHash('md5').update(url).digest('hex');
-    path = "cache/" + urlKey + ".html";
-    if (!!dontUseCache === false && fs.existsSync(path)) {
+    path = cacheDir + "" + urlKey + ".html";
+    if (cacheDir && fs.existsSync(path)) {
       return fs.readFile(path, 'utf8', cb);
     } else {
       ws = fs.createWriteStream(path).on('error', cb).on('finish', function(){
@@ -23,7 +45,7 @@
       return request.get(url).on('error', cb).pipe(ws);
     }
   });
-  out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cb){
+  out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cacheDir, cb){
     var urls, y, m;
     urls = Array.prototype.map.call((function(){
       var i$, ref$, len$, j$, ref1$, len1$, results$ = [];
@@ -41,7 +63,7 @@
       return "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId;
     });
     return async.series(urls.map(function(url){
-      return fetch(url, false);
+      return fetch(url, cacheDir);
     }), function(err, results){
       return cb(err, results);
     });
@@ -50,7 +72,18 @@
     var format;
     data = data.filter(function(r){
       return r.trim() !== "";
-    }).map(JSON.parse).filter(function(arg$){
+    }).map(function(v){
+      var e;
+      try {
+        return JSON.parse(v);
+      } catch (e$) {
+        e = e$;
+        console.log(e);
+        return {
+          stat: "error"
+        };
+      }
+    }).filter(function(arg$){
       var stat;
       stat = arg$.stat;
       return stat === "OK";

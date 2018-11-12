@@ -6,7 +6,7 @@ require! {
     async
     fs
 }
-
+/*
 export fetch = (url, dontUseCache, cb) -->
   urlKey = crypto.createHash('md5').update(url).digest('hex')
   path = "cache/"+urlKey+".html"
@@ -26,20 +26,46 @@ export fetch = (url, dontUseCache, cb) -->
           .get(url)
           .on('error', cb)
           .pipe ws
+*/
+export fetch = (url, cacheDir, cb) -->
+    console.log url
+    urlKey = crypto.createHash('md5').update(url).digest('hex')
+    path = "#{cacheDir}#{urlKey}.html"
 
-export fetchStockData = (stockId, years, months, cb)-->
+    if cacheDir && fs.existsSync path
+        fs.readFile path, 'utf8', cb
+    else
+        ws = fs.createWriteStream path
+            .on('error', cb)
+            .on('finish', ->
+                if (fs.existsSync path) == false
+                    cb 'save lost'
+                else
+                    fs.readFile path, 'utf8', cb
+            )
+        request
+            .get(url)
+            .on('error', cb)
+            .pipe ws
+        
+export fetchStockData = (stockId, years, months, cacheDir, cb)-->
     urls = [[y, m] for y in years for m in months] |>
         Array.prototype.map.call _, ([y, m])->"http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}"
 
     (err, results) <- async.series do
-        urls.map (url)-> fetch url, false
+        urls.map (url)-> fetch url, cacheDir
 
     cb err, results
 
 export formatStockData = (data) ->
     data = data
         .filter (r)->r.trim() != ""
-        .map JSON.parse
+        .map (v)->
+            try
+                JSON.parse v
+            catch e
+                console.log e
+                {stat: "error"}
         .filter ({stat})-> stat=="OK"
         .reduce ((acc, {data})->acc ++ data), []
 
@@ -52,5 +78,4 @@ export formatStockData = (data) ->
         d = tmp.getDay() + 1 
         [new Date("#{y}/#{m}/#{d}").getTime()] ++ ([low, open, close, high, volumn].map parseFloat)
         */
-
     return data.map format
