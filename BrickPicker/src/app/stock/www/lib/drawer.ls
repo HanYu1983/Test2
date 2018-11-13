@@ -72,7 +72,7 @@ export drawer = ->
         switch type
             | "grid" =>
                 cnt = 10
-                cntx = 5
+                cntx = 1
                 offset = (max-v - min-v)/ cnt
                 ctx
                     ..strokeStyle = color
@@ -138,16 +138,16 @@ export drawer = ->
                         ctx.stroke()
             | "kline" =>
                 ctx.fillStyle = "black"
-                for [idx, [date, low, close, open, high, volume] info] in mapn (...args)->args, [1 to kline.length], kline, (info || kline)
+                for [idx, [date, low, open, close, high, volume] info] in mapn (...args)->args, [1 to kline.length], kline, (info || kline)
                     ctx
-                        ..strokeStyle = if close > open then "red" else "green"
+                        ..strokeStyle = if close >= open then "red" else "green"
                         ..lineWidth = 2
                         ..beginPath()
                         ..moveTo idx* offset-x, pos-y(low)
                         ..lineTo idx* offset-x, pos-y(high)
                         ..stroke()
                         
-                        ..strokeStyle = if close > open then "red" else "green"
+                        ..strokeStyle = if close >= open then "red" else "green"
                         ..lineWidth = offset-x
                         ..beginPath()
                         ..moveTo idx* offset-x, pos-y(open)

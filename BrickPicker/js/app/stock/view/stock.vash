@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+    </head>
+    <body>
+        <canvas id="canvas1" width="2400" height="300"></canvas>
+        <canvas id="canvas2" width="2400" height="300"></canvas>
+        
+        <script src="/lib/drawer.js"></script>
+        <script>
+            var origin = @html.raw(model.data)
+            console.log(origin)
+            for(var i in origin){
+                var kline = origin[i].kline
+    
+                var draw1 = {
+                    type: "kline", 
+                    line:[0, 140, 250, 50], 
+                    kline: kline, 
+                    color: "red"
+                }
+    
+                var draw2 = {
+                    type: "line", 
+                    line:[0, 140, 250, 50], 
+                    color: "green"
+                }
+    
+                var draw3 = {
+                    type: "grid",
+                    kline: kline,
+                    color: "gray"
+                }
+    
+                var drawList = [draw3, draw1]
+                var D = drawer()
+                var canvas = document.getElementById("canvas"+(parseInt(i)+1))
+                var ctx = canvas.getContext("2d")
+                var base = D.graphicBase(2400, 300, drawList)
+                console.log(base)
+                for(var i in drawList){
+                    D.drawIt(drawList[i], base, ctx)
+                }
+                var [_, _2, _3, _4, _5, offsetX, offsetYfn] = base
+                var y = 12
+                for(var j in origin[i].results){
+                    var result = origin[i].results[j]
+                    var [[name], info, orders] = result
+                    for(var k in orders){
+                        var order = orders[k]
+                        var {action, date, idx} = order
+                        if(action == "buy"){
+                            ctx.fillStyle = "red"
+                        } else {
+                            ctx.fillStyle = "green"
+                        }
+                        ctx.fillText(name, offsetX* idx, y)
+                    }
+                    ctx.stroke()
+                    y+=12
+                }
+                
+                //ctx.arc(offsetX* 10, 20, 20, 0, 6.28, false)
+                //ctx.fillText("XXX", 5* offsetX, 30)
+                
+            }
+        </script>
+    </body>
+</html>

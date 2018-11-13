@@ -17,7 +17,12 @@ writeFile = (fileName, content, cb)->
 
 readFile = (fileName, cb)->
     fs.readFile fileName, 'utf8', cb
-    
+
+mapn = (f, ...args)->
+    maxLength = Math.min.apply(null, args.map (.length))
+    for i in [0 til maxLength]
+        f.apply(null, args.map((ary)->ary[i]))
+        
 # ========= model ========== #
 
 formulaKey = (formula)->
@@ -53,7 +58,7 @@ startExpress = (cfg)->
     
     app = express()
     app.set 'port', 8080
-    app.set 'views', path.join( __dirname, '/views')
+    app.set 'views', path.join( __dirname, '/view')
     app.set 'view engine', 'vash'
 
     app.use('/', express.static(path.join( __dirname, '/www')));
@@ -122,12 +127,51 @@ startExpress = (cfg)->
         delete userdata.stockIds[stockId]
         (err) <- saveUserData userdata
         res.json [err, userdata]
+        
+    app.get '/fn/dashboard', (req, res)->
+        (err, userdata) <- loadUserData
+        if err
+            return res.json [err]
+        
+        stockIds = for stockId, _ of userdata.stockIds
+            stockId
+        
+        fns = stockIds.map (stockId)-> Tool.fetchStockData stockId, [2017, 2018], [1 to 12], cfg.cacheDir
+        
+        (err, results) <- async.parallel fns
+        if err
+            console.log err
+            return res.json [err]
+        
+        results = for [stockId, data] in (mapn (...args)->args, stockIds, results)
+            try
+                stockData = data |> Tool.formatStockData
+                styles = [120, 60, 20, 10, 5].map (cnt)->
+                    minCnt = Math.min cnt, stockData.length
+                    stockData.slice(stockData.length - minCnt, stockData.length) |>
+                    Earn.checkStyle _
+                {
+                    stock: stockId
+                    styles: styles
+                    price: stockData[*-1]
+                }
+            catch e
+                console.log e
+                {
+                    stock: stockId
+                    msg: 'some thing wrong'
+                }
+        
+        results.sort ({styles:a}, {styles:b})->
+            return b[*-1] - a[*-1]
+            
+        res.json [null, results]
 
     app.get '/fn/compute/:year', (req, res)->
         year = req.params.year
     
         computeOne = (userdata, stockId, cb)-->
-            (err, data) <- Tool.fetchStockData stockId, [year], [1 to 2], cfg.cacheDir
+            (err, data) <- Tool.fetchStockData stockId, [year], [1 to 12], cfg.cacheDir
             if err
                 return cb err
             try
@@ -153,7 +197,7 @@ startExpress = (cfg)->
                             earn = Earn.checkEarn stockData, signals
                             [formula, earn, signals]
                         | otherwise =>
-                cb null, {stockId: stockId, year: year, style: style, results: results}
+                cb null, {stockId: stockId, year: year, style: style, kline: stockData, results: results}
             catch e
                 console.log e
                 cb e.error
@@ -172,12 +216,10 @@ startExpress = (cfg)->
             console.log err
             return res.json [err]
         
-        res.json [null, data]
-    
-    
-    #app.get '/fn/'
-    
-    
+        # res.json [null, data]
+        res.render do
+            "stock"
+            data: JSON.stringify(data)
     
     app.get '/fn/test/:stockId/:year/:count/:earnRate', (req, res)->
         stockId = req.params.stockId

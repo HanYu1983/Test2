@@ -125,13 +125,13 @@
       return [w, h, max, min, offset, offsetX, posY];
     };
     drawIt = function(arg$, base, ctx){
-      var type, line, color, offset, hideY, style, kline, info, centerY, w, h, maxV, minV, offsetV, offsetX, posY, cnt, cntx, x$, i$, ref$, len$, i, v, y, y$, z$, posx, z1$, z2$, z3$, ref1$, idx, value, z4$, prev, curr, z5$, ref2$, date, low, close, open, high, volume, z6$, results$ = [], results1$ = [];
+      var type, line, color, offset, hideY, style, kline, info, centerY, w, h, maxV, minV, offsetV, offsetX, posY, cnt, cntx, x$, i$, ref$, len$, i, v, y, y$, z$, posx, z1$, z2$, z3$, ref1$, idx, value, z4$, prev, curr, z5$, ref2$, date, low, open, close, high, volume, z6$, results$ = [], results1$ = [];
       type = arg$.type, line = arg$.line, color = arg$.color, offset = arg$.offset, hideY = arg$.hideY, style = arg$.style, kline = arg$.kline, info = arg$.info, centerY = arg$.centerY;
       w = base[0], h = base[1], maxV = base[2], minV = base[3], offsetV = base[4], offsetX = base[5], posY = base[6];
       switch (type) {
       case "grid":
         cnt = 10;
-        cntx = 5;
+        cntx = 1;
         offset = (maxV - minV) / cnt;
         x$ = ctx;
         x$.strokeStyle = color;
@@ -214,15 +214,15 @@
       case "kline":
         ctx.fillStyle = "black";
         for (i$ = 0, len$ = (ref$ = mapn(fn7$, (fn8$()), kline, info || kline)).length; i$ < len$; ++i$) {
-          ref1$ = ref$[i$], idx = ref1$[0], ref2$ = ref1$[1], date = ref2$[0], low = ref2$[1], close = ref2$[2], open = ref2$[3], high = ref2$[4], volume = ref2$[5], info = ref1$[2];
+          ref1$ = ref$[i$], idx = ref1$[0], ref2$ = ref1$[1], date = ref2$[0], low = ref2$[1], open = ref2$[2], close = ref2$[3], high = ref2$[4], volume = ref2$[5], info = ref1$[2];
           z6$ = ctx;
-          z6$.strokeStyle = close > open ? "red" : "green";
+          z6$.strokeStyle = close >= open ? "red" : "green";
           z6$.lineWidth = 2;
           z6$.beginPath();
           z6$.moveTo(idx * offsetX, posY(low));
           z6$.lineTo(idx * offsetX, posY(high));
           z6$.stroke();
-          z6$.strokeStyle = close > open ? "red" : "green";
+          z6$.strokeStyle = close >= open ? "red" : "green";
           z6$.lineWidth = offsetX;
           z6$.beginPath();
           z6$.moveTo(idx * offsetX, posY(open));
