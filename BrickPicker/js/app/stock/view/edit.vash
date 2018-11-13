@@ -1,0 +1,24 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <a href="/fn/dashboard">首頁</a>
+        @html.raw(JSON.stringify(model.data))
+        <div>
+            <form action="/fn/addStockId" method="POST">
+                <input name="stockId">
+                <input type="submit" value="新增">
+            </form>
+        </div>
+        
+        @model.data.stockIds.forEach(function(stock){
+            <div>
+                <h1>@stock</h1>
+                <form action="/fn/removeStockId" method="POST">
+                    <input type="hidden" name="stockId" value="@(stock)">
+                    <input type="submit" value="刪除">
+                </form>
+            </div>
+        })
+    </body>
+</html>

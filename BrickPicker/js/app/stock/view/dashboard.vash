@@ -1,0 +1,58 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <div>
+            <a href="/fn/userdata">編輯</a>
+            <a href="/fn/compute/2017">計算2017</a>
+            <a href="/fn/compute/2018">計算2018</a>
+            <form action="/fn/addStockId" method="POST">
+                <input name="stockId">
+                <input type="submit" value="新增">
+            </form>
+        </div>
+        
+        @model.data.forEach(function(info){
+            <div>
+                <h1>@info.stock</h1>
+                <div>@html.raw(info.price)</div>
+                <h4>style</h4>
+                <div id="chartStyle_@(info.stock)" style="width: 900px; height: 500px;"></div>
+            </div>
+        })
+        
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            var data = @html.raw(JSON.stringify(model.data))
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(start);
+            
+            function start(){
+                for(var i in data){
+                    var info = data[i]
+                    drawLine("chartStyle_"+info.stock, "style", info.styles, "style", info.styles)
+                }
+            }
+
+            function drawLine(div, name1, line1, name2, line2) {
+                var avgLine = line1
+                var avgLine2 = line2
+                var range = ["120", "60", "20", "10", "5"]
+                var data = []
+                for(var i=0; i<range.length; ++i){
+                    var ran = range[i]
+                    data.push([ran, avgLine[i], avgLine2[i]])
+                }
+                data = [['time', name1, name2]].concat(data)
+                data = google.visualization.arrayToDataTable(data)
+                var options = {
+                    title: 'Company Performance',
+                    curveType: 'function',
+                    legend: { position: 'bottom' }
+                };
+                var chart = new google.visualization.LineChart(document.getElementById(div));
+                chart.draw(data, options);
+            }
+        </script>
+    </body>
+</html>

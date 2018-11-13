@@ -8,6 +8,7 @@ require! {
     "../../stock/tool": Tool
     "../../stock/earn": Earn
     "init-config": Config
+    "body-parser": bodyParser
 }
 
 # =========== helper =============#
@@ -60,14 +61,16 @@ startExpress = (cfg)->
     app.set 'port', 8080
     app.set 'views', path.join( __dirname, '/view')
     app.set 'view engine', 'vash'
-
+    app.use bodyParser.urlencoded do
+        extended: true
+    
     app.use('/', express.static(path.join( __dirname, '/www')));
 
     app.get '/fn/userdata', (req, res)->
         (err, userdata) <- loadUserData
         if err
             return res.json [err]
-        res.json [null, userdata]
+        res.render "edit", {data: userdata}
 
     app.get '/fn/addFormula/kd/:arg1', (req, res)->
         arg1 = parseInt req.params.arg1
@@ -110,40 +113,45 @@ startExpress = (cfg)->
         (err) <- saveUserData userdata
         res.json [err, userdata]
         
-    app.get '/fn/addStockId/:stockId', (req, res)->
-        stockId = req.params.stockId
+    app.post '/fn/addStockId', (req, res)->
+        stockId = req.body.stockId
         (err, userdata) <- loadUserData
         if err
             return res.json [err]
-        userdata.stockIds[stockId] = 0
+        isExist = (userdata.stockIds.filter (id)->id == stockId) |>
+            (.length) |>
+            (> 0)
+        if stockId.trim() == ""
+            res.json "no stockId"
+            return
+        if not isExist
+            userdata.stockIds.push stockId
         (err) <- saveUserData userdata
-        res.json [err, userdata]
+        res.render "edit", {data: userdata}
     
-    app.get '/fn/removeStockId/:stockId', (req, res)->
-        stockId = req.params.stockId
+    app.post '/fn/removeStockId', (req, res)->
+        stockId = req.body.stockId
         (err, userdata) <- loadUserData
         if err
             return res.json [err]
-        delete userdata.stockIds[stockId]
+        userdata.stockIds = userdata.stockIds.filter (id)->id != stockId
         (err) <- saveUserData userdata
-        res.json [err, userdata]
+        res.render "edit", {data: userdata}
         
     app.get '/fn/dashboard', (req, res)->
         (err, userdata) <- loadUserData
         if err
             return res.json [err]
         
-        stockIds = for stockId, _ of userdata.stockIds
-            stockId
-        
-        fns = stockIds.map (stockId)-> Tool.fetchStockData stockId, [2017, 2018], [1 to 12], cfg.cacheDir
+        year = new Date().getFullYear()
+        fns = userdata.stockIds.map (stockId)-> Tool.fetchStockData stockId, [year], [1 to 12], cfg.cacheDir
         
         (err, results) <- async.parallel fns
         if err
             console.log err
             return res.json [err]
         
-        results = for [stockId, data] in (mapn (...args)->args, stockIds, results)
+        results = for [stockId, data] in (mapn (...args)->args, userdata.stockIds, results)
             try
                 stockData = data |> Tool.formatStockData
                 styles = [120, 60, 20, 10, 5].map (cnt)->
@@ -165,7 +173,7 @@ startExpress = (cfg)->
         results.sort ({styles:a}, {styles:b})->
             return b[*-1] - a[*-1]
             
-        res.json [null, results]
+        res.render "dashboard", {data: results}
 
     app.get '/fn/compute/:year', (req, res)->
         year = req.params.year
@@ -208,8 +216,7 @@ startExpress = (cfg)->
             return res.json [err]
         
         console.log userdata
-        fns = for stockId, _ of userdata.stockIds
-            computeOne userdata, stockId
+        fns = userdata.stockIds.map (stockId)->computeOne userdata, stockId
         
         (err, data) <- async.series fns
         if err
