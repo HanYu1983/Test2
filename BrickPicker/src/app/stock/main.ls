@@ -201,7 +201,7 @@ startExpress = (cfg)->
         (err, results) <- async.series fns
         if err
             return res.json [err]
-        res.render "earnRate", {data: results}
+        res.render "earnRate", {userdata: userdata, result: results}
 
     app.post '/fn/earnRates/add', (req, res)->
         stockId = req.body.stockId

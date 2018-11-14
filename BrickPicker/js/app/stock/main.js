@@ -298,7 +298,8 @@
             return res.json([err]);
           }
           return res.render("earnRate", {
-            data: results
+            userdata: userdata,
+            result: results
           });
         });
       });

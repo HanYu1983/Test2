@@ -1,1 +1,1 @@
-{"stockIds":["2354","4919","2330"],"formulas":[["kd",9],["bbi",3,6,12,24],["kd",5]],"earnRateSettings":[{"stockId":"2330","year":2018,"count":60,"earnRate":0.01},{"stockId":"4919","year":2018,"count":120,"earnRate":0.01},{"stockId":"4919","year":2018,"count":60,"earnRate":0.01}]}
+{"stockIds":["2354","4919"],"formulas":[["kd",9],["bbi",3,6,12,24],["kd",5]],"earnRateSettings":[{"stockId":"4919","year":2018,"count":120,"earnRate":0.01},{"stockId":"4919","year":2018,"count":60,"earnRate":0.01}]}

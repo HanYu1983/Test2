@@ -28,7 +28,7 @@
                 <td>add to dashboard</td>
             </tr>
             
-            @model.data.forEach(function(info){
+            @model.result.forEach(function(info){
                 <tr>
                     <td>@info.setting.stockId</td>
                     <td>@info.setting.year</td>
@@ -51,10 +51,15 @@
                         </form>
                     </td>
                     <td>
-                        <form action="/fn/addStockId" method="POST">
-                            <input type="hidden" name="stockId" value="@(info.setting.stockId)">
-                            <input type="submit" value="add to dashboard">
-                        </form>
+                        @{
+                            var isExist = model.userdata.stockIds.indexOf(info.setting.stockId) != -1;
+                            if(isExist == false){
+                                <form action="/fn/addStockId" method="POST">
+                                    <input type="hidden" name="stockId" value="@(info.setting.stockId)">
+                                    <input type="submit" value="add to dashboard">
+                                </form>
+                            }
+                        }
                     </td>
                 </tr>
             })
@@ -62,7 +67,7 @@
         
         
             
-        @model.data.forEach(function(info){
+        @model.result.forEach(function(info){
             <a name="orders_@(info.setting.stockId)"></a>
             <a href="#home">home</a>
             <table border="1">
@@ -104,7 +109,7 @@
         
     </body>
     <script>
-        var origin = @html.raw(JSON.stringify(model.data, null, 2))
+        var origin = @html.raw(JSON.stringify(model, null, 2))
         console.log(origin)
     </script>
 </html>
