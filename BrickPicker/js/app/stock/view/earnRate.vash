@@ -14,6 +14,7 @@
         <table border="1">
             <tr>
                 <td>stock</td>
+                <td>year</td>
                 <td>count</td>
                 <td>setEarnRate</td>
                 <td>style</td>
@@ -30,6 +31,7 @@
             @model.data.forEach(function(info){
                 <tr>
                     <td>@info.setting.stockId</td>
+                    <td>@info.setting.year</td>
                     <td>@info.setting.count</td>
                     <td>@info.setting.earnRate</td>
                     <td>@info.style</td>
