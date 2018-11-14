@@ -40,7 +40,7 @@
                     <td>@info.price.sd</td>
                     <td>@info.earnRate</td>
                     <td>@info.maxEarnRate</td>
-                    <td><a href="#orders_@(info.setting.stockId)">tx</a></td>
+                    <td><a href="#orders_@(info.setting.stockId)_@(info.setting.year)_@(info.setting.count)_@( info.setting.earnRate)">tx</a></td>
                     <td>
                         <form action="/fn/earnRates/remove" method="post">
                             <input type="hidden" name="stockId" value="@(info.setting.stockId)">
@@ -68,8 +68,8 @@
         
             
         @model.result.forEach(function(info){
-            <a name="orders_@(info.setting.stockId)"></a>
-            <a href="#home">home</a>
+            <a name="orders_@(info.setting.stockId)_@(info.setting.year)_@(info.setting.count)_@( info.setting.earnRate)"></a>
+            
             <table border="1">
                 <tr>
                     <td>stock</td>
@@ -80,6 +80,7 @@
                     <td>close</td>
                     <td>high</td>
                     <td>volumn</td>
+                    <td>home</td>
                 </tr>
             
                 @info.tx.forEach(function(order){
@@ -92,6 +93,7 @@
                         <td>@order[0][3]</td>
                         <td>@order[0][4]</td>
                         <td>@order[0][5]</td>
+                        <td><a href="#home">home</a></td>
                     </tr>
                     <tr>
                         <td>@info.setting.stockId</td>
@@ -102,6 +104,7 @@
                         <td>@order[1][3]</td>
                         <td>@order[1][4]</td>
                         <td>@order[1][5]</td>
+                        <td><a href="#home">home</a></td>
                     </tr>
                 })
             </table>
