@@ -40,6 +40,7 @@ loadUserData_ = ({saveDir}:cfg, cb)-->
             cb
             stockIds: []
             formulas: []
+            earnRateSettings: []
     
     (err, data) <- readFile fileName
     if err
@@ -127,7 +128,7 @@ startExpress = (cfg)->
         if not isExist
             userdata.stockIds.push stockId
         (err) <- saveUserData userdata
-        res.render "edit", {data: userdata}
+        res.redirect "/fn/userdata"
     
     app.post '/fn/removeStockId', (req, res)->
         stockId = req.body.stockId
@@ -136,7 +137,7 @@ startExpress = (cfg)->
             return res.json [err]
         userdata.stockIds = userdata.stockIds.filter (id)->id != stockId
         (err) <- saveUserData userdata
-        res.render "edit", {data: userdata}
+        res.redirect "/fn/userdata"
         
     app.get '/fn/dashboard', (req, res)->
         (err, userdata) <- loadUserData
@@ -174,7 +175,78 @@ startExpress = (cfg)->
             return b[*-1] - a[*-1]
             
         res.render "dashboard", {data: results}
+    
+    
+    
+    app.get '/fn/earnRates', (req, res)->
+        (err, userdata) <- loadUserData
+        if err
+            return res.json [err]
 
+        fns = userdata.earnRateSettings.map ({stockId, year, count, earnRate}:setting)->
+            (cb)-> async.waterfall do 
+                [
+                    Tool.fetchStockData(stockId, [year], [1 to 12], cfg.cacheDir),
+                    (data, cb)->
+                        stockData = data |> Tool.formatStockData
+                        cnt = Math.min count, stockData.length
+                        stockData = stockData.slice(stockData.length - cnt, stockData.length)
+                        earnInfo = Earn.checkLowHighEarn(earnRate, stockData)
+                        earnInfo.style = Earn.checkStyle stockData
+                        earnInfo.setting = setting
+                        cb null, earnInfo
+                ] 
+                cb
+        
+        (err, results) <- async.series fns
+        if err
+            return res.json [err]
+        res.render "earnRate", {data: results}
+
+    app.post '/fn/earnRates/add', (req, res)->
+        stockId = req.body.stockId
+        year = parseInt req.body.year
+        count = parseInt req.body.count
+        earnRate = parseFloat req.body.earnRate
+        (err, userdata) <- loadUserData
+        if err
+            return res.json [err]
+        
+        userdata.earnRateSettings.push do
+            stockId: stockId
+            year: year
+            count: count
+            earnRate: earnRate
+        
+        (err) <- saveUserData userdata
+        if err
+            return res.json [err]
+        res.redirect "/fn/earnRates"
+
+    app.post '/fn/earnRates/remove', (req, res)->
+        stockId = req.body.stockId
+        year = parseInt req.body.year
+        count = parseInt req.body.count
+        earnRate = parseFloat req.body.earnRate
+        
+        (err, userdata) <- loadUserData
+        if err
+            return res.json [err]
+        
+        userdata.earnRateSettings = userdata.earnRateSettings.filter (info)->
+            if not info
+                return false
+            return 
+                info.stockId != stockId ||
+                info.year != year ||
+                info.count != count ||
+                info.earnRate != earnRate
+        
+        (err) <- saveUserData userdata
+        if err
+            return res.json [err]
+        res.redirect "/fn/earnRates"
+        
     app.get '/fn/compute/:year', (req, res)->
         year = req.params.year
     

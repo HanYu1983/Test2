@@ -2,12 +2,10 @@
     <head>
     </head>
     <body>
+        @html.include('header', model)
         <div>
-            <a href="/fn/userdata">編輯</a>
-            <a href="/fn/compute/2017">計算2017</a>
-            <a href="/fn/compute/2018">計算2018</a>
             <form action="/fn/addStockId" method="POST">
-                <input name="stockId">
+                <input name="stockId" value="2330">
                 <input type="submit" value="新增">
             </form>
         </div>

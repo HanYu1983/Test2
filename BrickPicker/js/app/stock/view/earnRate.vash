@@ -1,0 +1,108 @@
+<html>
+    <body>
+        @html.include('header', model)
+        
+        <form action="/fn/earnRates/add" method="post">
+            <input name="stockId" value="2330">
+            <input name="year" value="2018">
+            <input name="count" value="120">
+            <input name="earnRate" value="0.01">
+            <input type="submit" value="add">
+        </form>
+        
+        <a name="home"></a>
+        <table border="1">
+            <tr>
+                <td>stock</td>
+                <td>count</td>
+                <td>setEarnRate</td>
+                <td>style</td>
+                <td>txRate</td>
+                <td>avg</td>
+                <td>sd</td>
+                <td>earnRate</td>
+                <td>maxEarnRate</td>
+                <td>tx</td>
+                <td>remove</td>
+                <td>add to dashboard</td>
+            </tr>
+            
+            @model.data.forEach(function(info){
+                <tr>
+                    <td>@info.setting.stockId</td>
+                    <td>@info.setting.count</td>
+                    <td>@info.setting.earnRate</td>
+                    <td>@info.style</td>
+                    <td>@info.txRate</td>
+                    <td>@info.price.avg</td>
+                    <td>@info.price.sd</td>
+                    <td>@info.earnRate</td>
+                    <td>@info.maxEarnRate</td>
+                    <td><a href="#orders_@(info.setting.stockId)">tx</a></td>
+                    <td>
+                        <form action="/fn/earnRates/remove" method="post">
+                            <input type="hidden" name="stockId" value="@(info.setting.stockId)">
+                            <input type="hidden" name="year" value="@(info.setting.year)">
+                            <input type="hidden" name="count" value="@(info.setting.count)">
+                            <input type="hidden" name="earnRate" value="@(info.setting.earnRate)">
+                            <input type="submit" value="remove">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/fn/addStockId" method="POST">
+                            <input type="hidden" name="stockId" value="@(info.setting.stockId)">
+                            <input type="submit" value="add to dashboard">
+                        </form>
+                    </td>
+                </tr>
+            })
+        </table>
+        
+        
+            
+        @model.data.forEach(function(info){
+            <a name="orders_@(info.setting.stockId)"></a>
+            <a href="#home">home</a>
+            <table border="1">
+                <tr>
+                    <td>stock</td>
+                    <td>date</td>
+                    <td>action</td>
+                    <td>low</td>
+                    <td>open</td>
+                    <td>close</td>
+                    <td>high</td>
+                    <td>volumn</td>
+                </tr>
+            
+                @info.tx.forEach(function(order){
+                    <tr>
+                        <td>@info.setting.stockId</td>
+                        <td>buy</td>
+                        <td>@order[0][0]</td>
+                        <td>@order[0][1]</td>
+                        <td>@order[0][2]</td>
+                        <td>@order[0][3]</td>
+                        <td>@order[0][4]</td>
+                        <td>@order[0][5]</td>
+                    </tr>
+                    <tr>
+                        <td>@info.setting.stockId</td>
+                        <td>sell</td>
+                        <td>@order[1][0]</td>
+                        <td>@order[1][1]</td>
+                        <td>@order[1][2]</td>
+                        <td>@order[1][3]</td>
+                        <td>@order[1][4]</td>
+                        <td>@order[1][5]</td>
+                    </tr>
+                })
+            </table>
+        })
+        
+    </body>
+    <script>
+        var origin = @html.raw(JSON.stringify(model.data, null, 2))
+        console.log(origin)
+    </script>
+</html>

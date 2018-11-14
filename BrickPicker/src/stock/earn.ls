@@ -176,7 +176,7 @@ export checkLowHighEarn = (earnRate, stockData)->
             
             for i in [0 til stocks.length].reverse()
                 [_, _, prevOpen, _, _] = stocks[i]
-                rate = (open - prevOpen)*10000 / prevOpen
+                rate = (open - prevOpen) / prevOpen
                 if rate >= earnRate
                     tx.push [stocks[i], day]
                     stocks = stocks.slice(0, i) ++ stocks.slice(i+1, stocks.length)
@@ -199,8 +199,8 @@ export checkLowHighEarn = (earnRate, stockData)->
     
     ret =
         txRate: txRate
-        earnRate: Math.pow(((earnRate/10000) - 0.001425)+1, tx.length* txRate)
-        maxEarnRate: Math.pow(((earnRate/10000) - 0.001425)+1, tx.length)
+        earnRate: Math.pow(((earnRate) - 0.001425)+1, tx.length* txRate)
+        maxEarnRate: Math.pow(((earnRate) - 0.001425)+1, tx.length)
         check:{
             min: min
             max: max

@@ -227,7 +227,7 @@
         for (j$ = 0, len1$ = (ref$ = (fn$()).reverse()).length; j$ < len1$; ++j$) {
           i = ref$[j$];
           ref1$ = stocks[i], _ = ref1$[0], _ = ref1$[1], prevOpen = ref1$[2], _ = ref1$[3], _ = ref1$[4];
-          rate = (open - prevOpen) * 10000 / prevOpen;
+          rate = (open - prevOpen) / prevOpen;
           if (rate >= earnRate) {
             tx.push([stocks[i], day]);
             stocks = stocks.slice(0, i).concat(stocks.slice(i + 1, stocks.length));
@@ -258,8 +258,8 @@
     txRate = tx.length / (tx.length + stocks.length);
     return ret = {
       txRate: txRate,
-      earnRate: Math.pow((earnRate / 10000 - 0.001425) + 1, tx.length * txRate),
-      maxEarnRate: Math.pow((earnRate / 10000 - 0.001425) + 1, tx.length),
+      earnRate: Math.pow((earnRate - 0.001425) + 1, tx.length * txRate),
+      maxEarnRate: Math.pow((earnRate - 0.001425) + 1, tx.length),
       check: {
         min: min,
         max: max,

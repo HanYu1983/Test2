@@ -2,15 +2,13 @@
     <head>
     </head>
     <body>
-        <a href="/fn/dashboard">首頁</a>
-        @html.raw(JSON.stringify(model.data))
+        @html.include('header', model)
         <div>
             <form action="/fn/addStockId" method="POST">
-                <input name="stockId">
+                <input name="stockId" value="2330">
                 <input type="submit" value="新增">
             </form>
         </div>
-        
         @model.data.stockIds.forEach(function(stock){
             <div>
                 <h1>@stock</h1>
@@ -21,4 +19,8 @@
             </div>
         })
     </body>
+    <script>
+        var a = @html.raw(JSON.stringify(model.data))
+        console.log(a)
+    </script>
 </html>

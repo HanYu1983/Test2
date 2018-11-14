@@ -62,7 +62,8 @@
     if (fs.existsSync(fileName) === false) {
       return saveUserData(cb, {
         stockIds: [],
-        formulas: []
+        formulas: [],
+        earnRateSettings: []
       });
     }
     return readFile(fileName, function(err, data){
@@ -184,9 +185,7 @@
           userdata.stockIds.push(stockId);
         }
         return saveUserData(userdata, function(err){
-          return res.render("edit", {
-            data: userdata
-          });
+          return res.redirect("/fn/userdata");
         });
       });
     });
@@ -201,9 +200,7 @@
           return id !== stockId;
         });
         return saveUserData(userdata, function(err){
-          return res.render("edit", {
-            data: userdata
-          });
+          return res.redirect("/fn/userdata");
         });
       });
     });
@@ -268,6 +265,89 @@
             minCnt = Math.min(cnt, stockData.length);
             return Earn.checkStyle(stockData.slice(stockData.length - minCnt, stockData.length));
           }
+        });
+      });
+    });
+    app.get('/fn/earnRates', function(req, res){
+      return loadUserData(function(err, userdata){
+        var fns;
+        if (err) {
+          return res.json([err]);
+        }
+        fns = userdata.earnRateSettings.map(function(setting){
+          var stockId, year, count, earnRate;
+          stockId = setting.stockId, year = setting.year, count = setting.count, earnRate = setting.earnRate;
+          return function(cb){
+            return async.waterfall([
+              Tool.fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir), function(data, cb){
+                var stockData, cnt, earnInfo;
+                stockData = Tool.formatStockData(
+                data);
+                cnt = Math.min(count, stockData.length);
+                stockData = stockData.slice(stockData.length - cnt, stockData.length);
+                earnInfo = Earn.checkLowHighEarn(earnRate, stockData);
+                earnInfo.style = Earn.checkStyle(stockData);
+                earnInfo.setting = setting;
+                return cb(null, earnInfo);
+              }
+            ], cb);
+          };
+        });
+        return async.series(fns, function(err, results){
+          if (err) {
+            return res.json([err]);
+          }
+          return res.render("earnRate", {
+            data: results
+          });
+        });
+      });
+    });
+    app.post('/fn/earnRates/add', function(req, res){
+      var stockId, year, count, earnRate;
+      stockId = req.body.stockId;
+      year = parseInt(req.body.year);
+      count = parseInt(req.body.count);
+      earnRate = parseFloat(req.body.earnRate);
+      return loadUserData(function(err, userdata){
+        if (err) {
+          return res.json([err]);
+        }
+        userdata.earnRateSettings.push({
+          stockId: stockId,
+          year: year,
+          count: count,
+          earnRate: earnRate
+        });
+        return saveUserData(userdata, function(err){
+          if (err) {
+            return res.json([err]);
+          }
+          return res.redirect("/fn/earnRates");
+        });
+      });
+    });
+    app.post('/fn/earnRates/remove', function(req, res){
+      var stockId, year, count, earnRate;
+      stockId = req.body.stockId;
+      year = parseInt(req.body.year);
+      count = parseInt(req.body.count);
+      earnRate = parseFloat(req.body.earnRate);
+      return loadUserData(function(err, userdata){
+        if (err) {
+          return res.json([err]);
+        }
+        userdata.earnRateSettings = userdata.earnRateSettings.filter(function(info){
+          if (!info) {
+            return false;
+          }
+          return info.stockId !== stockId || info.year !== year || info.count !== count || info.earnRate !== earnRate;
+        });
+        return saveUserData(userdata, function(err){
+          if (err) {
+            return res.json([err]);
+          }
+          return res.redirect("/fn/earnRates");
         });
       });
     });
