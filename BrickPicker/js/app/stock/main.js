@@ -328,6 +328,91 @@
         });
       });
     });
+    app.post('/fn/earnRates/smartAdd', function(req, res){
+      var stockId, year, minRate;
+      stockId = req.body.stockId;
+      year = parseInt(req.body.year);
+      minRate = parseFloat(req.body.minRate);
+      return loadUserData(function(err, userdata){
+        if (err) {
+          console.log(err);
+          return res.json([err]);
+        }
+        return Tool.fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir, function(err, data){
+          var stockData, cnt, counts, earnRates, compute, pairs, res$, i$, len$, count, j$, len1$, earnRate, results, filterMinEarnRate, ref$, filterNormal;
+          if (err) {
+            console.log(err);
+            return res.json([err]);
+          }
+          stockData = Tool.formatStockData(
+          data);
+          cnt = Math.min(count, stockData.length);
+          counts = [5, 10, 20, 60, 120, 240];
+          earnRates = [0.002, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.8, 0.9, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.5, 3, 4];
+          compute = function(setting){
+            var count, earnRate, cnt, tmpData, earnInfo;
+            count = setting[0], earnRate = setting[1];
+            cnt = Math.min(count, stockData.length);
+            tmpData = stockData.slice(stockData.length - cnt, stockData.length);
+            earnInfo = Earn.checkLowHighEarn(earnRate, tmpData);
+            return [setting, earnInfo.txRate + earnRate * 100 + (1 / count) * 10, earnInfo.txRate];
+          };
+          res$ = [];
+          for (i$ = 0, len$ = counts.length; i$ < len$; ++i$) {
+            count = counts[i$];
+            for (j$ = 0, len1$ = earnRates.length; j$ < len1$; ++j$) {
+              earnRate = earnRates[j$];
+              res$.push([count, earnRate]);
+            }
+          }
+          pairs = res$;
+          results = pairs.map(compute);
+          filterMinEarnRate = results.filter(function(arg$){
+            var _, earnRate;
+            _ = arg$[0], _ = arg$[1], earnRate = arg$[2];
+            return earnRate >= minRate;
+          }).sort(function(arg$, arg1$){
+            var _, a, b;
+            _ = arg$[0], a = arg$[1];
+            _ = arg1$[0], b = arg1$[1];
+            return b - a;
+          });
+          if (filterMinEarnRate.length > 0) {
+            console.log(filterMinEarnRate);
+            console.log("filterMin");
+            console.log(filterMinEarnRate[0]);
+            ref$ = filterMinEarnRate[0][0], count = ref$[0], earnRate = ref$[1];
+            userdata.earnRateSettings.push({
+              stockId: stockId,
+              year: year,
+              count: count,
+              earnRate: earnRate
+            });
+          } else {
+            filterNormal = results.sort(function(arg$, arg1$){
+              var _, a, b;
+              _ = arg$[0], a = arg$[1];
+              _ = arg1$[0], b = arg1$[1];
+              return b - a;
+            });
+            ref$ = filterNormal[0][0], count = ref$[0], earnRate = ref$[1];
+            userdata.earnRateSettings.push({
+              stockId: stockId,
+              year: year,
+              count: count,
+              earnRate: earnRate
+            });
+          }
+          return saveUserData(userdata, function(err){
+            if (err) {
+              console.log(err);
+              return res.json([err]);
+            }
+            return res.redirect("/fn/earnRates");
+          });
+        });
+      });
+    });
     app.post('/fn/earnRates/remove', function(req, res){
       var stockId, year, count, earnRate;
       stockId = req.body.stockId;

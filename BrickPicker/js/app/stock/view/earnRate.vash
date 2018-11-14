@@ -10,36 +10,33 @@
             <input type="submit" value="add">
         </form>
         
+        <form action="/fn/earnRates/smartAdd" method="post">
+            <input name="stockId" value="2330">
+            <input name="year" value="2018">
+            <input name="minRate" value="0.8">
+            <input type="submit" value="smartAdd">
+        </form>
+        
         <a name="home"></a>
         <table border="1">
             <tr>
+                <td>tx</td>
+                <td>remove</td>
+                <td>add to dashboard</td>
+                <td>txRate</td>
                 <td>stock</td>
                 <td>year</td>
                 <td>count</td>
                 <td>setEarnRate</td>
                 <td>style</td>
-                <td>txRate</td>
                 <td>avg</td>
                 <td>sd</td>
                 <td>earnRate</td>
                 <td>maxEarnRate</td>
-                <td>tx</td>
-                <td>remove</td>
-                <td>add to dashboard</td>
             </tr>
             
             @model.result.forEach(function(info){
                 <tr>
-                    <td>@info.setting.stockId</td>
-                    <td>@info.setting.year</td>
-                    <td>@info.setting.count</td>
-                    <td>@info.setting.earnRate</td>
-                    <td>@info.style</td>
-                    <td>@info.txRate</td>
-                    <td>@info.price.avg</td>
-                    <td>@info.price.sd</td>
-                    <td>@info.earnRate</td>
-                    <td>@info.maxEarnRate</td>
                     <td><a href="#orders_@(info.setting.stockId)_@(info.setting.year)_@(info.setting.count)_@( info.setting.earnRate)">tx</a></td>
                     <td>
                         <form action="/fn/earnRates/remove" method="post">
@@ -61,6 +58,16 @@
                             }
                         }
                     </td>
+                    <td>@info.txRate</td>
+                    <td>@info.setting.stockId</td>
+                    <td>@info.setting.year</td>
+                    <td>@info.setting.count</td>
+                    <td>@info.setting.earnRate</td>
+                    <td>@info.style</td>
+                    <td>@info.price.avg</td>
+                    <td>@info.price.sd</td>
+                    <td>@info.earnRate</td>
+                    <td>@info.maxEarnRate</td>
                 </tr>
             })
         </table>

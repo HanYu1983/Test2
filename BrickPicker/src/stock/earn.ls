@@ -155,10 +155,14 @@ export checkEarn2 = (orders)->
         
 
 export checkStyle = (origin)->
+    if origin.length < 2
+        return 0
     total = 0
     for i in [1 til origin.length]
         prev = origin[i - 1][3]
         curr = origin[i][3]
+        if prev == 0
+            continue
         rate = (curr - prev)/prev
         total += rate
     total

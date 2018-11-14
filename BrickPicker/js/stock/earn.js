@@ -196,11 +196,17 @@
   };
   out$.checkStyle = checkStyle = function(origin){
     var total, i$, ref$, len$, i, prev, curr, rate;
+    if (origin.length < 2) {
+      return 0;
+    }
     total = 0;
     for (i$ = 0, len$ = (ref$ = (fn$())).length; i$ < len$; ++i$) {
       i = ref$[i$];
       prev = origin[i - 1][3];
       curr = origin[i][3];
+      if (prev === 0) {
+        continue;
+      }
       rate = (curr - prev) / prev;
       total += rate;
     }

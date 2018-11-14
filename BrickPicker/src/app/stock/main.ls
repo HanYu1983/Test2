@@ -176,8 +176,6 @@ startExpress = (cfg)->
             
         res.render "dashboard", {data: results}
     
-    
-    
     app.get '/fn/earnRates', (req, res)->
         (err, userdata) <- loadUserData
         if err
@@ -221,6 +219,63 @@ startExpress = (cfg)->
         (err) <- saveUserData userdata
         if err
             return res.json [err]
+        res.redirect "/fn/earnRates"
+    
+    app.post '/fn/earnRates/smartAdd', (req, res)->
+        stockId = req.body.stockId
+        year = parseInt req.body.year
+        minRate = parseFloat req.body.minRate
+        
+        (err, userdata) <- loadUserData
+        if err
+            console.log err
+            return res.json [err]
+    
+        (err, data) <- Tool.fetchStockData(stockId, [year], [1 to 12], cfg.cacheDir)
+        if err
+            console.log err
+            return res.json [err]
+            
+        stockData = data |> Tool.formatStockData
+        cnt = Math.min count, stockData.length
+        
+        counts = [5, 10, 20, 60, 120, 240]
+        earnRates = [0.002, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.8, 0.9, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.5, 3, 4]
+        
+        compute = ([count, earnRate]:setting)->
+            cnt = Math.min count, stockData.length
+            tmpData = stockData.slice(stockData.length - cnt, stockData.length)
+            earnInfo = Earn.checkLowHighEarn(earnRate, tmpData)
+            [setting, earnInfo.txRate + earnRate*100 + (1/count)*10, earnInfo.txRate]
+        
+        pairs = [[count, earnRate] for count in counts for earnRate in earnRates]
+        results = pairs.map(compute)
+
+        filterMinEarnRate = results.filter(([_, _, earnRate])->earnRate >= minRate).sort(([_, a], [_, b])-> b - a)
+        if filterMinEarnRate.length > 0
+            console.log filterMinEarnRate
+            console.log "filterMin"
+            console.log filterMinEarnRate[0]
+            [[count, earnRate]] = filterMinEarnRate[0]
+            userdata.earnRateSettings.push do
+                stockId: stockId
+                year: year
+                count: count
+                earnRate: earnRate
+        else
+            filterNormal = results.sort(([_, a], [_, b])-> b - a)
+            [[count, earnRate]] = filterNormal[0]
+            userdata.earnRateSettings.push do
+                stockId: stockId
+                year: year
+                count: count
+                earnRate: earnRate
+            
+        (err) <- saveUserData userdata
+        if err
+            console.log err
+            return res.json [err]
+            
         res.redirect "/fn/earnRates"
 
     app.post '/fn/earnRates/remove', (req, res)->
