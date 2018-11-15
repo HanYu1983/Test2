@@ -239,14 +239,14 @@ startExpress = (cfg)->
         stockData = data |> Tool.formatStockData
         cnt = Math.min count, stockData.length
         
-        counts = [5, 10, 20, 60, 120, 240]
+        counts = [5, 10, 20, 60]
         earnRates = [0.002, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.8, 0.9, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.5, 3, 4]
         
         compute = ([count, earnRate]:setting)->
             cnt = Math.min count, stockData.length
             tmpData = stockData.slice(stockData.length - cnt, stockData.length)
             earnInfo = Earn.checkLowHighEarn(earnRate, tmpData)
-            [setting, earnInfo.txRate + earnRate*100 + (1/count)*10, earnInfo.txRate]
+            [setting, earnInfo.txRate + earnRate*100, earnInfo.txRate]
         
         pairs = [[count, earnRate] for count in counts for earnRate in earnRates]
         results = pairs.map(compute)
