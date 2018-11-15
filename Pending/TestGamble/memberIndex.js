@@ -108,13 +108,15 @@ function getRank(){
     
     var startBet = 1
     var record = {
+        level: 0,
         state: "waitBuy",
-        result: getResult(),
+        //result: getResult(),
         drawNumber: getDrawNum(),
-        bet: startBet
+        bet: startBet,
+        pos: -1
     }
     
-    for(;;){
+    for(;record.level < 40;){
         var second = getSeconds()
         console.log(record)
         switch(record.state){
@@ -122,8 +124,19 @@ function getRank(){
             {
                 if(second > 20 && second < 60){
                     console.log("fill field")
+                    // 排名和下注位置都是從1開始, 請略過0
                     var pos = getRank()[0]
-                    inputBet(pos, record.bet)
+                    if(record.pos > -1){
+                        var isWin = pos == record.pos
+                        console.log("RESULT:"+isWin)
+                        if(isWin){
+                            record.bet = startBet
+                        } else {
+                            record.bet = record.bet*2
+                        }
+                    }
+                    record.pos = pos
+                    inputBet(record.pos, record.bet)
                     await delay(5000)
                     /*
                     clickBet()
@@ -143,7 +156,7 @@ function getRank(){
                 }
                 record.drawNumber = currDrawNum
                 await delay(5000)
-                
+                /*
                 var result = getResult()
                 var isWin = result > record.result
                 if(isWin){
@@ -152,10 +165,13 @@ function getRank(){
                     record.bet = record.bet*2
                 }
                 record.result = result
+                */
+                record.level += 1
                 record.state = "waitBuy"
             }
             break
         }
         await delay(1000)
     }
+    console.log("level more then 40")
 })()
