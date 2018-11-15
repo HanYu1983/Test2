@@ -1,8 +1,8 @@
 {
-    "name": "Test Gamble",
+    "name": "Gameble Automation",
     "version": "1.0",
-    "description": "Build an Extension!",
-    "permissions": ["storage","activeTab","declarativeContent"],
+    "description": "自動下注會在倒數時間為20~60秒時執行，原因為等待網頁讀取。程式中在每個過程中會顧及網路速度而延後呼叫，為避免非預期情況，請在網路好的地方使用。",
+    "permissions": ["activeTab"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
