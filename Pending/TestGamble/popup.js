@@ -36,7 +36,7 @@ window.onload = function() {
             $("#drawNumber").html(info.info.drawNumber)
             $("#bet").html(info.info.bet)
             $("#pos").html(info.info.pos)
-            $("#win").html(info.info.win)
+            $("#loseTime").html(info.info.loseTime)
         }
     });
     
