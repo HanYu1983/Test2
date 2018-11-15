@@ -11,8 +11,9 @@ window.onload = function() {
             chrome.tabs.create({url: 'https://starcraft2.com/zh-tw/', windowId: currentWindow.id}, (t)=>{
             })
         });
-    }
-
+    };
+    
+    /*
     document.getElementById('btn_win').addEventListener('click',()=>{
         chrome.windows.getCurrent((currentWindow)=>{
             chrome.tabs.query({active: true, windowId: currentWindow.id},function(activeTabs) {
@@ -22,6 +23,7 @@ window.onload = function() {
             });
         });
     });
+    */
 };
 
 var infos = []
