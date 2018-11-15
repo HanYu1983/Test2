@@ -14,12 +14,7 @@
         {
             "matches": ["https://0736268923-fcs.cp168.ws/member/index"],
             "js": ["jquery.min.js", "memberIndex.js"]
-        },
-        {
-            "matches": ["https://0736268923-fcs.cp168.ws/*"],
-            "js": ["iframe.js"],
-            "all_frames":true
-         }
+        }
     ],
     "manifest_version": 2
 }

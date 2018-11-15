@@ -1,9 +1,3 @@
-function delay(v){
-    return new Promise((res, rej)=>{
-        setTimeout(()=>res(true), v)
-    })
-}
-
 var dispatchMouseEvent = function(target, var_args) {
     var e = document.createEvent("MouseEvents");
     e.initEvent.apply(e, Array.prototype.slice.call(arguments, 1));
@@ -25,6 +19,12 @@ var dispatchSimpleEvent = function(target, type, canBubble, cancelable) {
     target.dispatchEvent(e);
 };
 
+function delay(v){
+    return new Promise((res, rej)=>{
+        setTimeout(()=>res(true), v)
+    })
+}
+
 function closePopup(){
     for(var i=1; i<=10;++i) {
         $('#notice_button'+i).click()
@@ -35,7 +35,7 @@ function clickTab(){
     dispatchMouseEvent($(document).find('a[href="load?lottery=PK10JSC&page=110"]')[0], 'click', true, true);
 }
 
-function fillfield(idx, v){
+function inputBet(idx, v){
     // inject script to iframe https://jsfiddle.net/onury/ALHGP/
     var script = document.createElement( "script" )
     script.setAttribute('type', 'text/javascript');
@@ -123,12 +123,10 @@ function getRank(){
                 if(second > 20 && second < 60){
                     console.log("fill field")
                     var pos = getRank()[0]
-                    fillfield(pos, record.bet)
+                    inputBet(pos, record.bet)
                     await delay(5000)
                     /*
-                    console.log("Bet!!")
                     clickBet()
-                    
                     await delay(1000)
                     clickConfirm()
                     */
@@ -161,9 +159,3 @@ function getRank(){
         await delay(1000)
     }
 })()
-
-
-
-chrome.extension.onMessage.addListener(function(info) {
-    console.log(info)
-});

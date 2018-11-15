@@ -16,11 +16,3 @@ window.onload = function() {
         });
     };
 };
-
-var infos = []
-chrome.extension.onMessage.addListener(function(info) {
-    var console = chrome.extension.getBackgroundPage().console
-    console.log(info)
-});
-
-
