@@ -113,23 +113,25 @@ function getRank(){
         //result: getResult(),
         drawNumber: getDrawNum(),
         bet: startBet,
-        pos: -1
+        pos: -1,
+        win: 0
     }
     
     for(;record.level < 40;){
-        var second = getSeconds()
         console.log(record)
+        chrome.extension.sendMessage({cmd:'loop', info:record});
+        
         switch(record.state){
         case "waitBuy":
             {
+                var second = getSeconds()
                 if(second > 20 && second < 60){
-                    console.log("fill field")
                     // 排名和下注位置都是從1開始, 請略過0
                     var pos = getRank()[0]
                     if(record.pos > -1){
                         var isWin = pos == record.pos
-                        console.log("RESULT:"+isWin)
                         if(isWin){
+                            record.win += 1
                             record.bet = startBet
                         } else {
                             record.bet = record.bet*2
@@ -137,6 +139,9 @@ function getRank(){
                     }
                     record.pos = pos
                     inputBet(record.pos, record.bet)
+                    
+                    // 若是最後一注，讓迴圈結束也沒關係。不必運行waitResult
+                    record.level += 1
                     await delay(5000)
                     /*
                     clickBet()
@@ -166,7 +171,6 @@ function getRank(){
                 }
                 record.result = result
                 */
-                record.level += 1
                 record.state = "waitBuy"
             }
             break
