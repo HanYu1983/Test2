@@ -139,15 +139,12 @@ function getRank(){
                     }
                     record.pos = pos
                     inputBet(record.pos, record.bet)
-                    
                     // 若是最後一注，讓迴圈結束也沒關係。不必運行waitResult
                     record.level += 1
                     await delay(5000)
-                    /*
                     clickBet()
                     await delay(1000)
                     clickConfirm()
-                    */
                     record.state = "waitResult"
                 }
             }
@@ -177,5 +174,6 @@ function getRank(){
         }
         await delay(1000)
     }
+    chrome.extension.sendMessage({cmd:'loop', info:record});
     console.log("level more then 40")
 })()
