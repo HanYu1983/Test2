@@ -174,6 +174,8 @@ function getRank(){
         case "finished":
             {
                 // ignore
+                // 不跳出迴圈的用意是要讓它持續更新UI(popup.html)
+                // 不然使用者體驗不好
             }
             break
         }
