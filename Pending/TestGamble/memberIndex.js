@@ -106,8 +106,11 @@ function getRank(){
     
     await delay(5000)
     
+    // 起始下注額，確定後請修改為50
     var startBet = 1
+    // 最多下注次數
     var maxLevel = 40
+    
     var record = {
         level: 0,
         state: "waitBuy",
@@ -118,7 +121,7 @@ function getRank(){
         totalLoseTime: 0
     }
     
-    for(;;){
+    for(;record.level < maxLevel;){
         console.log(record)
         chrome.extension.sendMessage({cmd:'loop', info:record});
         
@@ -138,19 +141,23 @@ function getRank(){
                             record.totalLoseTime += 1
                         }
                     }
-                    record.bet = (Math.floor(record.loseTime / 5) + 1) * startBet
+                    record.bet = Math.pow(2, (Math.floor(record.loseTime / 5))) * startBet
                     record.pos = pos
                     inputBet(record.pos, record.bet)
-                    // 若是最後一注，讓迴圈結束也沒關係。不必運行waitResult
                     record.level += 1
                     
                     chrome.extension.sendMessage({cmd:'loop', info:record});
                     await delay(5000)
-                    /*
+                    // ******** 重要 *********//
+                    // ******** 重要 *********//
+                    // 可以先跑過，實際看下注過程後，再將以下註解拿掉
+                    /* 實際下注的程式!! 這行最前面加上//來拿掉註解
                     clickBet()
                     await delay(1000)
                     clickConfirm()
-                    */
+                    */ // 實際下注的程式!! 這行最前面加上//來拿掉註解
+                    // ******** 重要 *********//
+                    // ******** 重要 *********//
                     record.state = "waitResult"
                 }
             }
@@ -166,21 +173,21 @@ function getRank(){
                 
                 chrome.extension.sendMessage({cmd:'loop', info:record});
                 await delay(5000)
-                if(record.level >= maxLevel){
-                    record.state = "finished"
-                } else {
-                    record.state = "waitBuy"
-                }
-            }
-            break
-        case "finished":
-            {
-                // ignore
-                // 不跳出迴圈的用意是要讓它持續更新UI(popup.html)
-                // 不然使用者體驗不好
+                record.state = "waitBuy"
             }
             break
         }
+        await delay(1000)
+    }
+    
+    record.state = "finished"
+    
+    for(;;){
+        // ignore
+        // 不跳出迴圈的用意是要讓它持續更新UI(popup.html)
+        // 不然使用者體驗不好
+        console.log(record)
+        chrome.extension.sendMessage({cmd:'loop', info:record});
         await delay(1000)
     }
 })()
