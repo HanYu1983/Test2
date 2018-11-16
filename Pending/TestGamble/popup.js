@@ -20,7 +20,8 @@ window.onload = function() {
     function convertState(state){
         var mapping = {
             "waitBuy": "等待下注",
-            "waitResult": "等待結果"
+            "waitResult": "等待結果",
+            "finished": "已下完40注"
         }
         return mapping[state]
     }

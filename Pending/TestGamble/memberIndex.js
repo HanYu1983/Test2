@@ -26,7 +26,7 @@ function delay(v){
 }
 
 function closePopup(){
-    for(var i=1; i<=10;++i) {
+    for(var i=1; i<=20;++i) {
         $('#notice_button'+i).click()
     }
 }
@@ -107,17 +107,17 @@ function getRank(){
     await delay(5000)
     
     var startBet = 1
+    var maxLevel = 40
     var record = {
         level: 0,
         state: "waitBuy",
-        //result: getResult(),
         drawNumber: getDrawNum(),
         bet: startBet,
         pos: -1,
         loseTime: 0
     }
     
-    for(;record.level < 40;){
+    for(;;){
         console.log(record)
         chrome.extension.sendMessage({cmd:'loop', info:record});
         
@@ -164,22 +164,19 @@ function getRank(){
                 
                 chrome.extension.sendMessage({cmd:'loop', info:record});
                 await delay(5000)
-                /*
-                var result = getResult()
-                var isWin = result > record.result
-                if(isWin){
-                    record.bet = startBet
+                if(record.level >= maxLevel){
+                    record.state = "finished"
                 } else {
-                    record.bet = record.bet*2
+                    record.state = "waitBuy"
                 }
-                record.result = result
-                */
-                record.state = "waitBuy"
+            }
+            break
+        case "finished":
+            {
+                // ignore
             }
             break
         }
         await delay(1000)
     }
-    chrome.extension.sendMessage({cmd:'loop', info:record});
-    console.log("level more then 40")
 })()
