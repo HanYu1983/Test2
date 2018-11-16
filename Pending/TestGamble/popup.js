@@ -38,6 +38,7 @@ window.onload = function() {
             $("#bet").html(info.info.bet)
             $("#pos").html(info.info.pos)
             $("#loseTime").html(info.info.loseTime)
+            $("#totalLoseTime").html(info.info.totalLoseTime)
         }
     });
     

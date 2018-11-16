@@ -114,7 +114,8 @@ function getRank(){
         drawNumber: getDrawNum(),
         bet: startBet,
         pos: -1,
-        loseTime: 0
+        loseTime: 0,
+        totalLoseTime: 0
     }
     
     for(;;){
@@ -130,10 +131,11 @@ function getRank(){
                     var pos = getRank()[0]
                     if(record.pos > -1){
                         var isWin = pos == record.pos
-                        if(isWin ){
+                        if(isWin){
                             record.loseTime = 0
                         } else {
                             record.loseTime += 1
+                            record.totalLoseTime += 1
                         }
                     }
                     record.bet = (Math.floor(record.loseTime / 5) + 1) * startBet
