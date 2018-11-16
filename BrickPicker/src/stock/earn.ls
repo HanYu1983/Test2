@@ -189,10 +189,15 @@ export checkLowHighEarn = (earnRate, stockData)->
             if sellOk == false
                 stocks.push day
     
-    txPrice = tx.map(([first])->first) |> Formula.Open
-    avg = txPrice |> Formula.avg _
-    sd = txPrice |> Formula.StandardDeviation avg, _
-    z = txPrice |> Formula.ZScore avg, sd, _
+    buyPrice = tx.map(([first])->first) |> Formula.Open
+    buyAvg = buyPrice |> Formula.avg _
+    buySd = buyPrice |> Formula.StandardDeviation buyAvg, _
+    buyZ = buyPrice |> Formula.ZScore buyAvg, buySd, _
+    
+    sellPrice = tx.map(([_, second])->second) |> Formula.Open
+    sellAvg = sellPrice |> Formula.avg _
+    sellSd = sellPrice |> Formula.StandardDeviation sellAvg, _
+    sellZ = sellPrice |> Formula.ZScore sellAvg, sellSd, _
     
     min = max = 0
     if stocks.length > 0
@@ -210,10 +215,15 @@ export checkLowHighEarn = (earnRate, stockData)->
             max: max
             rate: if min != 0 then (max - min)/min else 0
         }
-        price:{
-            avg: avg
-            sd: sd
-            z: z
+        buyPrice:{
+            avg: buyAvg
+            sd: buySd
+            z: buyZ
+        }
+        sellPrice:{
+            avg: sellAvg
+            sd: sellSd
+            z: sellZ
         }
         stocks: stocks
         tx: tx

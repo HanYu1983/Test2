@@ -29,10 +29,10 @@
                 <td>count</td>
                 <td>setEarnRate</td>
                 <td>style</td>
-                <td>avg</td>
-                <td>sd</td>
-                <td>earnRate</td>
-                <td>maxEarnRate</td>
+                <td>buy avg</td>
+                <td>buy sd</td>
+                <td>sell avg</td>
+                <td>sell sd</td>
             </tr>
             
             @model.result.forEach(function(info){
@@ -64,10 +64,10 @@
                     <td>@info.setting.count</td>
                     <td>@info.setting.earnRate</td>
                     <td>@info.style</td>
-                    <td>@info.price.avg</td>
-                    <td>@info.price.sd</td>
-                    <td>@info.earnRate</td>
-                    <td>@info.maxEarnRate</td>
+                    <td>@info.buyPrice.avg</td>
+                    <td>@info.buyPrice.sd</td>
+                    <td>@info.sellPrice.avg</td>
+                    <td>@info.sellPrice.sd</td>
                 </tr>
             })
         </table>
