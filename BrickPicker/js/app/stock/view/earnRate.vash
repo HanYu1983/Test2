@@ -33,6 +33,10 @@
                 <td>buy sd</td>
                 <td>sell avg</td>
                 <td>sell sd</td>
+                <td>last key</td>
+                <td>last open</td>
+                <td>last buyZ</td>
+                <td>last sellZ</td>
             </tr>
             
             @model.result.forEach(function(info){
@@ -68,6 +72,10 @@
                     <td>@info.buyPrice.sd</td>
                     <td>@info.sellPrice.avg</td>
                     <td>@info.sellPrice.sd</td>
+                    <td>@info.last.key</td>
+                    <td>@info.last.open</td>
+                    <td>@info.last.buyZ</td>
+                    <td>@info.last.sellZ</td>
                 </tr>
             })
         </table>

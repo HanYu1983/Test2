@@ -220,7 +220,7 @@
     }
   };
   out$.checkLowHighEarn = checkLowHighEarn = function(earnRate, stockData){
-    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, min, max, txRate, ret;
+    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, ret;
     stocks = [];
     tx = [];
     for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
@@ -263,6 +263,9 @@
     sellAvg = Formula.avg(sellPrice);
     sellSd = Formula.StandardDeviation(sellAvg, sellPrice);
     sellZ = Formula.ZScore(sellAvg, sellSd, sellPrice);
+    ref$ = stockData[stockData.length - 1], lastKey = ref$[0], _ = ref$[1], lastOpen = ref$[2];
+    lastZ1 = (lastOpen - buyAvg) / buySd;
+    lastZ2 = (lastOpen - sellAvg) / sellSd;
     min = max = 0;
     if (stocks.length > 0) {
       min = Math.min.apply(null, Formula.Open(
@@ -289,6 +292,12 @@
         avg: sellAvg,
         sd: sellSd,
         z: sellZ
+      },
+      last: {
+        key: lastKey,
+        open: lastOpen,
+        buyZ: lastZ1,
+        sellZ: lastZ2
       },
       stocks: stocks,
       tx: tx

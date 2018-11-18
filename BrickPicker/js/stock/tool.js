@@ -46,8 +46,9 @@
     }
   });
   out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cacheDir, cb){
-    var urls, y, m;
-    urls = Array.prototype.map.call((function(){
+    var now, fns, y, m;
+    now = new Date;
+    fns = (function(){
       var i$, ref$, len$, j$, ref1$, len1$, results$ = [];
       for (i$ = 0, len$ = (ref$ = years).length; i$ < len$; ++i$) {
         y = ref$[i$];
@@ -57,14 +58,16 @@
         }
       }
       return results$;
-    }()), function(arg$){
+    }()).map(function(arg$){
       var y, m;
       y = arg$[0], m = arg$[1];
-      return "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId;
+      if (now.getMonth() + 1 === m) {
+        return fetch("http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, null);
+      } else {
+        return fetch("http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, cacheDir);
+      }
     });
-    return async.series(urls.map(function(url){
-      return fetch(url, cacheDir);
-    }), function(err, results){
+    return async.series(fns, function(err, results){
       return cb(err, results);
     });
   });

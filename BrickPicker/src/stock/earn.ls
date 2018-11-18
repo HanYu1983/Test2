@@ -199,6 +199,10 @@ export checkLowHighEarn = (earnRate, stockData)->
     sellSd = sellPrice |> Formula.StandardDeviation sellAvg, _
     sellZ = sellPrice |> Formula.ZScore sellAvg, sellSd, _
     
+    [lastKey, _, lastOpen] = stockData[*-1]
+    lastZ1 = (lastOpen - buyAvg) / buySd
+    lastZ2 = (lastOpen - sellAvg) / sellSd
+    
     min = max = 0
     if stocks.length > 0
         min = stocks |> Formula.Open |> Math.min.apply null, _ 
@@ -224,6 +228,12 @@ export checkLowHighEarn = (earnRate, stockData)->
             avg: sellAvg
             sd: sellSd
             z: sellZ
+        }
+        last:{
+            key: lastKey
+            open: lastOpen
+            buyZ: lastZ1
+            sellZ : lastZ2
         }
         stocks: stocks
         tx: tx

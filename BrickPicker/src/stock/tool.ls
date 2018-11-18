@@ -49,12 +49,15 @@ export fetch = (url, cacheDir, cb) -->
             .pipe ws
         
 export fetchStockData = (stockId, years, months, cacheDir, cb)-->
-    urls = [[y, m] for y in years for m in months] |>
-        Array.prototype.map.call _, ([y, m])->"http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}"
-
-    (err, results) <- async.series do
-        urls.map (url)-> fetch url, cacheDir
-
+    now = new Date
+    fns = [[y, m] for y in years for m in months]
+        .map ([y, m])->
+            if now.getMonth()+1 == m 
+                # 當月不用快取
+                fetch "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", null
+            else
+                fetch "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", cacheDir
+    (err, results) <- async.series fns
     cb err, results
 
 export formatStockData = (data) ->
