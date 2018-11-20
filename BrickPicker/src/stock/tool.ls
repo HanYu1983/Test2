@@ -33,6 +33,7 @@ export fetch = (url, cacheDir, cb) -->
         urlKey = crypto.createHash('md5').update(url).digest('hex')
         path = "#{cacheDir}#{urlKey}.html"
         if fs.existsSync path
+            console.log 'use cache', path
             fs.readFile path, 'utf8', cb
         else
             ws = fs.createWriteStream path
@@ -72,21 +73,22 @@ export fetch = (url, cacheDir, cb) -->
             .pipe ws
     */
         
-export fetchStockData = (stockId, years, months, cacheDir, cb)-->
+export fetchStockData = (host, stockId, years, months, cacheDir, cb)-->
+    # origin host is http://www.twse.com.tw
     now = new Date
     fns = [[y, m] for y in years for m in months]
         .map ([y, m])->
             if now.getMonth()+1 == m 
                 # 當月不用快取
-                fetch "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", null
+                fetch "#{host}/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", null
             else
-                fetch "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", cacheDir
+                fetch "#{host}/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", cacheDir
     (err, results) <- async.series fns
     cb err, results
 
 export formatStockData = (data) ->
     data = data
-        .filter (r)->r.trim() != ""
+        #.filter (r)->r.trim() != ""
         .map (v)->
             try
                 JSON.parse v

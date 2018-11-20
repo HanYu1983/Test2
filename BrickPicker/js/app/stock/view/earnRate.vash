@@ -23,6 +23,7 @@
                 <td>tx</td>
                 <td>remove</td>
                 <td>add to dashboard</td>
+                <td>buy</td>
                 <td>txRate</td>
                 <td>stock</td>
                 <td>year</td>
@@ -61,6 +62,16 @@
                                 </form>
                             }
                         }
+                    </td>
+                    <td>
+                        <form action="/fn/orders/add" method="POST">
+                            <input type="hidden" name="stockId" value="@(info.setting.stockId)">
+                            <input type="hidden" name="year" value="@(info.setting.year)">
+                            <input type="hidden" name="earnRate" value="@(info.setting.earnRate)">
+                            <input type="hidden" name="count" value="@(info.setting.count)">
+                            <input type="hidden" name="key" value="@(info.last.key)">
+                            <input type="submit" value="buy">
+                        </form>
                     </td>
                     <td>@info.txRate</td>
                     <td>@info.setting.stockId</td>

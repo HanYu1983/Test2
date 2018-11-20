@@ -34,6 +34,7 @@
       urlKey = crypto.createHash('md5').update(url).digest('hex');
       path = cacheDir + "" + urlKey + ".html";
       if (fs.existsSync(path)) {
+        console.log('use cache', path);
         return fs.readFile(path, 'utf8', cb);
       } else {
         ws = fs.createWriteStream(path).on('error', cb).on('finish', function(){
@@ -51,7 +52,7 @@
       });
     }
   });
-  out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cacheDir, cb){
+  out$.fetchStockData = fetchStockData = curry$(function(host, stockId, years, months, cacheDir, cb){
     var now, fns, y, m;
     now = new Date;
     fns = (function(){
@@ -68,9 +69,9 @@
       var y, m;
       y = arg$[0], m = arg$[1];
       if (now.getMonth() + 1 === m) {
-        return fetch("http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, null);
+        return fetch(host + "/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, null);
       } else {
-        return fetch("http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, cacheDir);
+        return fetch(host + "/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, cacheDir);
       }
     });
     return async.series(fns, function(err, results){
@@ -79,9 +80,7 @@
   });
   out$.formatStockData = formatStockData = function(data){
     var format;
-    data = data.filter(function(r){
-      return r.trim() !== "";
-    }).map(function(v){
+    data = data.map(function(v){
       var e;
       try {
         return JSON.parse(v);
