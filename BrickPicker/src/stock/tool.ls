@@ -29,9 +29,32 @@ export fetch = (url, dontUseCache, cb) -->
 */
 export fetch = (url, cacheDir, cb) -->
     console.log url
+    if cacheDir
+        urlKey = crypto.createHash('md5').update(url).digest('hex')
+        path = "#{cacheDir}#{urlKey}.html"
+        if fs.existsSync path
+            fs.readFile path, 'utf8', cb
+        else
+            ws = fs.createWriteStream path
+                .on('error', cb)
+                .on('finish', ->
+                    if not fs.existsSync path
+                        cb 'save lost'
+                    else
+                        fs.readFile path, 'utf8', cb
+                )
+            request
+                .get(url)
+                .on('error', cb)
+                .pipe ws
+    else
+        request
+            .get(url, (err, res, body)->
+                cb(err, body)
+            )
+    /*
     urlKey = crypto.createHash('md5').update(url).digest('hex')
     path = "#{cacheDir}#{urlKey}.html"
-
     if cacheDir && fs.existsSync path
         fs.readFile path, 'utf8', cb
     else
@@ -47,6 +70,7 @@ export fetch = (url, cacheDir, cb) -->
             .get(url)
             .on('error', cb)
             .pipe ws
+    */
         
 export fetchStockData = (stockId, years, months, cacheDir, cb)-->
     now = new Date

@@ -30,19 +30,25 @@
   out$.fetch = fetch = curry$(function(url, cacheDir, cb){
     var urlKey, path, ws;
     console.log(url);
-    urlKey = crypto.createHash('md5').update(url).digest('hex');
-    path = cacheDir + "" + urlKey + ".html";
-    if (cacheDir && fs.existsSync(path)) {
-      return fs.readFile(path, 'utf8', cb);
+    if (cacheDir) {
+      urlKey = crypto.createHash('md5').update(url).digest('hex');
+      path = cacheDir + "" + urlKey + ".html";
+      if (fs.existsSync(path)) {
+        return fs.readFile(path, 'utf8', cb);
+      } else {
+        ws = fs.createWriteStream(path).on('error', cb).on('finish', function(){
+          if (!fs.existsSync(path)) {
+            return cb('save lost');
+          } else {
+            return fs.readFile(path, 'utf8', cb);
+          }
+        });
+        return request.get(url).on('error', cb).pipe(ws);
+      }
     } else {
-      ws = fs.createWriteStream(path).on('error', cb).on('finish', function(){
-        if (fs.existsSync(path) === false) {
-          return cb('save lost');
-        } else {
-          return fs.readFile(path, 'utf8', cb);
-        }
+      return request.get(url, function(err, res, body){
+        return cb(err, body);
       });
-      return request.get(url).on('error', cb).pipe(ws);
     }
   });
   out$.fetchStockData = fetchStockData = curry$(function(stockId, years, months, cacheDir, cb){
