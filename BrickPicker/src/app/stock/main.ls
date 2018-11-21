@@ -10,6 +10,7 @@ require! {
     "init-config": Config
     "body-parser": bodyParser
     request
+    "http-cache": HttpCache
 }
 
 # =========== helper =============#
@@ -59,6 +60,11 @@ startExpress = (cfg)->
     saveUserData = saveUserData_ cfg
     loadUserData = loadUserData_ cfg
     
+    FSProvider = require("./fsprovider").FSProvider
+    httpCache = new HttpCache do
+        varyByParam: ["stockNo", "date"]
+        provider: new FSProvider {cacheDir: cfg.cacheDir}
+    
     app = express()
     app.set 'port', 8080
     app.set 'views', path.join( __dirname, '/view')
@@ -69,9 +75,13 @@ startExpress = (cfg)->
     app.use('/', express.static(path.join( __dirname, '/www')));
     
     # 代理
-    # 處理當月的網頁快取, 每次快取4個小時
-    # 其餘的月份會自動快取於檔案中
+    
     app.get '/exchangeReport/STOCK_DAY', (req, res)->
+        res.header do
+          'Content-Type': 'application/json;charset=UTF-8'
+        # 執行快取
+        <- httpCache req, res
+        
         stockNo = req.query.stockNo
         date = req.query.date
         url = "http://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=#{date}&stockNo=#{stockNo}"
@@ -79,12 +89,15 @@ startExpress = (cfg)->
         if err
             console.log err
             return res.send body
+        /*
+        # 處理當月的網頁快取, 每次快取4個小時
+        # 其餘的月份會自動快取於檔案中
         # 必須加上Content-Length
         # 不然chrome會報錯(ERR_INCOMPLETE_CHUNKED_ENCODING)
         res.header do
-          'Content-Type': 'application/json;charset=UTF-8'
           'Content-Length': Buffer.from(body, 'utf-8').length
           "Cache-Control": "max-age=#{1000*60*60*4}"
+        */
         res.send body
 
     app.get '/fn/userdata', (req, res)->
@@ -165,7 +178,7 @@ startExpress = (cfg)->
             return res.json [err]
         
         year = new Date().getFullYear()
-        fns = userdata.stockIds.map (stockId)-> Tool.fetchStockData "http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir
+        fns = userdata.stockIds.map (stockId)-> Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir
         
         (err, results) <- async.parallel fns
         if err
@@ -205,7 +218,7 @@ startExpress = (cfg)->
         fns = userdata.earnRateSettings.map ({stockId, year, count, earnRate}:setting)->
             (cb)-> async.waterfall do 
                 [
-                    fetchStockData("http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir),
+                    fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir),
                     (data, cb)->
                         stockData = data |> Tool.formatStockData
                         cnt = Math.min count, stockData.length
@@ -253,7 +266,7 @@ startExpress = (cfg)->
             console.log err
             return res.json [err]
     
-        (err, data) <- Tool.fetchStockData("http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir)
+        (err, data) <- Tool.fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir)
         if err
             console.log err
             return res.json [err]
@@ -361,7 +374,7 @@ startExpress = (cfg)->
         fns = userdata.orders.map ({stockId, year, count, earnRate, key}:setting)->
             (cb)-> async.waterfall do 
                 [
-                    Tool.fetchStockData("http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir),
+                    Tool.fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir)
                     (data, cb)->
                         stockData = data |> Tool.formatStockData
                         idx = 0
@@ -389,7 +402,7 @@ startExpress = (cfg)->
         year = req.params.year
     
         computeOne = (userdata, stockId, cb)-->
-            (err, data) <- Tool.fetchStockData "http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir
+            (err, data) <- Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir
             if err
                 return cb err
             try
@@ -445,7 +458,7 @@ startExpress = (cfg)->
         earnRate = parseInt req.params.earnRate
         add = parseInt req.params.add
 
-        (err, data) <- Tool.fetchStockData "http://localhost:8080/", stockId, [year], [1 to 12], cfg.cacheDir
+        (err, data) <- Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], null
         if err
             return res.json [err]
         stockData = data |> Tool.formatStockData

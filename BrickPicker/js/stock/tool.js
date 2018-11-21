@@ -48,6 +48,7 @@
       }
     } else {
       return request.get(url, function(err, res, body){
+        console.log("statusCode:", res.statusCode);
         return cb(err, body);
       });
     }

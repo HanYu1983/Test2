@@ -51,6 +51,7 @@ export fetch = (url, cacheDir, cb) -->
     else
         request
             .get(url, (err, res, body)->
+                console.log "statusCode:", res.statusCode
                 cb(err, body)
             )
     /*
