@@ -62,6 +62,11 @@ startExpress = (cfg)->
     
     FSProvider = require("./fsprovider").FSProvider
     httpCache = new HttpCache do
+        ttl: 60* 60* 24* 365* 5
+        varyByParam: ["stockNo", "date"]
+        provider: new FSProvider {cacheDir: cfg.cacheDir}
+    httpCache4Hour = new HttpCache do
+        ttl: 60* 60* 4
         varyByParam: ["stockNo", "date"]
         provider: new FSProvider {cacheDir: cfg.cacheDir}
     
@@ -74,13 +79,34 @@ startExpress = (cfg)->
     
     app.use('/', express.static(path.join( __dirname, '/www')));
     
-    # 代理
+    fetchStockData = (stockId, years, months, cacheDir, cb)-->
+        # origin host is http://www.twse.com.tw
+        fns = [[y, m] for y in years for m in months]
+            .map ([y, m])->
+                Tool.fetch "http://localhost:8080/exchangeReport/STOCK_DAY?response=json&date=#{y}#{(m+'').padStart(2, '0')}01&stockNo=#{stockId}", null
+        (err, results) <- async.series fns
+        cb err, results
     
+    # 代理
     app.get '/exchangeReport/STOCK_DAY', (req, res)->
         res.header do
           'Content-Type': 'application/json;charset=UTF-8'
-        # 執行快取
-        <- httpCache req, res
+        
+        # 處理當月的網頁快取, 每次快取4個小時
+        # 其餘的月份會自動快取於檔案中
+        catchHandler = (req, res, cb)->
+            now = new Date
+            date = req.query.date
+            year = parseInt date.slice(0, 4)
+            month = parseInt date.slice(4, 6)
+            if year == now.getFullYear() && month == now.getMonth()+1
+                console.log "4hour"
+                httpCache4Hour req, res, cb
+            else
+                console.log "5 year"
+                httpCache req, res, cb
+        
+        <- catchHandler req, res
         
         stockNo = req.query.stockNo
         date = req.query.date
@@ -90,8 +116,6 @@ startExpress = (cfg)->
             console.log err
             return res.send body
         /*
-        # 處理當月的網頁快取, 每次快取4個小時
-        # 其餘的月份會自動快取於檔案中
         # 必須加上Content-Length
         # 不然chrome會報錯(ERR_INCOMPLETE_CHUNKED_ENCODING)
         res.header do
@@ -178,7 +202,7 @@ startExpress = (cfg)->
             return res.json [err]
         
         year = new Date().getFullYear()
-        fns = userdata.stockIds.map (stockId)-> Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir
+        fns = userdata.stockIds.map (stockId)-> fetchStockData stockId, [year], [1 to 12], null
         
         (err, results) <- async.parallel fns
         if err
@@ -218,7 +242,7 @@ startExpress = (cfg)->
         fns = userdata.earnRateSettings.map ({stockId, year, count, earnRate}:setting)->
             (cb)-> async.waterfall do 
                 [
-                    fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir),
+                    fetchStockData stockId, [year], [1 to 12], null
                     (data, cb)->
                         stockData = data |> Tool.formatStockData
                         cnt = Math.min count, stockData.length
@@ -266,7 +290,7 @@ startExpress = (cfg)->
             console.log err
             return res.json [err]
     
-        (err, data) <- Tool.fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir)
+        (err, data) <- fetchStockData stockId, [year], [1 to 12], null
         if err
             console.log err
             return res.json [err]
@@ -374,7 +398,7 @@ startExpress = (cfg)->
         fns = userdata.orders.map ({stockId, year, count, earnRate, key}:setting)->
             (cb)-> async.waterfall do 
                 [
-                    Tool.fetchStockData("http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir)
+                    fetchStockData stockId, [year], [1 to 12], null
                     (data, cb)->
                         stockData = data |> Tool.formatStockData
                         idx = 0
@@ -402,7 +426,7 @@ startExpress = (cfg)->
         year = req.params.year
     
         computeOne = (userdata, stockId, cb)-->
-            (err, data) <- Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], cfg.cacheDir
+            (err, data) <- fetchStockData stockId, [year], [1 to 12], null
             if err
                 return cb err
             try
@@ -458,7 +482,7 @@ startExpress = (cfg)->
         earnRate = parseInt req.params.earnRate
         add = parseInt req.params.add
 
-        (err, data) <- Tool.fetchStockData "http://localhost:8080", stockId, [year], [1 to 12], null
+        (err, data) <- fetchStockData stockId, [year], [1 to 12], null
         if err
             return res.json [err]
         stockData = data |> Tool.formatStockData

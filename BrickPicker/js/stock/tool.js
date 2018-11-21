@@ -53,9 +53,8 @@
       });
     }
   });
-  out$.fetchStockData = fetchStockData = curry$(function(host, stockId, years, months, cacheDir, cb){
-    var now, fns, y, m;
-    now = new Date;
+  fetchStockData = curry$(function(host, stockId, years, months, cacheDir, cb){
+    var fns, y, m;
     fns = (function(){
       var i$, ref$, len$, j$, ref1$, len1$, results$ = [];
       for (i$ = 0, len$ = (ref$ = years).length; i$ < len$; ++i$) {
@@ -69,11 +68,7 @@
     }()).map(function(arg$){
       var y, m;
       y = arg$[0], m = arg$[1];
-      if (now.getMonth() + 1 === m) {
-        return fetch(host + "/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, null);
-      } else {
-        return fetch(host + "/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, cacheDir);
-      }
+      return fetch(host + "/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, cacheDir);
     });
     return async.series(fns, function(err, results){
       return cb(err, results);

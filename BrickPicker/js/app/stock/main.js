@@ -83,11 +83,19 @@
     });
   });
   startExpress = function(cfg){
-    var saveUserData, loadUserData, FSProvider, httpCache, app;
+    var saveUserData, loadUserData, FSProvider, httpCache, httpCache4Hour, app, fetchStockData;
     saveUserData = saveUserData_(cfg);
     loadUserData = loadUserData_(cfg);
     FSProvider = require("./fsprovider").FSProvider;
     httpCache = new HttpCache({
+      ttl: 60 * 60 * 24 * 365 * 5,
+      varyByParam: ["stockNo", "date"],
+      provider: new FSProvider({
+        cacheDir: cfg.cacheDir
+      })
+    });
+    httpCache4Hour = new HttpCache({
+      ttl: 60 * 60 * 4,
       varyByParam: ["stockNo", "date"],
       provider: new FSProvider({
         cacheDir: cfg.cacheDir
@@ -101,11 +109,47 @@
       extended: true
     }));
     app.use('/', express['static'](path.join(__dirname, '/www')));
+    fetchStockData = curry$(function(stockId, years, months, cacheDir, cb){
+      var fns, y, m;
+      fns = (function(){
+        var i$, ref$, len$, j$, ref1$, len1$, results$ = [];
+        for (i$ = 0, len$ = (ref$ = years).length; i$ < len$; ++i$) {
+          y = ref$[i$];
+          for (j$ = 0, len1$ = (ref1$ = months).length; j$ < len1$; ++j$) {
+            m = ref1$[j$];
+            results$.push([y, m]);
+          }
+        }
+        return results$;
+      }()).map(function(arg$){
+        var y, m;
+        y = arg$[0], m = arg$[1];
+        return Tool.fetch("http://localhost:8080/exchangeReport/STOCK_DAY?response=json&date=" + y + (m + '').padStart(2, '0') + "01&stockNo=" + stockId, null);
+      });
+      return async.series(fns, function(err, results){
+        return cb(err, results);
+      });
+    });
     app.get('/exchangeReport/STOCK_DAY', function(req, res){
+      var catchHandler;
       res.header({
         'Content-Type': 'application/json;charset=UTF-8'
       });
-      return httpCache(req, res, function(){
+      catchHandler = function(req, res, cb){
+        var now, date, year, month;
+        now = new Date;
+        date = req.query.date;
+        year = parseInt(date.slice(0, 4));
+        month = parseInt(date.slice(4, 6));
+        if (year === now.getFullYear() && month === now.getMonth() + 1) {
+          console.log("4hour");
+          return httpCache4Hour(req, res, cb);
+        } else {
+          console.log("5 year");
+          return httpCache(req, res, cb);
+        }
+      };
+      return catchHandler(req, res, function(){
         var stockNo, date, url;
         stockNo = req.query.stockNo;
         date = req.query.date;
@@ -116,8 +160,6 @@
             return res.send(body);
           }
           /*
-          # 處理當月的網頁快取, 每次快取4個小時
-          # 其餘的月份會自動快取於檔案中
           # 必須加上Content-Length
           # 不然chrome會報錯(ERR_INCOMPLETE_CHUNKED_ENCODING)
           res.header do
@@ -248,7 +290,7 @@
         }
         year = new Date().getFullYear();
         fns = userdata.stockIds.map(function(stockId){
-          return Tool.fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir);
+          return fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null);
         });
         return async.parallel(fns, function(err, results){
           var res$, i$, ref$, len$, ref1$, stockId, data, stockData, styles, e;
@@ -316,7 +358,7 @@
           stockId = setting.stockId, year = setting.year, count = setting.count, earnRate = setting.earnRate;
           return function(cb){
             return async.waterfall([
-              fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir), function(data, cb){
+              fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null), function(data, cb){
                 var stockData, cnt, earnInfo;
                 stockData = Tool.formatStockData(
                 data);
@@ -376,7 +418,7 @@
           console.log(err);
           return res.json([err]);
         }
-        return Tool.fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir, function(err, data){
+        return fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null, function(err, data){
           var stockData, cnt, counts, earnRates, compute, pairs, res$, i$, len$, count, j$, len1$, earnRate, results, filterMinEarnRate, ref$, filterNormal;
           if (err) {
             console.log(err);
@@ -516,7 +558,7 @@
           stockId = setting.stockId, year = setting.year, count = setting.count, earnRate = setting.earnRate, key = setting.key;
           return function(cb){
             return async.waterfall([
-              Tool.fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir), function(data, cb){
+              fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null), function(data, cb){
                 var stockData, idx, i$, ref$, len$, i, start, earnInfo;
                 stockData = Tool.formatStockData(
                 data);
@@ -563,7 +605,7 @@
       var year, computeOne;
       year = req.params.year;
       computeOne = curry$(function(userdata, stockId, cb){
-        return Tool.fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], cfg.cacheDir, function(err, data){
+        return fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null, function(err, data){
           var stockData, close, style, results, e;
           if (err) {
             return cb(err);
@@ -640,7 +682,7 @@
       count = parseInt(req.params.count);
       earnRate = parseInt(req.params.earnRate);
       add = parseInt(req.params.add);
-      return Tool.fetchStockData("http://localhost:8080", stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null, function(err, data){
+      return fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null, function(err, data){
         var stockData, cnt, earnInfo, order;
         if (err) {
           return res.json([err]);
