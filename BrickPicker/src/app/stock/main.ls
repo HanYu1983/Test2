@@ -204,7 +204,7 @@ startExpress = (cfg)->
         year = new Date().getFullYear()
         fns = userdata.stockIds.map (stockId)-> fetchStockData stockId, [year], [1 to 12], null
         
-        (err, results) <- async.parallel fns
+        (err, results) <- async.series fns
         if err
             console.log err
             return res.json [err]

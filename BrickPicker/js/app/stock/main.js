@@ -292,7 +292,7 @@
         fns = userdata.stockIds.map(function(stockId){
           return fetchStockData(stockId, [year], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], null);
         });
-        return async.parallel(fns, function(err, results){
+        return async.series(fns, function(err, results){
           var res$, i$, ref$, len$, ref1$, stockId, data, stockData, styles, e;
           if (err) {
             console.log(err);

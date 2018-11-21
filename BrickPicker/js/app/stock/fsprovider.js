@@ -20,10 +20,15 @@
         return cb();
       } else {
         return fs.readFile(path, 'utf8', function(err, txt){
-          var json;
-          json = JSON.parse(txt);
-          json.body = Buffer.from(json.body.data);
-          return cb && cb(err, json);
+          var json, e;
+          try {
+            json = JSON.parse(txt);
+            json.body = Buffer.from(json.body.data);
+            return cb && cb(err, json);
+          } catch (e$) {
+            e = e$;
+            return cb && cb();
+          }
         });
       }
     };
