@@ -1,0 +1,27 @@
+{
+    "name": "Yu Kline",
+    "version": "1.0",
+    "description": "Build an Extension!",
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com https://code.jquery.com; object-src 'self'",
+    "permissions": ["storage","activeTab","declarativeContent"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://goodinfo.tw/StockInfo/ShowK_Chart.asp*"],
+            "js": [
+                "jquery.min.js",
+                "stock/tool.js",
+                "stock/formula.js",
+                "stock/earn.js",
+                "showK.js"
+            ]
+        }
+    ],
+    "manifest_version": 2
+}
