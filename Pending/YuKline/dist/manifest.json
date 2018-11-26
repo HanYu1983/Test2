@@ -21,6 +21,13 @@
                 "stock/earn.js",
                 "showK.js"
             ]
+        },
+        {
+            "matches": ["https://www.cmoney.tw/vt/main-page.aspx*"],
+            "js": [
+                "jquery.min.js",
+                "cmoney.js"
+            ]
         }
     ],
     "manifest_version": 2

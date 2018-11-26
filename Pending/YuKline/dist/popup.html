@@ -4,16 +4,19 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
-    <body style="width: 800px; height: 600px">
+    <body>
         
         <div id="app">
-            <input v-model="input.addStock"><button v-on:click="clickAddStock(input.addStock)">addStock</button>
+            <input v-model="input.addStock" class="form-control"><button class="btn btn-primary" v-on:click="clickAddStock(input.addStock)">addStock</button>
             <table border="1px">
                 <tr>
                     <td>stock id</td>
                     <td>earnRate</td>
                     <td>count</td>
                     <td>compute</td>
+                    <td>last date</td>
+                    <td>last open</td>
+                    <td>tx rate</td>
                     <td>buy avg</td>
                     <td>buy sd</td>
                     <td>sell avg</td>
@@ -24,20 +27,21 @@
                     <td><input v-model="stockInfo[key].compute.earnRate"></td>
                     <td><input v-model="stockInfo[key].compute.count"></td>
                     <td><button v-on:click="clickCompute(key, stockInfo[key].compute.earnRate, stockInfo[key].compute.count)">compute</button></td>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.key }}</div></td>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.open }}</div></td>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.txRate.toFixed(2) }}</div>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.avg.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.sd.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.avg.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.sd.toFixed(2) }}</div></td>
                 </tr>
             </table>
-            
-            
-            <button v-on:click="clickBtnStock()">stock</button>
         </div>
         
-        <!--
+        
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <!--
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         -->
