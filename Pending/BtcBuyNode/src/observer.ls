@@ -42,7 +42,7 @@ export observe = ({observeRate, observeSeconds}:cfg, symbol, foundcb)->
         connection.on 'message', (message)->
             if message.type == 'utf8'
                 data = message.utf8Data |> JSON.parse _
-                # console.log data
+                console.log data
                 {p:price, T:date} = data
                 pushHistory do
                     price: price

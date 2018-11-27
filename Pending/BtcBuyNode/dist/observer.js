@@ -51,6 +51,7 @@
         var data, price, date, rate;
         if (message.type === 'utf8') {
           data = JSON.parse(message.utf8Data);
+          console.log(data);
           price = data.p, date = data.T;
           pushHistory({
             price: price,
