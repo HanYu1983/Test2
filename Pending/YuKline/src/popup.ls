@@ -1,6 +1,4 @@
 window.onload = ->
-    console = chrome.extension.getBackgroundPage().console
-    console.log "popup.js onload"
     
     vueModel = new Vue do
         el: '#app'
@@ -41,7 +39,6 @@ window.onload = ->
     load()
         
     chrome.extension.onMessage.addListener ({cmd, info}:obj)->
-        console.log obj
         switch cmd
             | "update" => load()
             | otherwise =>
