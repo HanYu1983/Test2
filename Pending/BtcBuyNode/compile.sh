@@ -1,0 +1,1 @@
+lsc -o dist -wc src

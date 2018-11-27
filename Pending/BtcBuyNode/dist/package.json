@@ -1,0 +1,15 @@
+{
+  "name": "btcbuynode",
+  "version": "1.0.0",
+  "description": "主力套利小程式",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "websocket": "^1.0.28"
+  }
+}
