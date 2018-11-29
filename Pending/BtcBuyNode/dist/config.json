@@ -1,5 +1,6 @@
 {
     "observeRate": 0,
     "observeSeconds": 60,
-    "observeVolume": 1
+    "observeVolumeRate": 1,
+    "earnRate": 1.3
 }

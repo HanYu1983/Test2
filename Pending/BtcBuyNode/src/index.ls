@@ -4,6 +4,7 @@ require! {
     "./private/binanceKey.json": apiKey
     "request"
     "crypto"
+    websocket
 }
 
 sendUrl = (opt, cb) -->
@@ -29,8 +30,68 @@ binanceSignedOption = (url, data, method)->
             'Content-type': "application/x-www-form-urlencoded"
             'X-MBX-APIKEY': apiKey.ApiKey
 
-symbol = "xrpbtc"
+binanceApiOption = (url, data, method)->
+    query = Object.keys(data).reduce(((a, k)->a ++ ["#{k}=#{encodeURIComponent(data[k])}"]), []).join("&")
+    opt = 
+        url: url + '?' + query
+        qs: data
+        method: method
+        timeout: 5000
+        headers:
+            'Content-type': "application/x-www-form-urlencoded"
+            'X-MBX-APIKEY': apiKey.ApiKey
 
+observeAccount = (cb)->
+    (err, result) <- sendUrl binanceApiOption("https://api.binance.com/api/v1/userDataStream", {}, "POST")
+    if err
+        return cb err
+    
+    {listenKey} = result |> JSON.parse
+    client = new websocket.client()
+
+    client.on 'connectFailed', (error)->
+        console.log('Connect Error: ' + error.toString())
+
+    client.on 'connect', (connection)->
+        console.log('WebSocket Client Connected')
+    
+        connection.on 'error', (error)->
+            console.log "Connection Error: " + error.toString()
+
+        connection.on 'close', ->
+            console.log 'echo-protocol Connection Closed'
+
+        connection.on 'message', (message)->
+            if message.type == 'utf8'
+                data = message.utf8Data |> JSON.parse _
+                console.log data
+                cb null, data
+    
+    client.connect "wss://stream.binance.com:9443/ws/#{listenKey}"
+
+
+
+local =
+    orders: []
+
+observeAccount (err, res)->
+    console.log err, res
+    if err
+        return console.log err
+        
+    {e:evt, r:errCode} = res
+    if errCode != "NONE"
+        return console.log errCode
+        
+    switch evt
+        | "executionReport" =>
+            for order in local.orders
+                order.onReport res
+                
+        | otherwise =>
+    
+
+symbol = "xrpbtc"
 
 # 取得存款
 (err, result) <- sendUrl binanceSignedOption("https://api.binance.com/api/v3/account", {}, "GET")
@@ -45,5 +106,11 @@ console.log err, result
 # 啟動監聽
 observer.observe cfg, symbol, (history)->
     (err, result) <- sendUrl binanceSignedOption("https://api.binance.com/api/v3/order/test", {symbol: symbol.toUpperCase(), side: "BUY", type: "MARKET", quantity: 1}, "POST")
-    console.log err, result
-    #console.log history
+    local.orders.push do
+        info: result,
+        onReport: ({i:orderId, X:orderStatus, p:price})->
+            # 若訂單是等得成交狀態，等到訂單成交後就賣
+            if i == this.info.orderId && orderStatus == "FILLED"
+                sellPrice = p * cfg.earnRate
+                (err, result) <- sendUrl binanceSignedOption("https://api.binance.com/api/v3/order/test", {symbol: symbol.toUpperCase(), side: "SELL", type: "LIMIT", quantity: 1, price: sellPrice}, "POST")
+                

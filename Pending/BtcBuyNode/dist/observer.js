@@ -3,10 +3,11 @@
   var websocket, observe, out$ = typeof exports != 'undefined' && exports || this;
   websocket = require('websocket');
   out$.observe = observe = function(cfg, symbol, foundcb){
-    var observeRate, observeSeconds, local, pushHistory, check, client, client2;
-    observeRate = cfg.observeRate, observeSeconds = cfg.observeSeconds;
+    var observeRate, observeSeconds, observeVolumeRate, local, pushHistory, check, client;
+    observeRate = cfg.observeRate, observeSeconds = cfg.observeSeconds, observeVolumeRate = cfg.observeVolumeRate;
     local = {
-      history: []
+      history: [],
+      lastAvgV: 999999999
     };
     pushHistory = function(trade){
       var now;
@@ -14,26 +15,36 @@
       return local.history.push(trade);
     };
     check = function(){
-      var ref$, now, tmp, prices, min, max, rate;
+      var ref$, now, tmp, avgV, avgVRate, prices, min, max, rate;
       if (local.history.length === 0) {
-        return 0;
+        return [0, 0];
       }
-      now = (ref$ = local.history)[ref$.length - 1].date;
+      now = (ref$ = local.history)[ref$.length - 1].T;
       tmp = local.history.filter(function(arg$){
         var curr;
-        curr = arg$.date;
+        curr = arg$.T;
         return now - curr < observeSeconds * 1000;
       });
+      avgV = tmp.map(function(arg$){
+        var q;
+        q = arg$.q;
+        return parseFloat(q);
+      }).reduce(curry$(function(x$, y$){
+        return x$ + y$;
+      }), 0) / tmp.length;
+      console.log(avgV);
+      avgVRate = (avgV - local.lastAvgV) / local.lastAvgV;
+      local.lastAvgV = avgV;
       prices = tmp.map(function(arg$){
-        var price;
-        price = arg$.price;
-        return price;
+        var p;
+        p = arg$.p;
+        return parseFloat(p);
       });
       min = Math.min.apply(null, prices);
       max = Math.max.apply(null, prices);
       rate = (max - min) / min;
       local.history = tmp;
-      return rate;
+      return [rate, avgVRate];
     };
     client = new websocket.client();
     client.on('connectFailed', function(error){
@@ -48,45 +59,35 @@
         return console.log('echo-protocol Connection Closed');
       });
       return connection.on('message', function(message){
-        var data, price, date, rate;
+        var data, result, rate, avgVRate;
         if (message.type === 'utf8') {
           data = JSON.parse(message.utf8Data);
           console.log(data);
-          price = data.p, date = data.T;
-          pushHistory({
-            price: price,
-            date: date
-          });
-          rate = check();
-          if (rate > observeRate) {
+          pushHistory(data);
+          result = check(), rate = result[0], avgVRate = result[1];
+          console.log(rate, avgVRate);
+          if (rate > observeRate && avgVRate > observeVolumeRate) {
             return foundcb({
               history: local.history,
-              rate: rate
+              result: result
             });
           }
         }
       });
     });
-    client.connect("wss://stream.binance.com:9443/ws/" + symbol + "@trade");
-    client2 = new websocket.client();
-    client2.on('connectFailed', function(error){
-      return console.log('Connect Error: ' + error.toString());
-    });
-    return client2.on('connect', function(connection){
-      console.log('WebSocket Client Connected');
-      connection.on('error', function(error){
-        return console.log("Connection Error: " + error.toString());
-      });
-      connection.on('close', function(){
-        return console.log('echo-protocol Connection Closed');
-      });
-      return connection.on('message', function(message){
-        var data;
-        if (message.type === 'utf8') {
-          data = JSON.parse(message.utf8Data);
-          return console.log(data);
-        }
-      });
-    });
+    return client.connect("wss://stream.binance.com:9443/ws/" + symbol + "@trade");
   };
+  function curry$(f, bound){
+    var context,
+    _curry = function(args) {
+      return f.length > 1 ? function(){
+        var params = args ? args.concat() : [];
+        context = bound ? context || this : this;
+        return params.push.apply(params, arguments) <
+            f.length && arguments.length ?
+          _curry.call(context, params) : f.apply(context, params);
+      } : f;
+    };
+    return _curry();
+  }
 }).call(this);
