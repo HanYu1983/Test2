@@ -22,7 +22,7 @@
                     <td>sell sd</td>
                 </tr>
 
-                <tr v-for="(value, key) in stockInfo" v-bind:bgcolor="(value.compute.result.txRate >= 0.8) ? (0xffffff) : (0x00ffff)">
+                <tr v-for="(value, key) in stockInfo" v-bind:bgcolor="value.compute.result ? ((value.compute.result.txRate >= 0.8) ? (0xffffff) : (0x00ffff)) : 0x00ffff">
                     <td>{{key}} {{stockInfo[key].name}}</td>
                     <td><input v-model="stockInfo[key].compute.earnRate"></td>
                     <td><input v-model="stockInfo[key].compute.count"></td>

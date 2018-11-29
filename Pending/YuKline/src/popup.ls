@@ -1,5 +1,5 @@
 window.onload = ->
-    
+    # console = chrome.extension.getBackgroundPage().console
     vueModel = new Vue do
         el: '#app'
         data:
