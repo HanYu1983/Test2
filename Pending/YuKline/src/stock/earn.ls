@@ -138,6 +138,8 @@ export checkStyle = (origin)->
     total
 
 
+# earnRate 至少設為6%才會賺
+# https://www.cmoney.tw/notes/note-detail.aspx?nid=6529
 export checkLowHighEarn = (earnRate, stockData)->
     stocks = []
     tx = []
@@ -179,11 +181,12 @@ export checkLowHighEarn = (earnRate, stockData)->
         max = stocks |> Open |> Math.max.apply null, _
  
     txRate = tx.length/(tx.length + stocks.length)
+    txFee = 0.00142748091
     
     ret =
         txRate: txRate
-        earnRate: Math.pow(((earnRate) - 0.001425)+1, tx.length* txRate)
-        maxEarnRate: Math.pow(((earnRate) - 0.001425)+1, tx.length)
+        earnRate: Math.pow(((earnRate) - txFee)+1, tx.length* txRate)
+        maxEarnRate: Math.pow(((earnRate) - txFee)+1, tx.length)
         check:{
             min: min
             max: max

@@ -179,7 +179,7 @@
     }
   };
   out$.checkLowHighEarn = checkLowHighEarn = function(earnRate, stockData){
-    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, ret;
+    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, txFee, ret;
     stocks = [];
     tx = [];
     for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
@@ -233,10 +233,11 @@
       stocks));
     }
     txRate = tx.length / (tx.length + stocks.length);
+    txFee = 0.00142748091;
     return ret = {
       txRate: txRate,
-      earnRate: Math.pow((earnRate - 0.001425) + 1, tx.length * txRate),
-      maxEarnRate: Math.pow((earnRate - 0.001425) + 1, tx.length),
+      earnRate: Math.pow((earnRate - txFee) + 1, tx.length * txRate),
+      maxEarnRate: Math.pow((earnRate - txFee) + 1, tx.length),
       check: {
         min: min,
         max: max,
