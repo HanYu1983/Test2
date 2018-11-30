@@ -1,5 +1,5 @@
 window.onload = ->
-    # console = chrome.extension.getBackgroundPage().console
+    console = chrome.extension.getBackgroundPage().console
     vueModel = new Vue do
         el: '#app'
         data:
@@ -23,6 +23,11 @@ window.onload = ->
     
     save = (cb)->
         model = JSON.parse(JSON.stringify(vueModel.$data))
+        # 不存入計算結果，節省空間
+        # 每次讀取時會重新計算
+        for k, _ of model.stockInfo
+            if model.stockInfo[k].compute
+                delete model.stockInfo[k].compute.result
         chrome.storage.local.set {"stockInfo":model.stockInfo}, cb
     
     load = (cb)->
@@ -33,7 +38,7 @@ window.onload = ->
                 v.compute = {earnRate: 0.01, count: 20, result: null}
             start = Math.max 0, v.rows.length - v.compute.count
             rows = v.rows.slice(start, v.rows.length)
-            v.result = checkLowHighEarn v.compute.earnRate, rows
+            v.compute.result = checkLowHighEarn v.compute.earnRate, rows
         vueModel.stockInfo = obj.stockInfo
         
     load()

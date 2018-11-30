@@ -183,6 +183,13 @@ export checkLowHighEarn = (earnRate, stockData)->
     txRate = tx.length/(tx.length + stocks.length)
     txFee = 0.00142748091
     
+    txDurAvg = let 
+        difs = tx.map ([[t1], [t2]])->
+            d1 = new Date t1
+            d2 = new Date t2
+            day = (d2.getTime() - d1.getTime()) / (1000*60*60*24)
+        difs.reduce((+), 0) / tx.length
+    
     ret =
         txRate: txRate
         earnRate: Math.pow(((earnRate) - txFee)+1, tx.length* txRate)
@@ -208,5 +215,6 @@ export checkLowHighEarn = (earnRate, stockData)->
             buyZ: lastZ1
             sellZ : lastZ2
         }
+        txDurAvg: txDurAvg
         stocks: stocks
         tx: tx

@@ -16,6 +16,7 @@
                     <td>last date</td>
                     <td>last open</td>
                     <td>tx rate</td>
+                    <td>tx duration avg</td>
                     <td>buy avg</td>
                     <td>buy sd</td>
                     <td>sell avg</td>
@@ -30,6 +31,7 @@
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.key }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.open }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.txRate.toFixed(2) }}</div>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.txDurAvg.toFixed(2) }}</div>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.avg.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.sd.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.avg.toFixed(2) }}</div></td>

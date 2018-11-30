@@ -179,7 +179,7 @@
     }
   };
   out$.checkLowHighEarn = checkLowHighEarn = function(earnRate, stockData){
-    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, txFee, ret;
+    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, txFee, txDurAvg, ret;
     stocks = [];
     tx = [];
     for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
@@ -234,6 +234,19 @@
     }
     txRate = tx.length / (tx.length + stocks.length);
     txFee = 0.00142748091;
+    txDurAvg = (function(){
+      var difs;
+      difs = tx.map(function(arg$){
+        var t1, t2, d1, d2, day;
+        t1 = arg$[0][0], t2 = arg$[1][0];
+        d1 = new Date(t1);
+        d2 = new Date(t2);
+        return day = (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24);
+      });
+      return difs.reduce(curry$(function(x$, y$){
+        return x$ + y$;
+      }), 0) / tx.length;
+    }.call(this));
     return ret = {
       txRate: txRate,
       earnRate: Math.pow((earnRate - txFee) + 1, tx.length * txRate),
@@ -259,6 +272,7 @@
         buyZ: lastZ1,
         sellZ: lastZ2
       },
+      txDurAvg: txDurAvg,
       stocks: stocks,
       tx: tx
     };
