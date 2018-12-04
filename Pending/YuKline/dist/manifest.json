@@ -3,7 +3,7 @@
     "version": "1.0",
     "description": "Build an Extension!",
     "content_security_policy": "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com https://code.jquery.com; object-src 'self'",
-    "permissions": ["storage","activeTab","declarativeContent"],
+    "permissions": ["storage","activeTab","declarativeContent","tabs"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
@@ -26,6 +26,7 @@
             "matches": ["https://www.cmoney.tw/vt/main-page.aspx*"],
             "js": [
                 "jquery.min.js",
+                "prelude-browser-min.js",
                 "cmoney.js"
             ]
         }

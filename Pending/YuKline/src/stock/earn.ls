@@ -192,7 +192,7 @@ export checkLowHighEarn = (earnRate, stockData)->
     
     keli = let
         p = txRate
-        b = buyAvg * earnRate
+        b = earnRate / 0.07
         (p * b - (1 - p)) / b
     
     ret =

@@ -250,7 +250,7 @@
     keli = (function(){
       var p, b;
       p = txRate;
-      b = buyAvg * earnRate;
+      b = earnRate / 0.07;
       return (p * b - (1 - p)) / b;
     }.call(this));
     return ret = {

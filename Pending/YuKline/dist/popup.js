@@ -12,6 +12,16 @@
         stockInfo: {}
       },
       methods: {
+        clickSellAll: function(){
+          return chrome.tabs.query({
+            currentWindow: true,
+            active: true
+          }, function(t){
+            return chrome.tabs.sendMessage(t[0].id, {
+              ask: 'sell all'
+            }, function(){});
+          });
+        },
         clickAddStock: function(id){
           return chrome.windows.getCurrent(function(w){
             return chrome.tabs.create({

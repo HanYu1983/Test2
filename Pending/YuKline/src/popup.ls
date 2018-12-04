@@ -7,6 +7,10 @@ window.onload = ->
                 addStock: "2330"
             stockInfo: {}
         methods:
+            clickSellAll: ->
+                (t) <- chrome.tabs.query {currentWindow: true, active: true}
+                <- chrome.tabs.sendMessage t[0].id, { ask: 'sell all' }
+                
             clickAddStock: (id)->
                 (w) <- chrome.windows.getCurrent
                 (t) <- chrome.tabs.create do

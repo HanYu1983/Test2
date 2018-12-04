@@ -6,6 +6,7 @@
     </head>
     <body>
         <div id="app">
+            <button class="btn btn-primary" v-on:click="clickSellAll()">sell all</button>
             <input v-model="input.addStock" class="form-control"><button class="btn btn-primary" v-on:click="clickAddStock(input.addStock)">addStock</button>
             <table border="1px">
                 <tr>
