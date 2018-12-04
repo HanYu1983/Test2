@@ -21,6 +21,7 @@
                     <td>buy sd</td>
                     <td>sell avg</td>
                     <td>sell sd</td>
+                    <td>keli</td>
                 </tr>
 
                 <tr v-for="(value, key) in stockInfo" v-bind:bgcolor="value.compute.result ? ((value.compute.result.txRate >= 0.8) ? (0xffffff) : (0x00ffff)) : 0x00ffff">
@@ -36,6 +37,7 @@
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.sd.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.avg.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.sd.toFixed(2) }}</div></td>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.keli.toFixed(2) }}</div></td>
                 </tr>
             </table>
         </div>
