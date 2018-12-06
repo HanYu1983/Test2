@@ -43,6 +43,9 @@
     for (i$ = 0, len$ = infos.length; i$ < len$; ++i$) {
       info = infos[i$];
       id = info[0], _ = info[1], txCnt = info[2], avg = info[3];
+      if (txCnt <= 0) {
+        continue;
+      }
       $('#textBoxCommkey').focus().val(id);
       $('#TextBoxQty').focus();
       (await delay(500));
@@ -52,7 +55,8 @@
       $('#TextBoxPrice').focus().val(avg * 1.01);
       $('#TextBoxQty').focus().val(txCnt);
       (await delay(1000));
-      results$.push($('#Orderbtn').click());
+      $('#Orderbtn').click();
+      results$.push((await delay(2000)));
     }
     return results$;
   }

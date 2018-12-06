@@ -31,6 +31,9 @@ async function sell
     infos = query()
     for info in infos
         [id, _, txCnt, avg] = info
+        # 跳過0張的
+        if txCnt <= 0
+            continue
         # 填股票代號
         $('#textBoxCommkey').focus().val(id)
         # 切換focus觸發change事件
@@ -51,6 +54,8 @@ async function sell
     
         await delay 1000
         $('#Orderbtn').click()
+        # 讓出機會給手動回應
+        await delay 2000
 
 async function test
     await delay 2000
