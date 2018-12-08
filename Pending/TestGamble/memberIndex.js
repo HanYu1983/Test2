@@ -96,6 +96,9 @@ function getRank(){
 }
 
 (async ()=>{
+    if(config.risk){
+        alert("注意：會執行下注!!")
+    }
     
     console.log("close popup")
     closePopup()
@@ -107,7 +110,7 @@ function getRank(){
     await delay(5000)
     
     // 起始下注額，確定後請修改為50
-    var startBet = 1
+    var startBet = config.startBet
     // 最多下注次數
     var maxLevel = 40
     
@@ -141,23 +144,27 @@ function getRank(){
                             record.totalLoseTime += 1
                         }
                     }
-                    record.bet = Math.pow(2, (Math.floor(record.loseTime / 5))) * startBet
+                    
+                    var bet = 0
+                    if(config.manually){
+                        bet = config.bets[Math.min(record.loseTime, config.bets.length-1)]
+                    } else {
+                        bet = Math.pow(2, (Math.floor(record.loseTime / 5))) * startBet
+                    }
+                    record.bet = bet
                     record.pos = pos
                     inputBet(record.pos, record.bet)
                     record.level += 1
                     
                     chrome.extension.sendMessage({cmd:'loop', info:record});
                     await delay(5000)
-                    // ******** 重要 *********//
-                    // ******** 重要 *********//
-                    // 可以先跑過，實際看下注過程後，再將以下註解拿掉
-                    /* 實際下注的程式!! 這行最前面加上//來拿掉註解
-                    clickBet()
-                    await delay(1000)
-                    clickConfirm()
-                    */ // 實際下注的程式!! 這行最前面加上//來拿掉註解
-                    // ******** 重要 *********//
-                    // ******** 重要 *********//
+                    
+                    if(config.risk == true){
+                        clickBet()
+                        await delay(1000)
+                        clickConfirm()
+                    }
+
                     record.state = "waitResult"
                 }
             }
