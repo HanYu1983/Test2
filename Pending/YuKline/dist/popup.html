@@ -7,6 +7,7 @@
     <body>
         <div id="app">
             <button class="btn btn-primary" v-on:click="clickSellAll()">sell all</button>
+            <button class="btn btn-primary" v-on:click="clickUpdateStockAll()">update all</button>
             <input v-model="input.addStock" class="form-control"><button class="btn btn-primary" v-on:click="clickAddStock(input.addStock)">addStock</button>
             <table border="1px">
                 <tr>
@@ -22,14 +23,18 @@
                     <td>buy sd</td>
                     <td>sell avg</td>
                     <td>sell sd</td>
-                    <td>keli</td>
+                    <td>pos</td>
+                    <td>hit count</td>
                 </tr>
 
                 <tr v-for="(value, key) in stockInfo" v-bind:bgcolor="value.compute.result ? ((value.compute.result.txRate >= 0.8) ? (0xffffff) : (0x88ffff)) : 0x88ffff">
                     <td>{{key}} {{stockInfo[key].name}}</td>
                     <td><input v-model="stockInfo[key].compute.earnRate"></td>
                     <td><input v-model="stockInfo[key].compute.count"></td>
-                    <td><button v-on:click="clickCompute(key, stockInfo[key].compute.earnRate, stockInfo[key].compute.count)">compute</button></td>
+                    <td>
+                        <button v-on:click="clickCompute(key, stockInfo[key].compute.earnRate, stockInfo[key].compute.count)">compute</button>
+                        <button v-on:click="clickFind(key)">find</button>
+                    </td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.key }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.open }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.txRate.toFixed(2) }}</div>
@@ -38,7 +43,8 @@
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.buyPrice.sd.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.avg.toFixed(2) }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.sellPrice.sd.toFixed(2) }}</div></td>
-                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.keli.toFixed(2) }}</div></td>
+                    <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.pos.toFixed(2) }}</div></td>
+                    <td><div v-if="stockInfo[key].compute">{{ stockInfo[key].compute.hitCount }}</div></td>
                 </tr>
             </table>
         </div>

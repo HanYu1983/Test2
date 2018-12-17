@@ -190,10 +190,7 @@ export checkLowHighEarn = (earnRate, stockData)->
             day = (d2.getTime() - d1.getTime()) / (1000*60*60*24)
         difs.reduce((+), 0) / tx.length
     
-    keli = let
-        p = txRate
-        b = earnRate / 0.07
-        (p * b - (1 - p)) / b
+    pos = (lastOpen - buyAvg) / (sellAvg - buyAvg)
     
     ret =
         txRate: txRate
@@ -221,6 +218,6 @@ export checkLowHighEarn = (earnRate, stockData)->
             sellZ : lastZ2
         }
         txDurAvg: txDurAvg
-        keli: keli
+        pos: pos
         stocks: stocks
         tx: tx

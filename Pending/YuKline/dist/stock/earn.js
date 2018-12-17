@@ -179,7 +179,7 @@
     }
   };
   out$.checkLowHighEarn = checkLowHighEarn = function(earnRate, stockData){
-    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, txFee, txDurAvg, keli, ret;
+    var stocks, tx, i$, len$, day, _, low, open, close, high, sellOk, j$, ref$, len1$, i, ref1$, prevOpen, rate, buyPrice, buyAvg, buySd, buyZ, sellPrice, sellAvg, sellSd, sellZ, lastKey, lastOpen, lastZ1, lastZ2, min, max, txRate, txFee, txDurAvg, pos, ret;
     stocks = [];
     tx = [];
     for (i$ = 0, len$ = stockData.length; i$ < len$; ++i$) {
@@ -247,12 +247,7 @@
         return x$ + y$;
       }), 0) / tx.length;
     }.call(this));
-    keli = (function(){
-      var p, b;
-      p = txRate;
-      b = earnRate / 0.07;
-      return (p * b - (1 - p)) / b;
-    }.call(this));
+    pos = (lastOpen - buyAvg) / (sellAvg - buyAvg);
     return ret = {
       txRate: txRate,
       earnRate: Math.pow((earnRate - txFee) + 1, tx.length * txRate),
@@ -279,7 +274,7 @@
         sellZ: lastZ2
       },
       txDurAvg: txDurAvg,
-      keli: keli,
+      pos: pos,
       stocks: stocks,
       tx: tx
     };

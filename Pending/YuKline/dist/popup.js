@@ -30,6 +30,65 @@
             }, function(t){});
           });
         },
+        clickUpdateStockAll: function(){
+          return chrome.windows.getCurrent(function(w){
+            var id, ref$, _, results$ = [];
+            for (id in ref$ = vueModel.stockInfo) {
+              _ = ref$[id];
+              results$.push(chrome.tabs.create({
+                windowId: w.id,
+                url: "https://goodinfo.tw/StockInfo/ShowK_Chart.asp?STOCK_ID=" + id + "&CHT_CAT2=DATE"
+              }, fn$));
+            }
+            return results$;
+            function fn$(t){}
+          });
+        },
+        clickFind: function(id){
+          var earnRate, compute, rets, lastOpen, ref$, range, hitRets, selectInfo, hitCount;
+          earnRate = 0.01;
+          compute = function(count){
+            var start, rows, result;
+            start = Math.max(0, vueModel.stockInfo[id].rows.length - count);
+            rows = vueModel.stockInfo[id].rows.slice(start, vueModel.stockInfo[id].rows.length);
+            result = checkLowHighEarn(earnRate, rows);
+            return [result.txRate, count, result];
+          };
+          rets = function(it){
+            return it.sort(function(arg$, arg1$){
+              var txRate1, txRate2;
+              txRate1 = arg$[0];
+              txRate2 = arg1$[0];
+              return txRate2 - txRate1;
+            });
+          }(
+          function(it){
+            return it.map(compute);
+          }(
+          function(it){
+            return it.map((function(it){
+              return it * 10;
+            }));
+          }(
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])));
+          lastOpen = (ref$ = vueModel.stockInfo[id].rows)[ref$.length - 1][2];
+          range = lastOpen * 0.01;
+          hitRets = rets.filter(function(arg$){
+            var _, result;
+            _ = arg$[0], _ = arg$[1], result = arg$[2];
+            return result.buyPrice.avg > lastOpen - range && result.buyPrice.avg < lastOpen + range;
+          });
+          selectInfo = rets[0];
+          hitCount = hitRets.length;
+          if (hitCount > 0) {
+            selectInfo = hitRets[0];
+          }
+          this.stockInfo[id].compute.earnRate = earnRate;
+          this.stockInfo[id].compute.count = selectInfo[1];
+          this.stockInfo[id].compute.result = selectInfo[2];
+          this.stockInfo[id].compute.hitCount = hitCount;
+          return save(function(){});
+        },
         clickCompute: function(id, earnRate, count){
           var start, rows;
           start = Math.max(0, vueModel.stockInfo[id].rows.length - count);
@@ -63,7 +122,8 @@
             v.compute = {
               earnRate: 0.01,
               count: 20,
-              result: null
+              result: null,
+              hitCount: 0
             };
           }
           start = Math.max(0, v.rows.length - v.compute.count);
