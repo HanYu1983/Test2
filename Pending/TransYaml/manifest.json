@@ -1,0 +1,32 @@
+{
+    "name": "Translate Yaml",
+    "version": "1.0",
+    "description": "",
+    "permissions": ["tabs", "storage","activeTab","declarativeContent"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["http://fanyi.youdao.com/"],
+            "js": ["jquery.min.js", "main.js"]
+        },
+        {
+            "matches": ["https://translate.google.com/*"],
+            "js": ["jquery.min.js", "main.js"]
+        },
+        {
+            "matches": ["https://zhcnt.ilovetranslation.com/"],
+            "js": ["jquery.min.js", "main.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        "docs/*.yml"
+    ],
+    "manifest_version": 2
+}
+
