@@ -1,0 +1,62 @@
+
+CA2_Fever.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Fever_C01_01
+  rotate: false
+  xy: 2, 158
+  size: 403, 356
+  orig: 403, 356
+  offset: 0, 0
+  index: -1
+Fever_C01_02
+  rotate: false
+  xy: 2, 516
+  size: 653, 276
+  orig: 653, 276
+  offset: 0, 0
+  index: -1
+Fever_item_01
+  rotate: true
+  xy: 936, 350
+  size: 442, 86
+  orig: 442, 86
+  offset: 0, 0
+  index: -1
+Fever_item_02
+  rotate: true
+  xy: 407, 260
+  size: 254, 110
+  orig: 254, 110
+  offset: 0, 0
+  index: -1
+Fever_item_03
+  rotate: false
+  xy: 2, 31
+  size: 254, 125
+  orig: 254, 125
+  offset: 0, 0
+  index: -1
+Fever_item_04
+  rotate: false
+  xy: 2, 2
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_05
+  rotate: true
+  xy: 519, 260
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_06
+  rotate: true
+  xy: 657, 538
+  size: 254, 277
+  orig: 254, 277
+  offset: 0, 0
+  index: -1

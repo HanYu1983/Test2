@@ -1,0 +1,27 @@
+
+BG04P2BG.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BG0200L1
+  rotate: false
+  xy: 2, 554
+  size: 840, 270
+  orig: 840, 270
+  offset: 0, 0
+  index: -1
+BG0200L2
+  rotate: false
+  xy: 2, 274
+  size: 660, 278
+  orig: 660, 278
+  offset: 0, 0
+  index: -1
+BG0200L3
+  rotate: false
+  xy: 2, 2
+  size: 570, 270
+  orig: 570, 270
+  offset: 0, 0
+  index: -1

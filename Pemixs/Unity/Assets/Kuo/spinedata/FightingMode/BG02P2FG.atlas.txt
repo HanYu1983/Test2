@@ -1,0 +1,20 @@
+
+BG02P2FG.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BG0200L4
+  rotate: false
+  xy: 2, 2
+  size: 480, 270
+  orig: 480, 270
+  offset: 0, 0
+  index: -1
+Fever_item_fm
+  rotate: false
+  xy: 484, 16
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1

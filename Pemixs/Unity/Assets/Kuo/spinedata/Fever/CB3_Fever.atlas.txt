@@ -1,0 +1,62 @@
+
+CB3_Fever.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Fever_C02_01
+  rotate: false
+  xy: 2, 202
+  size: 314, 310
+  orig: 314, 310
+  offset: 0, 0
+  index: -1
+Fever_C02_02
+  rotate: false
+  xy: 2, 514
+  size: 556, 310
+  orig: 556, 310
+  offset: 0, 0
+  index: -1
+Fever_item_01
+  rotate: false
+  xy: 2, 114
+  size: 442, 86
+  orig: 442, 86
+  offset: 0, 0
+  index: -1
+Fever_item_02
+  rotate: false
+  xy: 2, 2
+  size: 254, 110
+  orig: 254, 110
+  offset: 0, 0
+  index: -1
+Fever_item_03
+  rotate: true
+  xy: 816, 570
+  size: 254, 125
+  orig: 254, 125
+  offset: 0, 0
+  index: -1
+Fever_item_04
+  rotate: false
+  xy: 560, 518
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_05
+  rotate: true
+  xy: 318, 258
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_06
+  rotate: false
+  xy: 560, 547
+  size: 254, 277
+  orig: 254, 277
+  offset: 0, 0
+  index: -1

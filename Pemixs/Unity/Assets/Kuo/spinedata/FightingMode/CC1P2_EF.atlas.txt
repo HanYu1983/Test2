@@ -1,0 +1,27 @@
+
+CC1P2_EF.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+C03P2A11_EF
+  rotate: false
+  xy: 371, 261
+  size: 290, 151
+  orig: 290, 151
+  offset: 0, 0
+  index: -1
+C03P2A12_EF
+  rotate: false
+  xy: 2, 2
+  size: 364, 194
+  orig: 364, 194
+  offset: 0, 0
+  index: -1
+C03P2A13_EF
+  rotate: false
+  xy: 2, 198
+  size: 367, 214
+  orig: 367, 214
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,10 @@
+ID,Type,Prefab,Name,Desc,Cost,Gold,Money
+iap01,IAP,IAP01,Cat Money,Cat Money X 30,0.99 USD,0,30
+iap02,IAP,IAP02,Cat Money,Cat Money X 100,2.99 USD,0,100
+iap03,IAP,IAP03,Cat Money,Cat Money X 210,5.99 USD,0,210
+iap04,IAP,IAP04,Cat Money,Cat Money X 450,11.99 USD,0,450
+iap05,IAP,IAP05,Cat Gold,Cat Gold X 1500,0.99 USD,1500,0
+iap06,IAP,IAP06,Cat Gold,Cat Gold X 5000,2.99 USD,5000,0
+iap07,IAP,IAP07,Cat Gold,Cat Gold X 10500,5.99 USD,10500,0
+iap08,IAP,IAP08,Cat Gold,Cat Gold X 21500,11.99 USD,21500,0
+iap09,IAP,IAP09,Remove ADs,Remove ADs,1.99 USD,0,0

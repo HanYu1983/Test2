@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 400000}
+  - component: {fileID: 11400000}
+  m_Layer: 0
+  m_Name: CSM2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &400000
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a520515778fee438b875516d171516e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundArray:
+  - {fileID: 8300000, guid: 11533fbfe052ef84380a1ba9d8a979b5, type: 3}
+  - {fileID: 8300000, guid: 10319795aa44fa940acbb1607ec862ff, type: 3}
+  - {fileID: 8300000, guid: 145424dd26ffdc74990142dd368876b1, type: 3}
+  - {fileID: 8300000, guid: ca7c86d43c2e92f46924803b115fc420, type: 3}
+  - {fileID: 8300000, guid: 49fda36689547ca41a1b1218f277ed1e, type: 3}
+  - {fileID: 8300000, guid: e67e2c4a6ba22524886ec271d98311b7, type: 3}
+  - {fileID: 8300000, guid: 6dcd02cdd2378aa42a6891ce8ae10f00, type: 3}
+  - {fileID: 8300000, guid: 7a73b916a053ba047b219f4fc073025b, type: 3}
+  - {fileID: 8300000, guid: 678f80b3f97cd8447b7c759e4cc36a41, type: 3}
+  - {fileID: 8300000, guid: e3ad349f7e2b28042ab2ec9ed35149d2, type: 3}
+  - {fileID: 8300000, guid: 6f747e5d82fd1674497b70d7f8fc7102, type: 3}
+  soundTypeAArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: dc3a4c7afedbc9a4bb277e8ce465427f, type: 3}
+  - {fileID: 8300000, guid: 761b7c5f4749cbc4a93a44aa2799572b, type: 3}
+  - {fileID: 8300000, guid: c320469d5c607194aaa20f13e2f414d7, type: 3}
+  - {fileID: 8300000, guid: 151655da7751a6c4482946c460c11ae1, type: 3}
+  - {fileID: 8300000, guid: fe07a469738564120b3679a2627d2e71, type: 3}
+  - {fileID: 8300000, guid: e76bb9f2e76e04b78a5477bc44ca1231, type: 3}
+  soundTypeBArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: fd41d45c9dc42e3418cefcbe3e7ad3f5, type: 3}
+  - {fileID: 8300000, guid: 13ba828aeac92d94bb92e4224617bcae, type: 3}
+  - {fileID: 8300000, guid: 7a5dd7f14d9942a47900f69461c6bac4, type: 3}
+  - {fileID: 8300000, guid: 33337df87ade56f4f96b6cc8ff074cd8, type: 3}
+  soundTypeCArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: 7488d1164397f934b9ae507e7ca3e4d1, type: 3}
+  - {fileID: 8300000, guid: 9bbf8f89f003a59478f98b7bdbb9f12f, type: 3}
+  - {fileID: 8300000, guid: f4cb1304399fd0246908b09131c436be, type: 3}
+  - {fileID: 8300000, guid: 143c9f04fd30f02439b553bba19c17d2, type: 3}
+  soundTypeDArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: 527645b5299c33947b402dcd6d27c85c, type: 3}
+  - {fileID: 8300000, guid: 50902fb277ac1e142bc76deabc78452a, type: 3}
+  - {fileID: 8300000, guid: bc46733e3bae6704db888511517f6153, type: 3}
+  - {fileID: 8300000, guid: 53b8bd11db9e2ad42bce53f2884a45f3, type: 3}
+  soundTypeEArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: fc4b28c77227f374db0d164de5bd420f, type: 3}
+  - {fileID: 8300000, guid: 3e181daa41e06704f82aeaf32b6196ca, type: 3}
+  - {fileID: 8300000, guid: 0875b5c92151b034cbbd5b033fd376ba, type: 3}
+  - {fileID: 8300000, guid: 8c6beb320e718ca438633711fe87e45c, type: 3}
+  soundTypeFArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: fa6663481c64a7f438974c31dfab5acc, type: 3}
+  - {fileID: 8300000, guid: ae08a3950c698be47af40631186d694b, type: 3}
+  - {fileID: 8300000, guid: 2d7e0522384a2034fb02c69b1507d114, type: 3}
+  - {fileID: 8300000, guid: 8e85673cbb6ca9c4da7d8a2c408c2c45, type: 3}
+  soundTypeGArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: b080cc41c46c0ac47882bd9c05cabd6c, type: 3}
+  - {fileID: 8300000, guid: 3dd9ff8e0b3990f41b3420b62e82e99e, type: 3}
+  - {fileID: 8300000, guid: 2134bb3c613c31642a2184eed1d49a77, type: 3}
+  - {fileID: 8300000, guid: ecab980cef817fb4daa3d5d2e8198b06, type: 3}
+  soundTypeHArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: 9db573dbffab7b041bef9de13a521f15, type: 3}
+  - {fileID: 8300000, guid: 4f94ae502815bea49a0cb64bfd8fb253, type: 3}
+  - {fileID: 8300000, guid: caefee387fe32054d88fa50ac03cebda, type: 3}
+  - {fileID: 8300000, guid: 953bc3a239396fa4aaa0f840d66e7661, type: 3}
+  soundTypeIArray:
+  - {fileID: 0}
+  - {fileID: 8300000, guid: f87e8170cddcdb44aa11e04e751baf47, type: 3}
+  - {fileID: 8300000, guid: 0608f6be7a075584aab603a6bc921d84, type: 3}
+  - {fileID: 8300000, guid: 0a65cbdfe40f4264eb0e384e93315264, type: 3}
+  - {fileID: 8300000, guid: dd3568f98a7533b4086b2453e0d63ea8, type: 3}
+  interactiveModeSound:
+  - {fileID: 8300000, guid: cec73f1851bb5f4478343fff83b8babd, type: 3}
+  - {fileID: 8300000, guid: ffffe7ffb1680e740bde0b63e3058754, type: 3}
+  - {fileID: 8300000, guid: f3215fd00b127c742b50d0137e9d1843, type: 3}
+  - {fileID: 8300000, guid: dacd52536f2d21e4cbdd986c9d077c7d, type: 3}
+  - {fileID: 8300000, guid: 213bb489f9f26ad40a006f27b3c5729e, type: 3}
+  - {fileID: 8300000, guid: 01bb7f142159d294a944cfa0b1256d74, type: 3}
+  - {fileID: 8300000, guid: cec73f1851bb5f4478343fff83b8babd, type: 3}
+  - {fileID: 8300000, guid: 016235c82b6220c4a8da4d9cad9d6cf3, type: 3}
+  - {fileID: 8300000, guid: 59b3f0341ed7ebb4692d95985aaf71b5, type: 3}
+  - {fileID: 8300000, guid: ffffe7ffb1680e740bde0b63e3058754, type: 3}
+  - {fileID: 8300000, guid: 5b93d706eae2c3744a70a28fe8df2aa8, type: 3}
+  - {fileID: 8300000, guid: dacd52536f2d21e4cbdd986c9d077c7d, type: 3}
+  - {fileID: 8300000, guid: 4145b89ef6c420a4998e4e66aa607af3, type: 3}
+  - {fileID: 8300000, guid: 176892cfb9d42004c9a86ced78a1ff8b, type: 3}
+  - {fileID: 8300000, guid: 6e936a856e7c4824fa41e8f3e809fb31, type: 3}
+  - {fileID: 0}
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: soundTypeBArray.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: soundTypeCArray.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 9d5b3b5e1c2c04b489ea47652c292867, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 3c681dede67d4431aa5ad52f06d23af9, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8c901bba25ca84266890825b87f1fd39, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[4]
+      value: 
+      objectReference: {fileID: 8300000, guid: 7ffeb89469b7040848315150d9e3c0c9, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[5]
+      value: 
+      objectReference: {fileID: 8300000, guid: fe07a469738564120b3679a2627d2e71, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeAArray.Array.data[6]
+      value: 
+      objectReference: {fileID: 8300000, guid: e76bb9f2e76e04b78a5477bc44ca1231, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeBArray.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 773a3503311c34593857ac664e370bc6, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeBArray.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: d8394b740485143fea72b7540c75e133, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeBArray.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 3cd3673118eca4e83b4565264e2ba44c, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeBArray.Array.data[4]
+      value: 
+      objectReference: {fileID: 8300000, guid: 497f77fa6c3b5410c906bf7d528d69c7, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeCArray.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 5475c60812cff421ba0bc24f6c84cbfd, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeCArray.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: ed348c85e0a6444018bb8a67d7246713, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeCArray.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 257eeeeb6e59c4502bad998301a3a714, type: 3}
+    - target: {fileID: 0}
+      propertyPath: soundTypeCArray.Array.data[4]
+      value: 
+      objectReference: {fileID: 8300000, guid: 770436048205f4ec7ab937dd78cf491e, type: 3}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 100000}
+  m_IsPrefabParent: 1

@@ -1,0 +1,28 @@
+Id,dlg,Desc
+MesgText_I01,InviteDlg,Your Name
+MesgText_I02,InviteDlg,Your Invite ID
+MesgText_I03,InviteDlg,Enter Invite ID
+MesgText_I04,InviteDlg,Success
+MesgText_I05,InviteDlg,Success reward:
+MesgText_I06,MessegnDlg,Invite ID is incorrect
+MesgText_I07,MessegnDlg,Invite ID has reached the maximum number
+MesgText_T01,TransferDlg,Current Data ID
+MesgText_T02,TransferDlg,Enter transfer Data ID
+MesgText_T03,TransferDlg,Enter transfer name
+MesgText_T04,TransferDlg,Warning: Transfer data will replace current data!!
+MesgText_T05,MessegnDlg,Transfer data success
+MesgText_T06,MessegnDlg,Name or data ID is incorrect
+MesgText_G01,BuyGachaDlg,Unlock more cat trees
+MesgText_L01,LoginDlg,Unable to create account. Please check internet connection.
+MesgText_D01,DownloadDlg,Failed to install. Please restart the APP.
+MesgText_D02,DownloadDlg,File completion check
+MesgText_D03,DownloadDlg,Checking for updates
+MesgText_M01,MessegnDlg,Successful invite. Reward is in the Mailbox
+MesgText_M02,MessegnDlg,Successful purchase
+MesgText_M03,MessegnDlg,Unlock new map
+MesgText_M04,MessegnDlg,Please check internet connection.
+MesgText_GD1,GameDelayTool,Please adjust the timing of the input spot
+MesgText_M05,MessegnDlg,Maximum length 20 words
+MesgText_M06,MessegnDlg,Account is banned
+MesgText_M07,MessegnDlg,Application error
+MesgText_M08,MessegnDlg,此版本不支持更改語言功能。

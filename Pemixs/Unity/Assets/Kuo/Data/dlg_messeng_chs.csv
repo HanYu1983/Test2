@@ -1,0 +1,28 @@
+Id,dlg,Desc
+MesgText_I01,InviteDlg,你的昵称
+MesgText_I02,InviteDlg,你的招待ID
+MesgText_I03,InviteDlg,输入招待ID
+MesgText_I04,InviteDlg,成功人数
+MesgText_I05,InviteDlg,招待成功后双方可获得:
+MesgText_I06,MessegnDlg,招待ID不正确
+MesgText_I07,MessegnDlg,该招待ID已达人数上限
+MesgText_T01,TransferDlg,现在的资料ID
+MesgText_T02,TransferDlg,输入要转移的资料ID
+MesgText_T03,TransferDlg,输入要转移的昵称
+MesgText_T04,TransferDlg,警告:资料转移后将会覆盖现有进度!!
+MesgText_T05,MessegnDlg,资料转移成功
+MesgText_T06,MessegnDlg,昵称与资料ID不正确
+MesgText_G01,BuyGachaDlg,解锁更多的猫咪游乐场
+MesgText_L01,LoginDlg,无法建立帐号 请检查网路连线
+MesgText_D01,DownloadDlg,未完整安装 请重新启动游戏
+MesgText_D02,DownloadDlg,检查档案完整性
+MesgText_D03,DownloadDlg,检查档案是否最新版本
+MesgText_M01,MessegnDlg,邀请成功，获得奖励在信箱中
+MesgText_M02,MessegnDlg,内置购买成功
+MesgText_M03,MessegnDlg,解锁新地图
+MesgText_M04,MessegnDlg,请检查网路连线
+MesgText_GD1,GameDelayTool,请调整提示点到达时机与音乐节奏相符。
+MesgText_M05,MessegnDlg,字数必须小于20
+MesgText_M06,MessegnDlg,帐号被禁止
+MesgText_M07,MessegnDlg,程式错误
+MesgText_M08,MessegnDlg,此版本不支持更改语言功能。

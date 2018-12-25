@@ -1,0 +1,27 @@
+
+BG04P3BG.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BG0300L1
+  rotate: false
+  xy: 2, 2
+  size: 480, 270
+  orig: 480, 270
+  offset: 0, 0
+  index: -1
+BG0300L2
+  rotate: false
+  xy: 546, 274
+  size: 451, 270
+  orig: 451, 270
+  offset: 0, 0
+  index: -1
+BG0300L3
+  rotate: false
+  xy: 2, 274
+  size: 542, 270
+  orig: 542, 270
+  offset: 0, 0
+  index: -1

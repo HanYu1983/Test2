@@ -1,0 +1,9 @@
+MapID,Event,Desc,Prefab
+Map01,0,無,
+Map02,0,無,
+Map03,0,無,
+Map04,0,無,
+Map05,0,無,
+Map06,0,無,
+MapS1,1,隨時開啟,Event1
+MapS2,2,隨時開啟,Event2
