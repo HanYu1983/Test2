@@ -1,4 +1,7 @@
-﻿using System;
+﻿//
+// 請使用DEMO1來建置DEMO版本
+// 
+using System;
 using UnityEngine;
 using UniRx;
 using System.Collections.Generic;
@@ -105,7 +108,7 @@ namespace Remix
 			SetupFirstEnterAppStep (deviceData.IsFirstTime);
 
 			handleAna.EnterApplication ();
-		}
+        }
 
 		void InitIAP(){
 			// 注意：不能在這裡觸發任何會影響資料的回呼函式，因為這個時候資料還沒有讀取
@@ -139,7 +142,7 @@ namespace Remix
 
 		void PurchaseIAP(ItemKey itemKey){
 			var itemInfo = IAPDefCht.Get (itemKey.Idx);
-			#if UNITY_EDITOR || FULL_OPEN_VERSION1
+			#if UNITY_EDITOR || FULL_OPEN_VERSION1 || DEMO1
 			// 假回傳
 			HandleIAP_OnPurchaseOK(itemInfo.ID, "");
 			#elif UNITY_IPHONE
@@ -2226,8 +2229,14 @@ namespace Remix
 				break;
 			case "HomeUIBtnMail":
 				{
-					// 領取今日禮物
-					var hasMail = handleMailEvent.UnreadMails.Count() > 0;
+#if DEMO1
+                        if(true){
+                            Alert("DEMO版不支援郵件");
+                            return false;
+                        }
+#endif
+                    // 領取今日禮物
+                    var hasMail = handleMailEvent.UnreadMails.Count() > 0;
 					if (hasMail == false) {
 						Debug.LogWarning ("你沒有郵件");
 						return false;
@@ -2621,17 +2630,17 @@ namespace Remix
 					var dlg = view.GetMainMenu ().OpenSelectCatDlg ();
 					var selectIndex = dlg.CurrentCatIndexInOrder;
 					var catId = model.OwnedCats.Skip (selectIndex).First ();
-					#if RESTRICT_WANNA_PLAY_ITEM1
+#if RESTRICT_WANNA_PLAY_ITEM1
 					var cat = model.GetCat (catId);
 					var wannaPlayItem = new ItemKey(cat.WannaPlayToyItemKey);
-					#endif
+#endif
 
 					StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
 						var storage = view.GetMainMenu ().OpenStorageDlg ();
 						OnInitStorageDlg(storage, QueryItemCount, itemKey => {
-							#if RESTRICT_WANNA_PLAY_ITEM1
+#if RESTRICT_WANNA_PLAY_ITEM1
 							return itemKey.StringKey == wannaPlayItem.StringKey;
-							#else
+#else
 							if(itemKey.Type != StoreCtrl.DATA_TOY){
 								return false;
 							}
@@ -2665,7 +2674,7 @@ namespace Remix
 							}
 							return true;
 							*/
-							#endif
+#endif
 						});
 						storage.MetaData = new Dictionary<string, object> () {
 							{ "action", "selectWannaPlayItem" }
@@ -3408,7 +3417,7 @@ namespace Remix
 			return true;
 		}
 
-		#region detect drag map
+#region detect drag map
 		public long lastDragTime;
 		// 處理拖曳中不觸發點擊
 		// 在拖曳的command(TransformDoing)都要呼叫這個
@@ -3420,7 +3429,7 @@ namespace Remix
 			var duration = DateTime.Now - new DateTime (lastDragTime);
 			return duration.TotalSeconds < 0.35;
 		}
-		#endregion
+#endregion
 
 		bool HandleGamePlayUI(string cmd){
 			switch (cmd) {
@@ -3934,21 +3943,28 @@ namespace Remix
 				break;
 			case "ConfigUIBtnLanguage":
 				{
-					#if TAPTAP1
+#if TAPTAP1
 					var msg = langText.GetDlgMessage(userSettings.language, "MesgText_M08");
 					OnShowMessageException (new ShowMessageException (msg));
 					return true;
-					#else
+#else
 					StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
 						view.OpenLanguageDlg ();
 						UpdateUI ();
 					}));
-					#endif
+#endif
 				}
 				break;
 			case "ConfigUIBtnData":
 				{
-					StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
+#if DEMO1
+                        if (true)
+                        {
+                            Alert("DEMO版不支援資料轉移");
+                            return false;
+                        }
+#endif
+                        StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
 						var dlg = view.GetMainMenu ().OpenTransferDlg ();
 						OnInitTransferDlg (dlg);
 						UpdateUI ();
@@ -4385,9 +4401,9 @@ namespace Remix
 									OnException(new ShowMessageException(e.Message));
 									return;
 								}
-								#if UNITY_EDITOR
+#if UNITY_EDITOR
 								Alert("不支援本地播放。請用實機測試");
-								#endif
+#endif
 								handleBGM.Stop ();
 								handleMp3Player.Play (closureMusicId);
 							};
@@ -4396,9 +4412,9 @@ namespace Remix
 						UpdateUI ();
 						return true;
 					}
-					#if UNITY_EDITOR
+#if UNITY_EDITOR
 					Alert("不支援本地播放。請用實機測試");
-					#endif
+#endif
 					handleBGM.Stop ();
 					handleMp3Player.Play (musicId);
 				}
@@ -4480,10 +4496,16 @@ namespace Remix
 				break;
 			case "ShopUIBtnFSMusic":
 				{
-					/*StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
+#if DEMO1
+                        if(true){
+                            Alert("DEMO版本不支援音樂");
+                            return false;
+                        }
+#endif
+					StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
 						var dlg = view.GetMainMenu ().OpenMusicDlg ();
 						OnInitMusicDlg (dlg);
-					}));*/
+					}));
 				}
 				break;
 			case "ShopUIBtnFSStage":
@@ -4510,7 +4532,14 @@ namespace Remix
 				break;
 			case "ShopUIBtnInviteFriends":
 				{
-					StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
+#if DEMO1
+                        if (true)
+                        {
+                            Alert("DEMO版不支援邀請");
+                            return false;
+                        }
+#endif
+                        StartCoroutine (ExecWithDownloadAssetBundleIfNeeded (() => {
 						var dlg = view.GetMainMenu ().OpenInviteDlg ();
 						OnInitInviteDlg (dlg);
 						UpdateUI ();
@@ -4642,9 +4671,9 @@ namespace Remix
 				OnShowMessageException (new ShowMessageException(msg, e));
 				*/
 			}
-			#if UNITY_EDITOR
+#if UNITY_EDITOR
 			throw e;
-			#endif
+#endif
 		}
 
 		bool HandleBuyItemDlg(string cmd){
@@ -5037,7 +5066,7 @@ namespace Remix
 			}
 			return true;
 		}
-		#region tutorial
+#region tutorial
 		void StartTutorial(TutorialModel.Type type){
 			if (view.IsInMenu () == false) {
 				Debug.LogError ("必須在菜單頁才能開始教學");
@@ -5149,43 +5178,43 @@ namespace Remix
 			}
 			return false;
 		}
-		#endregion
+#endregion
 
-		#region Ad
+#region Ad
 		void InitAd(){
-			#if GCM1
+#if GCM1
 			AdmobInit();
-			#else
+#else
 			YomobInit();
-			#endif
+#endif
 		}
 		void ShowRewardAd(){
-			#if GCM1
+#if GCM1
 			AdmobShowRewardAd ();
-			#else
+#else
 			YomobShowRewardAd();
-			#endif
+#endif
 		}
 		bool IsBannerVisible{
 			set{
-				#if GCM1
+#if GCM1
 				AdmobIsBannerVisible = value;
-				#else
+#else
 				// ignore
-				#endif
+#endif
 			}
 		}
 		void LoadRewardAd(){
-			#if GCM1
+#if GCM1
 			AdmobLoadRewardAd();
-			#else
+#else
 			view.CloseLoadingDlg ();
 			ShowRewardAd();
-			#endif
+#endif
 		}
-		#endregion
+#endregion
 
-		#region Yomob
+#region Yomob
 		public HandleYoMob handleYomob;
 		void YomobInit(){
 			handleYomob.Init();
@@ -5212,9 +5241,9 @@ namespace Remix
 		void YomobShowRewardAd(){
 			handleYomob.ShowRewardAd ();
 		}
-		#endregion
+#endregion
 
-		#region Admob
+#region Admob
 		public HandleAdmob handleAdmob;
 
 		void AdmobInit(){
@@ -5260,7 +5289,7 @@ namespace Remix
 			view.CloseLoadingDlg ();
 			ShowRewardAd ();
 		}
-		#endregion
+#endregion
 	}
 
 	public partial class Main {

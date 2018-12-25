@@ -23,7 +23,7 @@ namespace Remix
 		
 
 #else
-		public const string API_HOST = "http://localhost:8080"; // hicloud
+		public const string API_HOST = "https://storage.googleapis.com/particle-resources/works/remix"; // hicloud
 		#endif
 
 		// Authorization的Header不能使用，所以改用Authorization2
