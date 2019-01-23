@@ -44,7 +44,7 @@
             function fn$(t){}
           });
         },
-        clickFind: function(id){
+        clickFind: function(id, open){
           var earnRate, compute, rets, lastOpen, ref$, range, hitRets, selectInfo, hitCount;
           earnRate = 0.01;
           compute = function(count){
@@ -71,7 +71,9 @@
             }));
           }(
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])));
-          lastOpen = (ref$ = vueModel.stockInfo[id].rows)[ref$.length - 1][2];
+          lastOpen = open
+            ? parseInt(open)
+            : (ref$ = vueModel.stockInfo[id].rows)[ref$.length - 1][2];
           range = lastOpen * 0.01;
           hitRets = rets.filter(function(arg$){
             var _, result;
@@ -122,6 +124,7 @@
             v.compute = {
               earnRate: 0.01,
               count: 20,
+              open: 0,
               result: null,
               hitCount: 0
             };

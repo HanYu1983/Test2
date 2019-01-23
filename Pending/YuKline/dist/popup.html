@@ -14,6 +14,7 @@
                     <td>stock id</td>
                     <td>earnRate</td>
                     <td>count</td>
+                    <td>open</td>
                     <td>compute</td>
                     <td>last date</td>
                     <td>last open</td>
@@ -31,9 +32,10 @@
                     <td>{{key}} {{stockInfo[key].name}}</td>
                     <td><input v-model="stockInfo[key].compute.earnRate"></td>
                     <td><input v-model="stockInfo[key].compute.count"></td>
+                    <td><input v-model="stockInfo[key].compute.open"></td>
                     <td>
                         <button v-on:click="clickCompute(key, stockInfo[key].compute.earnRate, stockInfo[key].compute.count)">compute</button>
-                        <button v-on:click="clickFind(key)">find</button>
+                        <button v-on:click="clickFind(key, stockInfo[key].compute.open)">find</button>
                     </td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.key }}</div></td>
                     <td><div v-if="stockInfo[key].compute.result">{{ stockInfo[key].compute.result.last.open }}</div></td>

@@ -25,7 +25,7 @@ window.onload = ->
                         windowId: w.id
                         url: "https://goodinfo.tw/StockInfo/ShowK_Chart.asp?STOCK_ID=#{id}&CHT_CAT2=DATE"
             
-            clickFind: (id)->
+            clickFind: (id, open)->
                 earnRate = 0.01
                 
                 compute = (count)->
@@ -43,7 +43,13 @@ window.onload = ->
                 
                 # 計算所有結果的買均價和最後開盤價的碰觸次數
                 # 越多次越好，代表有套利空間
-                lastOpen = vueModel.stockInfo[id].rows[*-1][2]
+                lastOpen = 
+                    if open then
+                        parseInt(open)
+                    else
+                        vueModel.stockInfo[id].rows[*-1][2]
+                # console.log lastOpen
+                        
                 range = lastOpen * 0.01
                 hitRets = rets.filter ([_, _, result])->
                     result.buyPrice.avg > (lastOpen - range) && result.buyPrice.avg < (lastOpen + range)
@@ -86,7 +92,7 @@ window.onload = ->
         for k, v of obj.stockInfo
             if not v.compute
                 # 加入result = null讓vue知道這個欄位必須監聽
-                v.compute = {earnRate: 0.01, count: 20, result: null, hitCount: 0}
+                v.compute = {earnRate: 0.01, count: 20, open: 0, result: null, hitCount: 0}
             start = Math.max 0, v.rows.length - v.compute.count
             rows = v.rows.slice(start, v.rows.length)
             v.compute.result = checkLowHighEarn v.compute.earnRate, rows
