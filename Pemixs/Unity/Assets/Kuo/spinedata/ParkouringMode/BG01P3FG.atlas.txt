@@ -1,0 +1,34 @@
+
+BG01P3FG.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BG0300L4
+  rotate: false
+  xy: 2, 118
+  size: 722, 270
+  orig: 722, 270
+  offset: 0, 0
+  index: -1
+Fever_item_pm01
+  rotate: false
+  xy: 726, 353
+  size: 180, 35
+  orig: 180, 35
+  offset: 0, 0
+  index: -1
+Fever_item_pm02
+  rotate: false
+  xy: 124, 90
+  size: 180, 26
+  orig: 180, 26
+  offset: 0, 0
+  index: -1
+Fever_item_pm03
+  rotate: false
+  xy: 2, 2
+  size: 120, 114
+  orig: 120, 114
+  offset: 0, 0
+  index: -1

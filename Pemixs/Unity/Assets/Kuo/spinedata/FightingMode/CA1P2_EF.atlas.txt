@@ -1,0 +1,27 @@
+
+CA1P2_EF.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+C01P2A11_EF
+  rotate: false
+  xy: 630, 127
+  size: 274, 110
+  orig: 274, 110
+  offset: 0, 0
+  index: -1
+C01P2A12_EF
+  rotate: false
+  xy: 311, 71
+  size: 317, 166
+  orig: 317, 166
+  offset: 0, 0
+  index: -1
+C01P2A13_EF
+  rotate: false
+  xy: 2, 2
+  size: 307, 235
+  orig: 307, 235
+  offset: 0, 0
+  index: -1

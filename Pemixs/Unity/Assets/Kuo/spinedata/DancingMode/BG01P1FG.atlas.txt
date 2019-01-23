@@ -1,0 +1,20 @@
+
+BG01P1FG.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BG0100L4
+  rotate: false
+  xy: 2, 209
+  size: 670, 270
+  orig: 670, 270
+  offset: 0, 0
+  index: -1
+fever_light_02
+  rotate: true
+  xy: 2, 2
+  size: 205, 256
+  orig: 205, 256
+  offset: 0, 0
+  index: -1

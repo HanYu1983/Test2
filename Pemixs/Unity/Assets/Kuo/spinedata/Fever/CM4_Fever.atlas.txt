@@ -1,0 +1,62 @@
+
+CM4_Fever.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Fever_CM1_01
+  rotate: false
+  xy: 2, 310
+  size: 571, 683
+  orig: 571, 683
+  offset: 0, 0
+  index: -1
+Fever_CM1_02
+  rotate: true
+  xy: 575, 201
+  size: 792, 383
+  orig: 792, 383
+  offset: 0, 0
+  index: -1
+Fever_item_01
+  rotate: false
+  xy: 514, 113
+  size: 442, 86
+  orig: 442, 86
+  offset: 0, 0
+  index: -1
+Fever_item_02
+  rotate: false
+  xy: 258, 71
+  size: 254, 110
+  orig: 254, 110
+  offset: 0, 0
+  index: -1
+Fever_item_03
+  rotate: false
+  xy: 258, 183
+  size: 254, 125
+  orig: 254, 125
+  offset: 0, 0
+  index: -1
+Fever_item_04
+  rotate: true
+  xy: 960, 739
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_05
+  rotate: false
+  xy: 2, 2
+  size: 254, 27
+  orig: 254, 27
+  offset: 0, 0
+  index: -1
+Fever_item_06
+  rotate: false
+  xy: 2, 31
+  size: 254, 277
+  orig: 254, 277
+  offset: 0, 0
+  index: -1

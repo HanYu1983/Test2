@@ -1,0 +1,55 @@
+ID,Page,Desc
+TP01T01,TP01,Gameplay
+TP01T02,TP01,Point
+TP01T03,TP01,Up & Down
+TP01T04,TP01,Continuous
+TP01T05,TP01,Twist
+TP01T06,TP01,Hit the paw
+TP01T07,TP01,Slide upward or downward on the paw
+TP01T08,TP01,Continuously hit the paw
+TP01T09,TP01,Continuously twist the paw
+TP02T01,TP02,Interactive Mode
+TP02T02,TP02,Interactive
+TP02T03,TP02,Petting
+TP02T04,TP02,Angery
+TP02T05,TP02,Boost
+TP02T06,TP02,Open interactive window
+TP02T07,TP02,Pet the cat to add EXP
+TP02T08,TP02,Over petting will set him off
+TP02T09,TP02,Use catnip to cool him down
+TP03T01,TP03,Interactive Mode
+TP03T02,TP03,Hungry
+TP03T03,TP03,Sleep
+TP03T04,TP03,Excited
+TP03T05,TP03,Body types
+TP03T06,TP03,Feed the cat to add HP
+TP03T07,TP03,Pet the cat to wake him up
+TP03T08,TP03,Use a toy to add EXP
+TP03T09,TP03,Exclusive toys
+TP04T01,TP04,Explore Mode
+TP04T02,TP04,Cat tree
+TP04T03,TP04,Waiting
+TP04T04,TP04,Boost
+TP04T05,TP04,Body types
+TP04T06,TP04,Use a gacha item
+TP04T07,TP04,Capture a new cat
+TP04T08,TP04,Use catnip to boost
+TP04T09,TP04,Exclusive gacha items
+TP05T01,TP05,Explore Mode
+TP05T02,TP05,Habitat
+TP05T03,TP05,Houton
+TP05T04,TP05,Zamami
+TP05T05,TP05,Tokashiki
+TP05T06,TP05,South Islands map
+TP05T07,TP05,
+TP05T08,TP05,
+TP05T09,TP05,
+TP06T01,TP06,Explore Mode
+TP06T02,TP06,Cat tree
+TP06T03,TP06,Waiting
+TP06T04,TP06,Boost
+TP06T05,TP06,Cameras
+TP06T06,TP06,Use a camera
+TP06T07,TP06,Take a new photo
+TP06T08,TP06,Use a tripod to boost
+TP06T09,TP06,High performance cameras

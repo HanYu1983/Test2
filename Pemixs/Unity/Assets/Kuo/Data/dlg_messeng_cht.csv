@@ -1,0 +1,28 @@
+Id,dlg,Desc
+MesgText_I01,InviteDlg,你的暱稱
+MesgText_I02,InviteDlg,你的招待ID
+MesgText_I03,InviteDlg,輸入招待ID
+MesgText_I04,InviteDlg,成功人數
+MesgText_I05,InviteDlg,招待成功後雙方可獲得:
+MesgText_I06,MessegnDlg,招待ID不正確
+MesgText_I07,MessegnDlg,該招待ID已達人數上限
+MesgText_T01,TransferDlg,現在的資料ID
+MesgText_T02,TransferDlg,輸入要轉移的資料ID
+MesgText_T03,TransferDlg,輸入要轉移的暱稱
+MesgText_T04,TransferDlg,警告:資料轉移後將會覆蓋現有進度!!
+MesgText_T05,MessegnDlg,資料轉移成功
+MesgText_T06,MessegnDlg,暱稱與資料ID不正確
+MesgText_G01,BuyGachaDlg,解鎖更多的貓咪遊樂場
+MesgText_L01,LoginDlg,無法建立帳號   請檢查網路連線
+MesgText_D01,DownloadDlg,未完整安裝   請重新啟動遊戲
+MesgText_D02,DownloadDlg,檢查檔案完整性
+MesgText_D03,DownloadDlg,檢查檔案是否最新版本
+MesgText_M01,MessegnDlg,邀請成功，獲得獎勵在信箱中
+MesgText_M02,MessegnDlg,內置購買成功
+MesgText_M03,MessegnDlg,解鎖新地圖
+MesgText_M04,MessegnDlg,請檢查網路連線
+MesgText_GD1,GameDelayTool,請調整提示點到達時機與音樂節奏相符。
+MesgText_M05,MessegnDlg,字數必須小於20
+MesgText_M06,MessegnDlg,帳號被禁止
+MesgText_M07,MessegnDlg,程式錯誤
+MesgText_M08,MessegnDlg,此版本不支持更改語言功能。

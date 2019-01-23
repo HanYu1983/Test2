@@ -4,7 +4,6 @@ _DS_Store
 *.sln
 Library/
 Temp/
-ProjectSettings/
 UnityPackageManager/
 YouAreMyDiamond/build/contracts/
 YouAreMyDiamond2/build/contracts/
@@ -12,3 +11,6 @@ node_modules
 package-lock.json
 cache/
 private/
+pkg/
+Build/
+obj/

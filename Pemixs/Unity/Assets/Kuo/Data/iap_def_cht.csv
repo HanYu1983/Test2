@@ -1,0 +1,10 @@
+ID,Type,Prefab,Name,Desc,Cost,Gold,Money
+iap01,IAP,IAP01,貓銀票,貓銀票  X     30,NT.30,0,30
+iap02,IAP,IAP02,一些貓銀票,貓銀票  X    100,NT.90,0,100
+iap03,IAP,IAP03,一堆貓銀票,貓銀票  X    210,NT.180,0,210
+iap04,IAP,IAP04,一箱貓銀票,貓銀票  X    450,NT.360,0,450
+iap05,IAP,IAP05,貓金幣,貓金幣  X   1500,NT.30,1500,0
+iap06,IAP,IAP06,一些貓金幣,貓金幣  X   5000,NT.90,5000,0
+iap07,IAP,IAP07,一堆貓金幣,貓金幣  X  10500,NT.180,10500,0
+iap08,IAP,IAP08,一箱貓金幣,貓金幣  X  21500,NT.360,21500,0
+iap09,IAP,IAP09,消除廣告,消除底部橫幅廣告,NT.60,0,0

@@ -1,0 +1,59 @@
+ID,Name,Desc
+I10010,Can,Use in Interactive Mode or Gameplay recover HP50
+I10020,Milk,Use in Interactive Mode or Gameplay recover HP150
+I10030,Dry,Use in Interactive Mode or Gameplay recover HP300
+I10040,Cat Grass,Use in Interactive Mode or Gameplay recover HP500
+I10050,Dried Sardine,Use in Interactive Mode or Gameplay recover HP250
+I10060,Bonito,Use in Interactive Mode or Gameplay recover HP500
+I10070,Fish,Use in Interactive Mode or Gameplay recover HP500 and add EXP500
+I10080,Food Pouches,Use in Interactive Mode or Gameplay recover HP1000 and add EXP1000
+I20010,Digital camera,Use in Explore Mode receive a photo
+I20020,Instant camera,Use in Explore Mode receive a photo in half time
+I20030,Action camera,Use in Explore Mode receive a photo immediately
+I20040,EVIL camera,Use in Explore Mode receive a photo and 20% receive a Panorama
+I20050,DSLR camera,Use in Explore Mode receive a photo and 40% receive a Panorama
+I20060,Folding camera,Use in Explore Mode receive a photo and 50% receive second photo
+I20070,TLR Camera ,Use in Explore Mode receive two photos
+I20080,ETRS camera,Use in Explore Mode receive two photos and 40% receive a Panorama
+I21010,Selfie stick,Use in Explore Mode reduce 50% waiting time
+I21020,Tripod,Use in Explore Mode reduce 100% waiting time
+I30010,Laser pointer,Use in Interactive Mode with adult cat can add EXP50
+I30020,Mouse cat toy,Use in Interactive Mode with adult cat can add EXP200
+I30030,取消中,
+I30040,Teaser wand,Use in Interactive Mode with kitten can add EXP50
+I30050,Wool ball,Use in Interactive Mode with kitten can add EXP200
+I30060,取消中,
+I30070,Scratcher,Use in Interactive Mode with fat cat can add EXP50
+I30080,heater,Use in Interactive Mode with fat cat can add EXP200
+I30090,取消中,
+I30100,取消中,
+I30110,取消中,
+I31010,Catnip Spray,Use in Explore Mode or Interactive Mode reduce 50% waiting time
+I31020,Dried Catnip,Use in Explore Mode or Interactive Mode reduce 100% waiting time
+I32010,Cardboard Car,Use in Explore Mode capture an adult cat
+I32020,Robotic vacuum,Use in Explore Mode capture a kitten
+I32030,Sofa bed,Use in Explore Mode capture a fat cat
+I40010,Cat Gold 250,Receive Cat Gold 250
+I40020,Cat Gold 500,Receive Cat Gold 500
+I40030,Cat Gold 750,Receive Cat Gold 750
+I40040,Cat Gold 1000,Receive Cat Gold 1000
+I40050,Cat Gold 1500,Receive Cat Gold 1500
+I41010,Cat Money 20,Receive Cat Money 20
+I41020,Cat Money 40,Receive Cat Money 40
+I41030,Cat Money 10,Receive Cat Money 10
+I41040,Cat Money 5,Receive Cat Money 5
+I41050,Cat Money 2,Receive Cat Money 2
+I41060,Cat Money 1,Receive Cat Money 1
+I41070,預留空位,
+I41080,預留空位,
+I41090,預留空位,
+I41100,預留空位,
+I41110,預留空位,
+I41120,預留空位,
+I50010,Salmon,Use in Interactive Mode or Gameplay with big cat can recover HP100
+I50020,BBQ,Use in Interactive Mode or Gameplay with big cat can recover HP300
+I50030,Suckling Pig,Use in Interactive Mode or Gameplay with big cat can recover HP1000 and add EXP500
+I60010,Pumpkin,Use in Interactive Mode with lynx can add EXP100
+I60020,Wooden Dummy,Use in Interactive Mode with lynx can add EXP300
+I60030,取消中,
+I62010,Sled,Use in Explore Mode capture a lynx
