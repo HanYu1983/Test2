@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace HanLib
 {
@@ -38,8 +39,14 @@ namespace HanLib
             holder.Remove(key);
         }
 
-        public int Fire()
+        public int Fire(int energy)
         {
+            var consume = UseEnergy(energy);
+            if(consume <= 0)
+            {
+                Debug.Log("energy is zero");
+                return 0;
+            }
             switch (type)
             {
                 case Type.Ray:
@@ -55,6 +62,7 @@ namespace HanLib
                         }
                         weaponHolder.weapon = this;
                         weaponHolder.key = id;
+                        weaponHolder.useEnergy = consume;
                         var rigid = obj.GetComponent<Rigidbody>();
                         if (rigid)
                         {
@@ -76,7 +84,25 @@ namespace HanLib
                     }
                     break;
             }
-            return 0;
+            return consume;
+        }
+
+        public int Energy()
+        {
+            var cs = GetComponentsInChildren<EnergyComponent>();
+            return cs.Sum(o => o.currEnergy);
+        }
+
+        public int UseEnergy(int v)
+        {
+            var cs = GetComponentsInChildren<EnergyComponent>();
+            var totalConsume = 0;
+            foreach(var c in cs)
+            {
+                var consume = c.Adj(-(v - totalConsume));
+                totalConsume += consume;
+            }
+            return totalConsume;
         }
     }
 }

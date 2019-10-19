@@ -9,6 +9,7 @@ namespace HanLib
     public class WeaponHolder : MonoBehaviour, IData
     {
         public Weapon weapon;
+        public int useEnergy;
         public int key;
 
         void Update()
@@ -17,9 +18,15 @@ namespace HanLib
             {
                 return;
             }
+            if(weapon.UseEnergy(useEnergy) <= 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
             if (weapon.QueryHolder(key) == false)
             {
                 Destroy(gameObject);
+                return;
             }
             else
             {

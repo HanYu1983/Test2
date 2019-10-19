@@ -6,7 +6,8 @@ namespace HanLib
 {
     public class BombControlSystem : MonoBehaviour
     {
-        // Start is called before the first frame update
+        public int energy;
+
         void Start()
         {
             var isActive = GetComponent<Weapon>() != null && GetComponent<Remover>() != null;
@@ -19,7 +20,7 @@ namespace HanLib
         void OnRemove(Remover sender)
         {
             var weapon = GetComponent<Weapon>();
-            weapon.Fire();
+            weapon.Fire(energy);
         }
     }
 }

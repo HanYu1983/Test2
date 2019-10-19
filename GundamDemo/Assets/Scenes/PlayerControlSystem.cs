@@ -31,14 +31,14 @@ namespace HanLib
             {
                 var weapon = GetComponentsInChildren<Weapon>()[0];
                 var heading = Matrix4x4.Rotate(transform.rotation).MultiplyVector(Vector3.forward);
-                weapon.Fire();
+                weapon.Fire(10);
             }
 
             if (Input.GetButtonDown("Fire2"))
             {
                 var weapon = GetComponentsInChildren<Weapon>()[1];
                 var heading = Matrix4x4.Rotate(transform.rotation).MultiplyVector(Vector3.forward);
-                lastWeaponKey = weapon.Fire();
+                lastWeaponKey = weapon.Fire(10);
             }
 
             if (Input.GetButtonUp("Fire2"))

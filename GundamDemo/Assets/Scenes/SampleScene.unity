@@ -372,6 +372,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weapon: {fileID: 0}
+  useEnergy: 0
   key: 0
   weaponKey: 
 --- !u!114 &283294235
@@ -411,6 +412,7 @@ GameObject:
   m_Component:
   - component: {fileID: 511675633}
   - component: {fileID: 511675634}
+  - component: {fileID: 511675635}
   m_Layer: 0
   m_Name: gunWeapon
   m_TagString: Untagged
@@ -449,6 +451,20 @@ MonoBehaviour:
   bullet: {fileID: 1965352636}
   bulletLayer: {fileID: 630528715}
   force: {x: 0, y: 0, z: 1000}
+--- !u!114 &511675635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511675632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc03111710b29941a0fbb0b57b8acaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEnergy: 100
+  currEnergy: 100
 --- !u!1 &630528714
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,7 +720,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 4e-45}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -733,6 +749,8 @@ GameObject:
   - component: {fileID: 962720744}
   - component: {fileID: 962720745}
   - component: {fileID: 962720746}
+  - component: {fileID: 962720747}
+  - component: {fileID: 962720748}
   m_Layer: 0
   m_Name: laserWeapon
   m_TagString: Untagged
@@ -784,6 +802,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 
+--- !u!114 &962720747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962720743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc03111710b29941a0fbb0b57b8acaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEnergy: 100
+  currEnergy: 100
+--- !u!114 &962720748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962720743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc03111710b29941a0fbb0b57b8acaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEnergy: 200
+  currEnergy: 200
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1129,6 +1175,7 @@ GameObject:
   - component: {fileID: 1965352642}
   - component: {fileID: 1965352644}
   - component: {fileID: 1965352643}
+  - component: {fileID: 1965352647}
   - component: {fileID: 1965352645}
   - component: {fileID: 1965352646}
   m_Layer: 0
@@ -1255,6 +1302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c1bf47123d34b648ab78f6124222355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  energy: 100
 --- !u!114 &1965352644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1299,6 +1347,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38562ead84922a44ebbc5e49b2c7c82b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1965352647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965352636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcc03111710b29941a0fbb0b57b8acaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEnergy: 100
+  currEnergy: 100
 --- !u!1 &2127521592
 GameObject:
   m_ObjectHideFlags: 0
