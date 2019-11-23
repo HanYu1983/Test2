@@ -62,9 +62,9 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		return this.robotPositionHistory.keySet();
 	}
 
-	private void calcBestPoint(String robotName, double speed) {
+	public Point2D calcBestPoint(String robotName, double speed) {
 		if (getHistory(robotName).size() < 3) {
-			return;
+			return null;
 		}
 		List<MemoryPoint> robotHistory = getHistory(robotName);
 		MemoryPoint a = robotHistory.get(0);
@@ -97,12 +97,16 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 			nextPoint.setLocation(nextPoint.getX() + Math.sin(heading) * v, nextPoint.getY() + Math.cos(heading) * v);
 		}
 		getBestTargetPoint(robotName).setLocation(nextPoint);
+		return getBestTargetPoint(robotName);
 	}
 
 	public double getBestHeading(String robotName, double speed) {
-		calcBestPoint(robotName, speed);
-		double hx = getBestTargetPoint(robotName).getX() - robot.getX();
-		double hy = getBestTargetPoint(robotName).getY() - robot.getY();
+		Point2D p = calcBestPoint(robotName, speed);
+		if (p == null) {
+			return 0;
+		}
+		double hx = p.getX() - robot.getX();
+		double hy = p.getY() - robot.getY();
 		return robocode.util.Utils.normalAbsoluteAngle(Math.atan2(hx, hy));
 	}
 

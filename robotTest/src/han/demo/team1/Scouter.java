@@ -1,10 +1,13 @@
 package han.demo.team1;
 
+import java.awt.geom.Point2D;
+
 import han.component.ComponentRobot;
 import han.component.ITick;
 import han.component.JustScan;
 import han.component.MemoryTargetPosition;
 import han.component.RandomForwardMove;
+import robocode.Rules;
 
 public class Scouter extends ComponentRobot {
 	private final MemoryTargetPosition memory = new MemoryTargetPosition(this);
@@ -21,7 +24,12 @@ public class Scouter extends ComponentRobot {
 	private class Control implements ITick{
 		@Override
 		public void onTick() {
-			
+			double power = 3;
+			double speed = Rules.getBulletSpeed(power);
+			for(String robotName : memory.getRobotNames()) {
+				Point2D p = memory.calcBestPoint(robotName, speed);
+			}
+			//
 			
 			/*
 			try {
