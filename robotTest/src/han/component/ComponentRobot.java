@@ -32,7 +32,16 @@ import robocode.WinEvent;
 
 public class ComponentRobot extends TeamRobot {
 	public final Components coms = new Components();
-	public String fileName;
+	private String fileName;
+	private String opponent;
+	
+	public String getOpponent() {
+		return opponent;
+	}
+	
+	public void setOpponent(String name) {
+		opponent = name;
+	}
 
 	public void run() {
 		String fileName = getName() + ".txt";
@@ -157,6 +166,9 @@ public class ComponentRobot extends TeamRobot {
 	@Override
 	public void onRobotDeath(RobotDeathEvent event) {
 		coms.onRobotDeath(event);
+		if(event.getName() == opponent) {
+			this.opponent = null;
+		}
 	}
 
 	@Override
@@ -202,6 +214,12 @@ public class ComponentRobot extends TeamRobot {
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
 		coms.onScannedRobot(event);
+		if(opponent == null) {
+			if(this.isTeammate(event.getName())) {
+				return;
+			}
+			opponent = event.getName();
+		}
 	}
 
 	@Override

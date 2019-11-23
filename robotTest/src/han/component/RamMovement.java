@@ -1,6 +1,5 @@
 package han.component;
 
-import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -16,9 +15,9 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
 public class RamMovement implements ITick, IBasicEvents {
-	private final AdvancedRobot robot;
+	private final ComponentRobot robot;
 
-	public RamMovement(AdvancedRobot robot) {
+	public RamMovement(ComponentRobot robot) {
 		this.robot = robot;
 	}
 
@@ -31,6 +30,9 @@ public class RamMovement implements ITick, IBasicEvents {
 
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
+		if(robot.isTeammate(e.getName())) {
+			return;
+		}
 		if (e.getBearing() >= 0) {
 			turnDirection = 1;
 		} else {

@@ -3,8 +3,10 @@ package han.component;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
@@ -39,19 +41,27 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 	}
 
 	private Point2D bestTargetPoint = new Point2D.Double();
-	private List<MemoryPoint> history = new LinkedList<MemoryPoint>();
+	private Map<String, List<MemoryPoint>> robotPositionHistory = new HashMap<>();
+
+	private List<MemoryPoint> getHistory(String robotName) {
+		if (this.robotPositionHistory.containsKey(robotName) == false) {
+			this.robotPositionHistory.put(robotName, new LinkedList<>());
+		}
+		return this.robotPositionHistory.get(robotName);
+	}
 
 	public Point2D getBestTargetPoint() {
 		return bestTargetPoint;
 	}
 
-	private void calcBestPoint(double speed) {
-		if (history.size() < 3) {
+	private void calcBestPoint(String robotName, double speed) {
+		if (getHistory(robotName).size() < 3) {
 			return;
 		}
-		MemoryPoint a = history.get(0);
-		MemoryPoint b = history.get(1);
-		MemoryPoint c = history.get(2);
+		List<MemoryPoint> robotHistory = getHistory(robotName);
+		MemoryPoint a = robotHistory.get(0);
+		MemoryPoint b = robotHistory.get(1);
+		MemoryPoint c = robotHistory.get(2);
 		long dt = c.time - b.time;
 
 		double dd = Point2D.distance(c.point.getX(), c.point.getY(), b.point.getX(), b.point.getY());
@@ -81,8 +91,8 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		bestTargetPoint.setLocation(nextPoint);
 	}
 
-	public double getBestHeading(double speed) {
-		calcBestPoint(speed);
+	public double getBestHeading(String robotName, double speed) {
+		calcBestPoint(robotName, speed);
 		double hx = bestTargetPoint.getX() - robot.getX();
 		double hy = bestTargetPoint.getY() - robot.getY();
 		return robocode.util.Utils.normalAbsoluteAngle(Math.atan2(hx, hy));
@@ -90,6 +100,8 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
+		String robotName = event.getName();
+
 		double dist = event.getDistance();
 		double bearing = event.getBearingRadians();
 		double headingToTarget = robocode.util.Utils.normalAbsoluteAngle(robot.getHeadingRadians() + bearing);
@@ -103,20 +115,25 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		double tx = x + ox;
 		double ty = y + oy;
 
-		this.history.add(new MemoryPoint(new Point2D.Double(tx, ty), robot.getTime()));
-		if (this.history.size() > 3) {
-			this.history.remove(0);
+		List<MemoryPoint> robotHistory = this.getHistory(robotName);
+		robotHistory.add(new MemoryPoint(new Point2D.Double(tx, ty), robot.getTime()));
+		if (robotHistory.size() > 3) {
+			robotHistory.remove(0);
 		}
 	}
 
 	@Override
 	public void onPaint(Graphics2D g) {
-		g.setColor(Color.red);
-		for (int i = 0; i < history.size(); ++i) {
-			Point2D p = history.get(i).point;
-			g.fillOval((int) p.getX() - 25, (int) p.getY() - 25, 50, 50);
+		for (String robotName : this.robotPositionHistory.keySet()) {
+			List<MemoryPoint> robotHistory = this.robotPositionHistory.get(robotName);
+			for (int i = 0; i < robotHistory.size(); ++i) {
+				Point2D p = robotHistory.get(i).point;
+				g.setColor(Color.red);
+				g.fillOval((int) p.getX() - 25, (int) p.getY() - 25, 50, 50);
+				g.setColor(Color.black);
+				g.drawString(robotName, (int) p.getX(), (int) p.getY());
+			}
 		}
-
 		g.setColor(Color.green);
 		g.fillOval((int) this.bestTargetPoint.getX() - 25, (int) this.bestTargetPoint.getY() - 25, 50, 50);
 	}

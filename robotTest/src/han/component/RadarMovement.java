@@ -20,9 +20,9 @@ import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
 public class RadarMovement implements IBasicEvents, ITick, IPaintEvents {
-	private final AdvancedRobot robot;
+	private final ComponentRobot robot;
 
-	public RadarMovement(AdvancedRobot robot) {
+	public RadarMovement(ComponentRobot robot) {
 		this.robot = robot;
 	}
 
@@ -100,6 +100,11 @@ public class RadarMovement implements IBasicEvents, ITick, IPaintEvents {
 
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
+		String robotName = event.getName();
+		if (robot.getOpponent() != robotName) {
+			return;
+		}
+
 		double dist = event.getDistance();
 		double bearing = event.getBearingRadians();
 		double headingToTarget = robocode.util.Utils.normalAbsoluteAngle(robot.getHeadingRadians() + bearing);
@@ -176,7 +181,7 @@ public class RadarMovement implements IBasicEvents, ITick, IPaintEvents {
 		for (int y = 0; y < robot.getBattleFieldHeight(); y += 50) {
 			g.drawLine(0, y, (int) robot.getBattleFieldWidth(), y);
 			g.drawString("y:" + y, 20, y);
-		}		
+		}
 		ty = Math.cos(heading) * 100;
 		tx = Math.sin(heading) * 100;
 		g.setColor(Color.black);

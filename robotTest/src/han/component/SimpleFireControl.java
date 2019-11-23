@@ -3,25 +3,27 @@ package han.component;
 import java.util.LinkedList;
 import java.util.List;
 
-import robocode.AdvancedRobot;
 import robocode.Bullet;
 
 public class SimpleFireControl implements ITick {
 	public interface IQuery {
-		double getBestHeading(double speed);
+		double getBestHeading(String robotName, double speed);
 	}
 
-	private final AdvancedRobot robot;
+	private final ComponentRobot robot;
 	private final IQuery query;
-	public List<Bullet> bullets = new LinkedList<>();
+	public final List<Bullet> bullets = new LinkedList<>();
 
-	public SimpleFireControl(AdvancedRobot robot, IQuery query) {
+	public SimpleFireControl(ComponentRobot robot, IQuery query) {
 		this.robot = robot;
 		this.query = query;
 	}
 
 	private void syncGun() {
-		double heading = query.getBestHeading(robocode.Rules.getBulletSpeed(1.5));
+		if (robot.getOpponent() == null) {
+			return;
+		}
+		double heading = query.getBestHeading(robot.getOpponent(), robocode.Rules.getBulletSpeed(1.5));
 		double oa = robocode.util.Utils.normalRelativeAngle(heading - robot.getGunHeadingRadians());
 		robot.setTurnGunRightRadians(oa);
 		if (Math.abs(oa) < Math.PI / 10) {

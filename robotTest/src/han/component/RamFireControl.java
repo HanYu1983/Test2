@@ -2,7 +2,6 @@ package han.component;
 
 import java.awt.Graphics2D;
 
-import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -18,13 +17,16 @@ import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
 public class RamFireControl implements IBasicEvents, ITick, IPaintEvents {
-	private final AdvancedRobot robot;
+	private final ComponentRobot robot;
 
-	public RamFireControl(AdvancedRobot robot) {
+	public RamFireControl(ComponentRobot robot) {
 		this.robot = robot;
 	}
 
 	public void onHitRobot(HitRobotEvent e) {
+		if(robot.isTeammate(e.getName())) {
+			return;
+		}
 		double heading = robocode.util.Utils.normalAbsoluteAngle(robot.getHeadingRadians() + e.getBearingRadians());
 		double gunBearing = robocode.util.Utils.normalRelativeAngle(heading - robot.getGunHeadingRadians());
 		robot.turnGunRightRadians(gunBearing);
