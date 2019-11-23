@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jbox2d.common.MathUtils;
+import org.jbox2d.common.Vec2;
+
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -31,22 +34,22 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 	}
 
 	public static class MemoryPoint {
-		public final Point2D point;
+		public final Vec2 point;
 		public final long time;
 
-		public MemoryPoint(Point2D point, long time) {
+		public MemoryPoint(Vec2 point, long time) {
 			this.point = point;
 			this.time = time;
 		}
 	}
 
 	// private Point2D bestTargetPoint = new Point2D.Double();
-	private Map<String, Point2D> robotBestPoint = new HashMap<>();
+	private Map<String, Vec2> robotBestPoint = new HashMap<>();
 	private Map<String, List<MemoryPoint>> robotPositionHistory = new HashMap<>();
 
-	public Point2D getBestTargetPoint(String robotName) {
+	public Vec2 getBestTargetPoint(String robotName) {
 		if (this.robotBestPoint.containsKey(robotName) == false) {
-			this.robotBestPoint.put(robotName, new Point2D.Double());
+			this.robotBestPoint.put(robotName, new Vec2());
 		}
 		return this.robotBestPoint.get(robotName);
 	}
@@ -62,7 +65,7 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		return this.robotPositionHistory.keySet();
 	}
 
-	public Point2D calcBestPoint(String robotName, double speed) {
+	public Vec2 computeBestPoint(String robotName, double speed) {
 		if (getHistory(robotName).size() < 3) {
 			return null;
 		}
@@ -72,21 +75,21 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		MemoryPoint c = robotHistory.get(2);
 		long dt = c.time - b.time;
 
-		double dd = Point2D.distance(c.point.getX(), c.point.getY(), b.point.getX(), b.point.getY());
-		double v = dd / dt;
+		float dd = MathUtils.distance(c.point, b.point);
+		float v = dd / dt;
 
-		Point2D ab = new Point2D.Double(b.point.getX() - a.point.getX(), b.point.getY() - a.point.getY());
-		Point2D bc = new Point2D.Double(c.point.getX() - b.point.getX(), c.point.getY() - b.point.getY());
-		double abAngle = Math.atan2(ab.getX(), ab.getY());
-		double cbAngle = Math.atan2(bc.getX(), bc.getY());
-		double bearing = robocode.util.Utils.normalRelativeAngle(cbAngle - abAngle);
-		double vrot = bearing / dt;
+		Vec2 ab = b.point.sub(a.point);
+		Vec2 bc = c.point.sub(b.point);
+		float abAngle = MathUtils.atan2(ab.x, ab.y);
+		float cbAngle = MathUtils.atan2(bc.x, bc.y);
+		float bearing = (float) robocode.util.Utils.normalRelativeAngle(cbAngle - abAngle);
+		float vrot = bearing / dt;
 
-		double bulletMoveRange = 0;
-		Point2D nextPoint = (Point2D) c.point.clone();
-		double heading = cbAngle;
+		float bulletMoveRange = 0;
+		Vec2 nextPoint = c.point.clone();
+		float heading = cbAngle;
 		for (int i = 0; i < 200; ++i) {
-			double dist = Point2D.distance(robot.getX(), robot.getY(), nextPoint.getX(), nextPoint.getY());
+			float dist = (float) Point2D.distance(robot.getX(), robot.getY(), nextPoint.x, nextPoint.y);
 			if (dist < bulletMoveRange) {
 				break;
 			}
@@ -94,20 +97,20 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 				bulletMoveRange += speed;
 			}
 			heading += vrot;
-			nextPoint.setLocation(nextPoint.getX() + Math.sin(heading) * v, nextPoint.getY() + Math.cos(heading) * v);
+			nextPoint.set(nextPoint.x + MathUtils.sin(heading) * v, nextPoint.y + MathUtils.cos(heading) * v);
 		}
-		getBestTargetPoint(robotName).setLocation(nextPoint);
+		getBestTargetPoint(robotName).set(nextPoint);
 		return getBestTargetPoint(robotName);
 	}
 
 	public double getBestHeading(String robotName, double speed) {
-		Point2D p = calcBestPoint(robotName, speed);
+		Vec2 p = computeBestPoint(robotName, speed);
 		if (p == null) {
 			return 0;
 		}
-		double hx = p.getX() - robot.getX();
-		double hy = p.getY() - robot.getY();
-		return robocode.util.Utils.normalAbsoluteAngle(Math.atan2(hx, hy));
+		float hx = p.x - (float) robot.getX();
+		float hy = p.y - (float) robot.getY();
+		return robocode.util.Utils.normalAbsoluteAngle(MathUtils.atan2(hx, hy));
 	}
 
 	@Override
@@ -131,7 +134,7 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		double ty = y + oy;
 
 		List<MemoryPoint> robotHistory = this.getHistory(robotName);
-		robotHistory.add(new MemoryPoint(new Point2D.Double(tx, ty), robot.getTime()));
+		robotHistory.add(new MemoryPoint(new Vec2((float) tx, (float) ty), robot.getTime()));
 		if (robotHistory.size() > 3) {
 			robotHistory.remove(0);
 		}
@@ -142,20 +145,20 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		for (String robotName : this.robotPositionHistory.keySet()) {
 			List<MemoryPoint> robotHistory = this.robotPositionHistory.get(robotName);
 			for (int i = 0; i < robotHistory.size(); ++i) {
-				Point2D p = robotHistory.get(i).point;
+				Vec2 p = robotHistory.get(i).point;
 				g.setColor(Color.red);
-				g.fillOval((int) p.getX() - 25, (int) p.getY() - 25, 50, 50);
+				g.fillOval((int) p.x - 25, (int) p.y - 25, 50, 50);
 				g.setColor(Color.black);
-				g.drawString(robotName, (int) p.getX(), (int) p.getY());
+				g.drawString(robotName, (int) p.x, (int) p.y);
 			}
 		}
 
 		for (String robotName : this.robotBestPoint.keySet()) {
-			Point2D p = robotBestPoint.get(robotName);
+			Vec2 p = robotBestPoint.get(robotName);
 			g.setColor(Color.green);
-			g.fillOval((int) p.getX() - 25, (int) p.getY() - 25, 50, 50);
+			g.fillOval((int) p.x - 25, (int) p.y - 25, 50, 50);
 			g.setColor(Color.black);
-			g.drawString(robotName, (int) p.getX(), (int) p.getY());
+			g.drawString(robotName, (int) p.x, (int) p.y);
 		}
 
 	}

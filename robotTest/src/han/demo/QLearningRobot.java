@@ -15,8 +15,8 @@ import han.component.FSMComponent;
 import han.component.IBattleEvents;
 import han.component.IFileEvents;
 import han.component.ITick;
+import han.component.JustScan;
 import han.component.MemoryTargetPosition;
-import han.component.RadarMovement;
 import han.component.RamFireControl;
 import han.component.RamMovement;
 import han.component.RandomForwardMove;
@@ -41,12 +41,13 @@ import robocode.robotinterfaces.IBasicEvents;
 
 public class QLearningRobot extends ComponentRobot {
 	MemoryTargetPosition memory = new MemoryTargetPosition(this);
-	RadarMovement radarMovement = new RadarMovement(this);
+	// Object radarMovement = new RadarMovement(this);
+	Object radarMovement = new JustScan(this);
 	SimpleFireControl simpleFireControl = new SimpleFireControl(this, memory);
-	RamFireControl ramFireControl = new RamFireControl(this);
-	RamMovement ramMovement = new RamMovement(this);
-	SpinMove spinMove = new SpinMove(this);
-	RandomForwardMove randomFowardMove = new RandomForwardMove(this);
+	Object ramFireControl = new RamFireControl(this);
+	Object ramMovement = new RamMovement(this);
+	Object spinMove = new SpinMove(this);
+	Object randomFowardMove = new RandomForwardMove(this);
 
 	{
 		coms.addComponent(new Control());

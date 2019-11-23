@@ -9,8 +9,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import org.jbox2d.common.Vec2;
 
 import robocode.BattleEndedEvent;
 import robocode.BulletHitBulletEvent;
@@ -35,6 +38,7 @@ public class ComponentRobot extends TeamRobot {
 	public final Components coms = new Components();
 	private String fileName;
 	private String opponent;
+	private Vec2 pos = new Vec2();
 
 	public String getOpponent() {
 		return opponent;
@@ -42,6 +46,32 @@ public class ComponentRobot extends TeamRobot {
 
 	public void setOpponent(String name) {
 		opponent = name;
+	}
+
+	public Vec2 getPosition() {
+		pos.x = (float) getX();
+		pos.y = (float) getY();
+		return pos;
+	}
+
+	public boolean simpleSend(Serializable msg) {
+		try {
+			this.broadcastMessage(msg);
+			return true;
+		} catch (IOException ex) {
+			ex.printStackTrace(out);
+		}
+		return false;
+	}
+
+	public boolean simpleSend(String name, Serializable msg) {
+		try {
+			this.sendMessage(name, msg);
+			return true;
+		} catch (IOException ex) {
+			ex.printStackTrace(out);
+		}
+		return false;
 	}
 
 	public void run() {
