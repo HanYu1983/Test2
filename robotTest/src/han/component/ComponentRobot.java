@@ -12,7 +12,6 @@ import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import robocode.AdvancedRobot;
 import robocode.BattleEndedEvent;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
@@ -28,9 +27,10 @@ import robocode.RoundEndedEvent;
 import robocode.ScannedRobotEvent;
 import robocode.SkippedTurnEvent;
 import robocode.StatusEvent;
+import robocode.TeamRobot;
 import robocode.WinEvent;
 
-public class ComponentRobot extends AdvancedRobot {
+public class ComponentRobot extends TeamRobot {
 	public final Components coms = new Components();
 	public String fileName;
 

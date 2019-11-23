@@ -1,4 +1,4 @@
-package han;
+package han.demo;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,7 +39,7 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class Test5 extends ComponentRobot {
+public class QLearningRobot extends ComponentRobot {
 	MemoryTargetPosition memory = new MemoryTargetPosition(this);
 	RadarMovement radarMovement = new RadarMovement(this);
 	SimpleFireControl simpleFireControl = new SimpleFireControl(this, memory);
@@ -111,7 +111,7 @@ public class Test5 extends ComponentRobot {
 	}
 
 	private class Control extends Components implements IBattleEvents, IFileEvents {
-		private final List<Bullet> bullets = Test5.this.simpleFireControl.bullets;
+		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
 		private float MutateRate = 0.2f;
 
 		@Override
@@ -248,7 +248,7 @@ public class Test5 extends ComponentRobot {
 
 	private class RewardDetector implements IBasicEvents, ITick {
 		private final QLearning<Integer, Action> qlearn;
-		private final List<Bullet> bullets = Test5.this.simpleFireControl.bullets;
+		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
 
 		public RewardDetector(QLearning<Integer, Action> q) {
 			qlearn = q;
