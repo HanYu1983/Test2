@@ -14,3 +14,5 @@ private/
 pkg/
 Build/
 obj/
+bin/
+build/
