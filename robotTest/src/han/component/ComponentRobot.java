@@ -21,6 +21,7 @@ import robocode.DeathEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
+import robocode.MessageEvent;
 import robocode.RobocodeFileOutputStream;
 import robocode.RobotDeathEvent;
 import robocode.RoundEndedEvent;
@@ -34,11 +35,11 @@ public class ComponentRobot extends TeamRobot {
 	public final Components coms = new Components();
 	private String fileName;
 	private String opponent;
-	
+
 	public String getOpponent() {
 		return opponent;
 	}
-	
+
 	public void setOpponent(String name) {
 		opponent = name;
 	}
@@ -166,7 +167,7 @@ public class ComponentRobot extends TeamRobot {
 	@Override
 	public void onRobotDeath(RobotDeathEvent event) {
 		coms.onRobotDeath(event);
-		if(event.getName() == opponent) {
+		if (event.getName() == opponent) {
 			this.opponent = null;
 		}
 	}
@@ -214,8 +215,8 @@ public class ComponentRobot extends TeamRobot {
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
 		coms.onScannedRobot(event);
-		if(opponent == null) {
-			if(this.isTeammate(event.getName())) {
+		if (opponent == null) {
+			if (this.isTeammate(event.getName())) {
 				return;
 			}
 			opponent = event.getName();
@@ -250,5 +251,10 @@ public class ComponentRobot extends TeamRobot {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onMessageReceived(MessageEvent arg0) {
+		coms.onMessageReceived(arg0);
 	}
 }

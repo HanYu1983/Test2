@@ -18,6 +18,7 @@ import robocode.DeathEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
+import robocode.MessageEvent;
 import robocode.RobotDeathEvent;
 import robocode.RoundEndedEvent;
 import robocode.ScannedRobotEvent;
@@ -26,8 +27,9 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IInteractiveEvents;
 import robocode.robotinterfaces.IPaintEvents;
+import robocode.robotinterfaces.ITeamEvents;
 
-public class Components implements IBasicEvents, IBattleEvents, IInteractiveEvents, IPaintEvents, ITick, IFileEvents {
+public class Components implements IBasicEvents, IBattleEvents, IInteractiveEvents, IPaintEvents, ITick, IFileEvents, ITeamEvents {
 
 	public void tick() {
 		for (Object obj : components) {
@@ -308,6 +310,15 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 		for (Object obj : components) {
 			if (obj instanceof IFileEvents) {
 				((IFileEvents) obj).onOutputStream(oos);
+			}
+		}
+	}
+
+	@Override
+	public void onMessageReceived(MessageEvent arg0) {
+		for (Object obj : components) {
+			if (obj instanceof ITeamEvents) {
+				((ITeamEvents) obj).onMessageReceived(arg0);
 			}
 		}
 	}

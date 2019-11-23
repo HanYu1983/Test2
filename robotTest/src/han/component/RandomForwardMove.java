@@ -18,13 +18,13 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class RandomFowardMove implements IBasicEvents, IBattleEvents, ITick {
+public class RandomForwardMove implements IBasicEvents, IBattleEvents, ITick {
 	private final AdvancedRobot robot;
 	private Random rand = new Random();
 	private int direction = 1;
 	private int tick = 0;
 
-	public RandomFowardMove(AdvancedRobot robot) {
+	public RandomForwardMove(AdvancedRobot robot) {
 		this.robot = robot;
 	}
 

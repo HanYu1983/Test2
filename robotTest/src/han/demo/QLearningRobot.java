@@ -19,7 +19,7 @@ import han.component.MemoryTargetPosition;
 import han.component.RadarMovement;
 import han.component.RamFireControl;
 import han.component.RamMovement;
-import han.component.RandomFowardMove;
+import han.component.RandomForwardMove;
 import han.component.SimpleFireControl;
 import han.component.SpinMove;
 import robocode.BattleEndedEvent;
@@ -46,7 +46,7 @@ public class QLearningRobot extends ComponentRobot {
 	RamFireControl ramFireControl = new RamFireControl(this);
 	RamMovement ramMovement = new RamMovement(this);
 	SpinMove spinMove = new SpinMove(this);
-	RandomFowardMove randomFowardMove = new RandomFowardMove(this);
+	RandomForwardMove randomFowardMove = new RandomForwardMove(this);
 
 	{
 		coms.addComponent(new Control());

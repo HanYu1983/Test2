@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -24,9 +24,9 @@ import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
 public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, SimpleFireControl.IQuery {
-	private final AdvancedRobot robot;
+	private final ComponentRobot robot;
 
-	public MemoryTargetPosition(AdvancedRobot robot) {
+	public MemoryTargetPosition(ComponentRobot robot) {
 		this.robot = robot;
 	}
 
@@ -40,18 +40,26 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 		}
 	}
 
-	private Point2D bestTargetPoint = new Point2D.Double();
+	// private Point2D bestTargetPoint = new Point2D.Double();
+	private Map<String, Point2D> robotBestPoint = new HashMap<>();
 	private Map<String, List<MemoryPoint>> robotPositionHistory = new HashMap<>();
 
-	private List<MemoryPoint> getHistory(String robotName) {
+	public Point2D getBestTargetPoint(String robotName) {
+		if (this.robotBestPoint.containsKey(robotName) == false) {
+			this.robotBestPoint.put(robotName, new Point2D.Double());
+		}
+		return this.robotBestPoint.get(robotName);
+	}
+
+	public List<MemoryPoint> getHistory(String robotName) {
 		if (this.robotPositionHistory.containsKey(robotName) == false) {
 			this.robotPositionHistory.put(robotName, new LinkedList<>());
 		}
 		return this.robotPositionHistory.get(robotName);
 	}
 
-	public Point2D getBestTargetPoint() {
-		return bestTargetPoint;
+	public Set<String> getRobotNames() {
+		return this.robotPositionHistory.keySet();
 	}
 
 	private void calcBestPoint(String robotName, double speed) {
@@ -88,18 +96,21 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 			heading += vrot;
 			nextPoint.setLocation(nextPoint.getX() + Math.sin(heading) * v, nextPoint.getY() + Math.cos(heading) * v);
 		}
-		bestTargetPoint.setLocation(nextPoint);
+		getBestTargetPoint(robotName).setLocation(nextPoint);
 	}
 
 	public double getBestHeading(String robotName, double speed) {
 		calcBestPoint(robotName, speed);
-		double hx = bestTargetPoint.getX() - robot.getX();
-		double hy = bestTargetPoint.getY() - robot.getY();
+		double hx = getBestTargetPoint(robotName).getX() - robot.getX();
+		double hy = getBestTargetPoint(robotName).getY() - robot.getY();
 		return robocode.util.Utils.normalAbsoluteAngle(Math.atan2(hx, hy));
 	}
 
 	@Override
 	public void onScannedRobot(ScannedRobotEvent event) {
+		if (robot.isTeammate(event.getName())) {
+			return;
+		}
 		String robotName = event.getName();
 
 		double dist = event.getDistance();
@@ -134,8 +145,15 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 				g.drawString(robotName, (int) p.getX(), (int) p.getY());
 			}
 		}
-		g.setColor(Color.green);
-		g.fillOval((int) this.bestTargetPoint.getX() - 25, (int) this.bestTargetPoint.getY() - 25, 50, 50);
+
+		for (String robotName : this.robotBestPoint.keySet()) {
+			Point2D p = robotBestPoint.get(robotName);
+			g.setColor(Color.green);
+			g.fillOval((int) p.getX() - 25, (int) p.getY() - 25, 50, 50);
+			g.setColor(Color.black);
+			g.drawString(robotName, (int) p.getX(), (int) p.getY());
+		}
+
 	}
 
 	@Override
