@@ -116,7 +116,6 @@ public class Test5 extends ComponentRobot {
 
 		@Override
 		public void onInputStream(ObjectInputStream ois) throws IOException {
-			super.onInputStream(ois);
 			String version = ois.readUTF();
 			System.out.println("version:" + version);
 			int size = ois.readByte();
@@ -128,11 +127,12 @@ public class Test5 extends ComponentRobot {
 				qlearn.setQ(0, action, value);
 				System.out.println(action + ":" + value);
 			}
+			super.onInputStream(ois);
 		}
 
 		@Override
 		public void onOutputStream(ObjectOutputStream oos) throws IOException {
-			oos.writeUTF("0.0.1");
+			oos.writeUTF("0.0.2");
 			int size = qlearn.qtable.get(0).keySet().size();
 			oos.writeByte(size);
 			for (Action action : qlearn.qtable.get(0).keySet()) {
