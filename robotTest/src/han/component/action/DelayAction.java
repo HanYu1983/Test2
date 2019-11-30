@@ -1,10 +1,21 @@
 package han.component.action;
 
+import java.io.Serializable;
+
 import han.component.ITick;
 
-public class DelayAction implements IAction, ITick {
+public class DelayAction implements IAction, ITick, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7420044068526225764L;
 	private int tick;
-	private final int maxTick;
+	private int maxTick;
+	
+	@SuppressWarnings("unused")
+	private DelayAction() {
+		
+	}
 
 	public DelayAction(int t) {
 		maxTick = t;

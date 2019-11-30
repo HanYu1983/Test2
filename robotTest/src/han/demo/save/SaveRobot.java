@@ -16,7 +16,11 @@ public class SaveRobot extends ComponentRobot {
 		coms.addComponent(new Control());
 	}
 
-	private class Control implements IFileEvents {
+	private class Control implements IFileEvents, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -680405597223497966L;
 		private World world;
 
 		@Override

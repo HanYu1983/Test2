@@ -1,5 +1,7 @@
 package han.component;
 
+import java.io.Serializable;
+
 import robocode.BattleEndedEvent;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
@@ -16,7 +18,11 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class VelociMove implements IBasicEvents, ITick, IBattleEvents {
+public class VelociMove implements IBasicEvents, ITick, IBattleEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -923678489126864301L;
 	private final RateControlRobot robot;
 
 	public VelociMove(RateControlRobot robot) {

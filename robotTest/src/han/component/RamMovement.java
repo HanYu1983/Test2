@@ -1,5 +1,7 @@
 package han.component;
 
+import java.io.Serializable;
+
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -14,7 +16,11 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class RamMovement implements ITick, IBasicEvents {
+public class RamMovement implements ITick, IBasicEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8202447445076328623L;
 	private final ComponentRobot robot;
 
 	public RamMovement(ComponentRobot robot) {

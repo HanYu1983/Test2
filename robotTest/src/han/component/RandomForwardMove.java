@@ -1,5 +1,6 @@
 package han.component;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import robocode.AdvancedRobot;
@@ -18,7 +19,11 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class RandomForwardMove implements IBasicEvents, IBattleEvents, ITick {
+public class RandomForwardMove implements IBasicEvents, IBattleEvents, ITick, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8543274084682356339L;
 	private final AdvancedRobot robot;
 	private Random rand = new Random();
 	private int direction = 1;

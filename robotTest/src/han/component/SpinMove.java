@@ -1,5 +1,7 @@
 package han.component;
 
+import java.io.Serializable;
+
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
@@ -14,7 +16,11 @@ import robocode.StatusEvent;
 import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 
-public class SpinMove implements IBasicEvents, ITick {
+public class SpinMove implements IBasicEvents, ITick, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6204398725346772702L;
 	private final AdvancedRobot robot;
 
 	public SpinMove(AdvancedRobot robot) {

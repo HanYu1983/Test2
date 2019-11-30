@@ -16,6 +16,7 @@ import han.component.action.MoveTo;
 import robocode.robotinterfaces.IInteractiveEvents;
 
 public class Test3 extends ComponentRobot {
+	/*
 	private ActionStack actionStack = new ActionStack();
 	private MoveTo moveTo = new MoveTo(this);
 
@@ -121,4 +122,5 @@ public class Test3 extends ComponentRobot {
 		}
 
 	}
+	*/
 }

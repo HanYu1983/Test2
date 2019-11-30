@@ -3,6 +3,7 @@ package han.component;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,11 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, SimpleFireControl.IQuery {
+public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, SimpleFireControl.IQuery, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5978017709912969161L;
 	private final ComponentRobot robot;
 
 	public MemoryTargetPosition(ComponentRobot robot) {

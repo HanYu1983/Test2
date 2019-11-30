@@ -1,16 +1,21 @@
 package han.component;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class FSMComponent<State> extends Components implements IBasicEvents, IPaintEvents {
-	private Map<State, Object> config = new HashMap<>();
+public class FSMComponent<State> extends Components implements IBasicEvents, IPaintEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7330756357632210649L;
+	private Map<State, Serializable> config = new HashMap<>();
 	private State state;
 
-	public Map<State, Object> getConfig() {
+	public Map<State, Serializable> getConfig() {
 		return config;
 	}
 

@@ -1,5 +1,7 @@
 package han.demo.team1;
 
+import java.io.Serializable;
+
 import org.jbox2d.common.Vec2;
 
 import han.component.ComponentRobot;
@@ -21,7 +23,11 @@ public class Scouter extends ComponentRobot {
 		coms.addComponent(new Control());
 	}
 
-	private class Control implements ITick {
+	private class Control implements ITick, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4174026825949143929L;
 		private ComponentRobot robot = Scouter.this;
 
 		@Override

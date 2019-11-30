@@ -1,6 +1,7 @@
 package han.component;
 
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
@@ -16,7 +17,11 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class RamFireControl implements IBasicEvents, ITick, IPaintEvents {
+public class RamFireControl implements IBasicEvents, ITick, IPaintEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 712716079119477667L;
 	private final ComponentRobot robot;
 
 	public RamFireControl(ComponentRobot robot) {

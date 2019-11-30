@@ -1,5 +1,7 @@
 package han.demo.team1;
 
+import java.io.Serializable;
+
 import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 
@@ -12,7 +14,11 @@ public class Attacker extends ComponentRobot {
 		coms.addComponent(new Control());
 	}
 
-	private class Control implements ITeamEvents {
+	private class Control implements ITeamEvents, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4855659638362811961L;
 		private final ComponentRobot robot = Attacker.this;
 
 		@Override

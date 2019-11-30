@@ -1,5 +1,6 @@
 package han.demo.team1;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,12 @@ public class Master extends ComponentRobot {
 		Message.State state;
 	}
 
-	private class Control implements ITeamEvents, IBattleEvents {
+	private class Control implements ITeamEvents, IBattleEvents, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 482498257855598589L;
+
 		private final ComponentRobot robot = Master.this;
 
 		private Map<String, RobotInfo> teammateInfo = new HashMap<>();

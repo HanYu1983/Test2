@@ -1,22 +1,36 @@
 package han.component.action;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 
 import han.component.ComponentRobot;
+import han.component.ISave;
 import han.component.ITick;
 
-public class MoveTo implements ITick, IAction{
+public class MoveTo implements ITick, IAction, ISave, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5567962435237025243L;
 	public static final int MinRange = 50;
-	private final ComponentRobot robot;
+	private String robotKey;
+	private transient ComponentRobot robot;
 	public final Vec2 position = new Vec2();
 
-	public MoveTo(ComponentRobot robot) {
-		this(robot, new Vec2(0, 0));
+	@SuppressWarnings("unused")
+	private MoveTo() {
+
 	}
 
-	public MoveTo(ComponentRobot robot, Vec2 firstPlace) {
-		this.robot = robot;
+	public MoveTo(String robotKey) {
+		this(robotKey, new Vec2(0, 0));
+	}
+
+	public MoveTo(String robotKey, Vec2 firstPlace) {
+		this.robotKey = robotKey;
 		this.position.set(firstPlace);
 	}
 
@@ -51,6 +65,16 @@ public class MoveTo implements ITick, IAction{
 	@Override
 	public boolean isSuccess() {
 		return checkSuccess();
+	}
+
+	@Override
+	public void onRegister(Map<String, Object> pool) {
+
+	}
+
+	@Override
+	public void onFindRef(Map<String, Object> pool) {
+		robot = (ComponentRobot) pool.get(robotKey);
 	}
 
 }

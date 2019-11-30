@@ -1,11 +1,17 @@
 package han.component;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import robocode.Bullet;
 
-public class SimpleFireControl implements ITick {
+public class SimpleFireControl implements ITick, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -206651305467081758L;
+
 	public interface IQuery {
 		double getBestHeading(String robotName, double speed);
 	}

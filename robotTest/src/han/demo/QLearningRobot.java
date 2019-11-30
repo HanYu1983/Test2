@@ -3,6 +3,7 @@ package han.demo;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,12 @@ import robocode.robotinterfaces.IBasicEvents;
 public class QLearningRobot extends ComponentRobot {
 	MemoryTargetPosition memory = new MemoryTargetPosition(this);
 	// Object radarMovement = new RadarMovement(this);
-	Object radarMovement = new JustScan(this);
+	Serializable radarMovement = new JustScan(this);
 	SimpleFireControl simpleFireControl = new SimpleFireControl(this, memory);
-	Object ramFireControl = new RamFireControl(this);
-	Object ramMovement = new RamMovement(this);
-	Object spinMove = new SpinMove(this);
-	Object randomFowardMove = new RandomForwardMove(this);
+	Serializable ramFireControl = new RamFireControl(this);
+	Serializable ramMovement = new RamMovement(this);
+	Serializable spinMove = new SpinMove(this);
+	Serializable randomFowardMove = new RandomForwardMove(this);
 
 	{
 		coms.addComponent(new Control());
@@ -112,6 +113,10 @@ public class QLearningRobot extends ComponentRobot {
 	}
 
 	private class Control extends Components implements IBattleEvents, IFileEvents {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 156257709440961271L;
 		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
 		private float MutateRate = 0.2f;
 
@@ -247,7 +252,11 @@ public class QLearningRobot extends ComponentRobot {
 		}
 	}
 
-	private class RewardDetector implements IBasicEvents, ITick {
+	private class RewardDetector implements IBasicEvents, ITick, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -952446248046703667L;
 		private final QLearning<Integer, Action> qlearn;
 		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
 

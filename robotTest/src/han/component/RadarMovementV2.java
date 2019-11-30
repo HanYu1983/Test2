@@ -3,6 +3,7 @@ package han.component;
 import static robocode.util.Utils.normalRelativeAngleDegrees;
 
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
@@ -19,7 +20,11 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class RadarMovementV2 implements IBasicEvents, ITick, IPaintEvents {
+public class RadarMovementV2 implements IBasicEvents, ITick, IPaintEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1116005165952977049L;
 	private final AdvancedRobot robot;
 
 	public RadarMovementV2(AdvancedRobot robot) {

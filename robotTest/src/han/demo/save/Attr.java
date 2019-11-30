@@ -8,7 +8,8 @@ public class Attr implements Serializable {
 	private String worldKey;
 	public transient World world;
 
-	public Attr() {
+	@SuppressWarnings("unused")
+	private Attr() {
 
 	}
 

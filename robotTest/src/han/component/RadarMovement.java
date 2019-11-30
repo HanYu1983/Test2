@@ -3,6 +3,7 @@ package han.component;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 import robocode.AdvancedRobot;
 import robocode.BulletHitBulletEvent;
@@ -19,7 +20,11 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class RadarMovement implements IBasicEvents, ITick, IPaintEvents {
+public class RadarMovement implements IBasicEvents, ITick, IPaintEvents, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2341733289391097737L;
 	private final ComponentRobot robot;
 
 	public RadarMovement(ComponentRobot robot) {

@@ -9,8 +9,9 @@ public class World implements Serializable {
 
 	private String id;
 
-	public World() {
-		// for serializable
+	@SuppressWarnings("unused")
+	private World() {
+		
 	}
 
 	public World(String id) {
