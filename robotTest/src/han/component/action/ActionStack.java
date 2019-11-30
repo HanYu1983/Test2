@@ -1,35 +1,42 @@
 package han.component.action;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Stack;
 
-import han.component.ISave;
+import han.component.ComponentStack;
 import han.component.ITick;
 
-public class ActionStack implements IAction, ITick, Serializable, ISave {
+public class ActionStack extends ComponentStack implements IAction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 323656336719383505L;
-	private Stack<IAction> actions = new Stack<>();
 
-	public ActionStack() {
+	@SuppressWarnings("unused")
+	protected ActionStack() {
 
 	}
 
+	public ActionStack(Object hook) {
+		super(null);
+	}
+	
 	public void addAction(IAction action) {
-		actions.add(action);
+		super.addComponent((Serializable) action);
+	}
+
+	@Override
+	public void addComponent(Serializable obj) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void onTick() {
-		if (actions.isEmpty()) {
+		if (isSuccess()) {
 			return;
 		}
-		IAction first = actions.peek();
+		IAction first = (IAction) getStack().peek();
 		if (first.isSuccess()) {
-			actions.pop();
+			getStack().pop();
 			return;
 		}
 		if (first instanceof ITick) {
@@ -39,20 +46,6 @@ public class ActionStack implements IAction, ITick, Serializable, ISave {
 
 	@Override
 	public boolean isSuccess() {
-		return actions.isEmpty();
-	}
-
-	@Override
-	public void onFindRef(Map<String, Object> pool) {
-		for (Object save : actions) {
-			if (save instanceof ISave) {
-				((ISave) save).onFindRef(pool);
-			}
-		}
-	}
-
-	@Override
-	public void onRegister(Map<String, Object> pool) {
-		
+		return getStack().isEmpty();
 	}
 }

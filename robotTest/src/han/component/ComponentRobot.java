@@ -35,7 +35,7 @@ import robocode.TeamRobot;
 import robocode.WinEvent;
 
 public class ComponentRobot extends TeamRobot {
-	public final Components coms = new Components();
+	public final ComponentList coms = new ComponentList(null);
 	private String fileName;
 	private String opponent;
 	private Vec2 pos = new Vec2();

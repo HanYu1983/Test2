@@ -14,6 +14,10 @@ public abstract class SaveComponent implements IFileEvents {
 	protected abstract void onLoad(Object obj);
 
 	private Serializable saveObj;
+	
+	public void setSaveObjectManually(Serializable obj) {
+		this.saveObj = obj;
+	}
 
 	public Object getSaveObject() {
 		return saveObj;

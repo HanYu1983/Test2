@@ -11,7 +11,7 @@ import java.util.Random;
 
 import han.ai.QLearning;
 import han.component.ComponentRobot;
-import han.component.Components;
+import han.component.ComponentList;
 import han.component.FSMComponent;
 import han.component.IBattleEvents;
 import han.component.IFileEvents;
@@ -112,7 +112,7 @@ public class QLearningRobot extends ComponentRobot {
 		 */
 	}
 
-	private class Control extends Components implements IBattleEvents, IFileEvents {
+	private class Control extends ComponentList implements IBattleEvents, IFileEvents {
 		/**
 		 * 
 		 */
@@ -214,17 +214,17 @@ public class QLearningRobot extends ComponentRobot {
 			bullets.clear();
 		}
 
-		private FSMComponent<FireStrategy> fireStrategy = new FSMComponent<>();
-		private FSMComponent<MoveStrategy> moveStrategy = new FSMComponent<>();
+		private FSMComponent<FireStrategy> fireStrategy = new FSMComponent<>(null);
+		private FSMComponent<MoveStrategy> moveStrategy = new FSMComponent<>(null);
 
 		{
-			Components coms = new Components();
+			ComponentList coms = new ComponentList(null);
 			coms.addComponent(memory);
 			coms.addComponent(radarMovement);
 			coms.addComponent(simpleFireControl);
 			fireStrategy.getConfig().put(FireStrategy.Simple, coms);
 
-			coms = new Components();
+			coms = new ComponentList(null);
 			coms.addComponent(memory);
 			coms.addComponent(radarMovement);
 			coms.addComponent(ramFireControl);
@@ -235,7 +235,7 @@ public class QLearningRobot extends ComponentRobot {
 		}
 
 		{
-			Components coms = new Components();
+			ComponentList coms = new ComponentList(null);
 			coms.addComponent(spinMove);
 
 			moveStrategy.getConfig().put(MoveStrategy.Spin, coms);

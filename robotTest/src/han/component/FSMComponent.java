@@ -7,11 +7,17 @@ import java.util.Map;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class FSMComponent<State> extends Components implements IBasicEvents, IPaintEvents, Serializable {
+public class FSMComponent<State> extends ComponentList implements IBasicEvents, IPaintEvents, Serializable {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7330756357632210649L;
+
+	public FSMComponent(Object ignore) {
+		super(ignore);
+	}
+
 	private Map<State, Serializable> config = new HashMap<>();
 	private State state;
 

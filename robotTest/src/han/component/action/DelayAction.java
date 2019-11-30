@@ -11,10 +11,10 @@ public class DelayAction implements IAction, ITick, Serializable {
 	private static final long serialVersionUID = -7420044068526225764L;
 	private int tick;
 	private int maxTick;
-	
+
 	@SuppressWarnings("unused")
-	private DelayAction() {
-		
+	protected DelayAction() {
+
 	}
 
 	public DelayAction(int t) {

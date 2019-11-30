@@ -1,3 +1,4 @@
+
 package han.component;
 
 import java.awt.Graphics2D;
@@ -8,8 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import robocode.BattleEndedEvent;
@@ -31,39 +30,30 @@ import robocode.robotinterfaces.IInteractiveEvents;
 import robocode.robotinterfaces.IPaintEvents;
 import robocode.robotinterfaces.ITeamEvents;
 
-public class Components implements IBasicEvents, IBattleEvents, IInteractiveEvents, IPaintEvents, ITick, IFileEvents,
-		ITeamEvents, ISave, Serializable {
-	private static final long serialVersionUID = 7373097744376595809L;
+public abstract class ComponentsBasicAdapter implements IBasicEvents, IBattleEvents, IInteractiveEvents, IPaintEvents,
+		ITick, IFileEvents, ITeamEvents, ISave {
+
+	public abstract void addComponent(Serializable obj);
+
+	public abstract void clearComponent();
+
+	public abstract void removeComponent(Object obj);
+
+	public abstract Iterable<Object> getUpdateComponents();
+	
+	public abstract Iterable<Serializable> getContainer();
 
 	public void tick() {
-		for (Object obj : components) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof ITick) {
 				((ITick) obj).onTick();
 			}
 		}
 	}
 
-	private List<Serializable> components = new LinkedList<>();
-
-	public void addComponent(Serializable obj) {
-		this.components.add(obj);
-	}
-
-	public void clearComponent() {
-		this.components.clear();
-	}
-
-	public void removeComponent(Serializable obj) {
-		this.components.remove(obj);
-	}
-
-	public List<Serializable> getComponents() {
-		return components;
-	}
-
 	@Override
 	public void onBulletHit(BulletHitEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onBulletHit(arg0);
 			}
@@ -72,7 +62,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onBulletHitBullet(BulletHitBulletEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onBulletHitBullet(arg0);
 			}
@@ -81,7 +71,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onBulletMissed(BulletMissedEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onBulletMissed(arg0);
 			}
@@ -90,7 +80,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onDeath(DeathEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onDeath(arg0);
 			}
@@ -99,7 +89,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onHitByBullet(HitByBulletEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onHitByBullet(arg0);
 			}
@@ -108,7 +98,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onHitRobot(HitRobotEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onHitRobot(arg0);
 			}
@@ -117,7 +107,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onHitWall(HitWallEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onHitWall(arg0);
 			}
@@ -126,7 +116,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onRobotDeath(RobotDeathEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onRobotDeath(arg0);
 			}
@@ -135,7 +125,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onScannedRobot(ScannedRobotEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onScannedRobot(arg0);
 			}
@@ -144,7 +134,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onStatus(StatusEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onStatus(arg0);
 			}
@@ -153,7 +143,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onWin(WinEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBasicEvents) {
 				((IBasicEvents) obj).onWin(arg0);
 			}
@@ -162,7 +152,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onPaint(Graphics2D arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IPaintEvents) {
 				((IPaintEvents) obj).onPaint(arg0);
 			}
@@ -171,7 +161,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onKeyPressed(KeyEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onKeyPressed(arg0);
 			}
@@ -180,7 +170,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onKeyReleased(KeyEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onKeyReleased(arg0);
 			}
@@ -189,7 +179,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onKeyTyped(KeyEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onKeyReleased(arg0);
 			}
@@ -198,7 +188,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseClicked(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseClicked(arg0);
 			}
@@ -207,7 +197,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseDragged(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseDragged(arg0);
 			}
@@ -216,7 +206,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseEntered(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseEntered(arg0);
 			}
@@ -225,7 +215,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseExited(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseExited(arg0);
 			}
@@ -234,7 +224,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseMoved(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseMoved(arg0);
 			}
@@ -243,7 +233,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMousePressed(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMousePressed(arg0);
 			}
@@ -252,7 +242,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseReleased(MouseEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseReleased(arg0);
 			}
@@ -261,7 +251,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMouseWheelMoved(MouseWheelEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IInteractiveEvents) {
 				((IInteractiveEvents) obj).onMouseWheelMoved(arg0);
 			}
@@ -275,7 +265,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onRoundEnded(RoundEndedEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBattleEvents) {
 				((IBattleEvents) obj).onRoundEnded(arg0);
 			}
@@ -284,7 +274,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onBattleEnded(BattleEndedEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBattleEvents) {
 				((IBattleEvents) obj).onBattleEnded(arg0);
 			}
@@ -293,7 +283,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onRoundStarted() {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IBattleEvents) {
 				((IBattleEvents) obj).onRoundStarted();
 			}
@@ -302,7 +292,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onInputStream(ObjectInputStream ois) throws IOException {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IFileEvents) {
 				((IFileEvents) obj).onInputStream(ois);
 			}
@@ -311,7 +301,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onOutputStream(ObjectOutputStream oos) throws IOException {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof IFileEvents) {
 				((IFileEvents) obj).onOutputStream(oos);
 			}
@@ -320,7 +310,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onMessageReceived(MessageEvent arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getUpdateComponents()) {
 			if (obj instanceof ITeamEvents) {
 				((ITeamEvents) obj).onMessageReceived(arg0);
 			}
@@ -329,7 +319,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onRegister(Map<String, Object> arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getContainer()) {
 			if (obj instanceof ISave) {
 				((ISave) obj).onRegister(arg0);
 			}
@@ -338,7 +328,7 @@ public class Components implements IBasicEvents, IBattleEvents, IInteractiveEven
 
 	@Override
 	public void onFindRef(Map<String, Object> arg0) {
-		for (Object obj : new LinkedList<Object>(components)) {
+		for (Object obj : getContainer()) {
 			if (obj instanceof ISave) {
 				((ISave) obj).onFindRef(arg0);
 			}
