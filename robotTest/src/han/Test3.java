@@ -2,13 +2,9 @@ package han;
 
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import org.jbox2d.common.MathUtils;
-import org.jbox2d.common.Vec2;
-
+import han.component.AntiGravityMove;
 import han.component.ComponentList;
 import han.component.ComponentRobot;
 import han.component.DrawCoord;
@@ -17,7 +13,6 @@ import han.component.MemoryTargetPosition;
 import han.component.MemoryTargetPosition.MemoryPoint;
 import han.component.SaveComponent;
 import han.component.action.ActionStack;
-import han.component.action.MoveTo;
 
 public class Test3 extends ComponentRobot {
 	{
@@ -48,21 +43,37 @@ public class Test3 extends ComponentRobot {
 		}
 	}
 
-	public static class Main extends ComponentList {
+	public static class Main extends ComponentList{
 		private static final long serialVersionUID = -791284919112248791L;
 		private transient ComponentRobot robot;
 		private transient final String robotKey = "robot";
 		private MemoryTargetPosition memory;
 		private ActionStack actionStack;
+		private AntiGravityMove antiMove;
 
 		public Main(String ignore) {
 			super(null);
 			memory = new MemoryTargetPosition(robotKey);
 			actionStack = new ActionStack(null);
+			antiMove = new AntiGravityMove(robotKey, null);
+			antiMove.isUseDistance = true;
+			
 			this.addComponent(actionStack);
 			this.addComponent(memory);
+			this.addComponent(antiMove);
 			this.addComponent(new DrawCoord(robotKey));
 			this.addComponent(new JustScan(robotKey, null));
+		}
+		
+		@Override
+		public void onTick() {
+			super.onTick();
+			antiMove.getGravityPoints().clear();
+			for (String name : memory.getRobotNames()) {
+				for (MemoryPoint mp : memory.getHistory(name)) {
+					antiMove.getGravityPoints().add(new AntiGravityMove.Point(mp.point, 0));
+				}
+			}
 		}
 
 		@Override
@@ -76,6 +87,10 @@ public class Test3 extends ComponentRobot {
 			super.onKeyReleased(arg0);
 			switch (arg0.getKeyCode()) {
 			case KeyEvent.VK_G: {
+				
+
+				
+				/*
 				double dw = this.robot.getBattleFieldWidth() / 10;
 				double dh = this.robot.getBattleFieldHeight() / 10;
 				List<Vec2> points = new LinkedList<>();
@@ -111,6 +126,7 @@ public class Test3 extends ComponentRobot {
 				}
 
 				actionStack.addAction(new MoveTo(robotKey, robot, points.get(maxId)));
+				*/
 
 			}
 				break;

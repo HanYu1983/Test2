@@ -15,11 +15,10 @@ public class MoveTo implements ITick, IAction, ISave, Serializable {
 	public static final int MinRange = 50;
 	private String robotKey;
 	private transient ComponentRobot robot;
-	public final Vec2 position = new Vec2();
+	private Vec2 position;
 
-	@SuppressWarnings("unused")
-	private MoveTo() {
-
+	public Vec2 getMoveToPosition() {
+		return position;
 	}
 
 	public MoveTo(String robotKey, ComponentRobot robot) {
@@ -29,7 +28,7 @@ public class MoveTo implements ITick, IAction, ISave, Serializable {
 	public MoveTo(String robotKey, ComponentRobot robot, Vec2 firstPlace) {
 		this.robotKey = robotKey;
 		this.robot = robot;
-		this.position.set(firstPlace);
+		this.position = new Vec2(firstPlace);
 	}
 
 	public void targeting() {
