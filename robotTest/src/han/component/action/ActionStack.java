@@ -11,11 +11,6 @@ public class ActionStack extends ComponentStack implements IAction {
 	 */
 	private static final long serialVersionUID = 323656336719383505L;
 
-	@SuppressWarnings("unused")
-	protected ActionStack() {
-
-	}
-
 	public ActionStack(Object hook) {
 		super(null);
 	}

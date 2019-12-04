@@ -44,7 +44,7 @@ public class QLearningRobot extends ComponentRobot {
 	MemoryTargetPosition memory = new MemoryTargetPosition(this);
 	// Object radarMovement = new RadarMovement(this);
 	Serializable radarMovement = new JustScan(null, this);
-	SimpleFireControl simpleFireControl = new SimpleFireControl(this, memory);
+	SimpleFireControl simpleFireControl = new SimpleFireControl("", this, memory);
 	Serializable ramFireControl = new RamFireControl(this);
 	Serializable ramMovement = new RamMovement(this);
 	Serializable spinMove = new SpinMove(this);
@@ -117,7 +117,7 @@ public class QLearningRobot extends ComponentRobot {
 		 * 
 		 */
 		private static final long serialVersionUID = 156257709440961271L;
-		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
+		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.getBullets();
 		private float MutateRate = 0.2f;
 
 		public Control() {
@@ -262,7 +262,7 @@ public class QLearningRobot extends ComponentRobot {
 		 */
 		private static final long serialVersionUID = -952446248046703667L;
 		private final QLearning<Integer, Action> qlearn;
-		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
+		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.getBullets();
 
 		public RewardDetector(QLearning<Integer, Action> q) {
 			qlearn = q;

@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 
 import org.jbox2d.common.Vec2;
 
+import han.component.action.ActionStack;
 import robocode.BattleEndedEvent;
 import robocode.BulletHitBulletEvent;
 import robocode.BulletHitEvent;
@@ -36,9 +37,16 @@ import robocode.WinEvent;
 
 public class ComponentRobot extends TeamRobot {
 	public final ComponentList coms = new ComponentList(null);
+	public final ActionStack moveGoal = new ActionStack(null);
+	public final ActionStack fireGoal = new ActionStack(null);
 	private String fileName;
 	private String opponent;
 	private Vec2 pos = new Vec2();
+
+	{
+		coms.addComponent(moveGoal);
+		coms.addComponent(fireGoal);
+	}
 
 	public String getOpponent() {
 		return opponent;

@@ -49,12 +49,7 @@ public class SaveFrameworkRobot extends ComponentRobot {
 		private static final long serialVersionUID = -791284919112248791L;
 		public transient ComponentRobot robot;
 		private transient final String robotKey = "robot";
-/*
-		@SuppressWarnings("unused")
-		private Main() {
-			
-		}
-*/
+
 		public Main(String ignore) {
 			super(null);
 			ActionStack actionStack = new ActionStack(null);
