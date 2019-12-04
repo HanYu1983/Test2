@@ -13,7 +13,7 @@ import robocode.Rules;
 
 public class Scouter extends ComponentRobot {
 	private final MemoryTargetPosition memory = new MemoryTargetPosition(this);
-	private final JustScan justScan = new JustScan(this);
+	private final JustScan justScan = new JustScan("", this);
 	private final RandomForwardMove randomForwardMove = new RandomForwardMove(this);
 
 	{
