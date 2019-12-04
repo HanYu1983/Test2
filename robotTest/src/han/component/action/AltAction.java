@@ -9,12 +9,12 @@ public class AltAction extends ComponentList implements IAction {
 	 * 
 	 */
 	private static final long serialVersionUID = 938412223749529927L;
-
+/*
 	@SuppressWarnings("unused")
 	protected AltAction() {
 
 	}
-
+*/
 	public AltAction(Object hook) {
 		super(null);
 	}

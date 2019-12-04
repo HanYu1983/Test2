@@ -27,20 +27,35 @@ import robocode.WinEvent;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IPaintEvents;
 
-public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, SimpleFireControl.IQuery, Serializable {
+public class MemoryTargetPosition
+		implements IBasicEvents, ITick, IPaintEvents, SimpleFireControl.IQuery, ISave, Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5978017709912969161L;
-	private final ComponentRobot robot;
+	private transient ComponentRobot robot;
+	private String robotKey;
+
+	protected MemoryTargetPosition() {
+
+	}
+
+	public MemoryTargetPosition(String robotKey) {
+		this.robotKey = robotKey;
+	}
 
 	public MemoryTargetPosition(ComponentRobot robot) {
 		this.robot = robot;
 	}
 
-	public static class MemoryPoint {
-		public final Vec2 point;
-		public final long time;
+	public static class MemoryPoint implements Serializable {
+		private static final long serialVersionUID = -6482749681320510336L;
+		public Vec2 point;
+		public long time;
+
+		protected MemoryPoint() {
+
+		}
 
 		public MemoryPoint(Vec2 point, long time) {
 			this.point = point;
@@ -218,8 +233,7 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 
 	@Override
 	public void onRobotDeath(RobotDeathEvent arg0) {
-		// TODO Auto-generated method stub
-
+		this.robotPositionHistory.remove(arg0.getName());
 	}
 
 	@Override
@@ -232,6 +246,17 @@ public class MemoryTargetPosition implements IBasicEvents, ITick, IPaintEvents, 
 	public void onWin(WinEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void onRegister(Map<String, Object> pool) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onFindRef(Map<String, Object> pool) {
+		this.robot = (ComponentRobot) pool.get(robotKey);
 	}
 
 }

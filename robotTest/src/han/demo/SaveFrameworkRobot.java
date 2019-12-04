@@ -36,11 +36,12 @@ public class SaveFrameworkRobot extends ComponentRobot {
 		}
 
 		@Override
-		protected void onLoad(Object obj) {
+		protected Serializable onLoad(Serializable obj) {
 			System.out.println("onLoad");
 			Main main = (Main) obj;
 			main.robot = SaveFrameworkRobot.this;
 			SaveFrameworkRobot.this.coms.addComponent(main);
+			return obj;
 		}
 	}
 
@@ -48,21 +49,21 @@ public class SaveFrameworkRobot extends ComponentRobot {
 		private static final long serialVersionUID = -791284919112248791L;
 		public transient ComponentRobot robot;
 		private transient final String robotKey = "robot";
-
+/*
 		@SuppressWarnings("unused")
 		private Main() {
-			System.out.println("Main");
+			
 		}
-
+*/
 		public Main(String ignore) {
 			super(null);
 			ActionStack actionStack = new ActionStack(null);
 
 			ActionQueue loopMove = new ActionQueue(true);
-			loopMove.addAction(new MoveTo(robotKey, new Vec2(100, 100)));
-			loopMove.addAction(new MoveTo(robotKey, new Vec2(100, 300)));
-			loopMove.addAction(new MoveTo(robotKey, new Vec2(300, 300)));
-			loopMove.addAction(new MoveTo(robotKey, new Vec2(300, 100)));
+			loopMove.addAction(new MoveTo(robotKey, null, new Vec2(100, 100)));
+			loopMove.addAction(new MoveTo(robotKey, null, new Vec2(100, 300)));
+			loopMove.addAction(new MoveTo(robotKey, null, new Vec2(300, 300)));
+			loopMove.addAction(new MoveTo(robotKey, null, new Vec2(300, 100)));
 
 			AltAction alt = new AltAction(null);
 			alt.addAction(loopMove);

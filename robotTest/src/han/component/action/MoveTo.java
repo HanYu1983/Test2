@@ -11,9 +11,6 @@ import han.component.ISave;
 import han.component.ITick;
 
 public class MoveTo implements ITick, IAction, ISave, Serializable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5567962435237025243L;
 	public static final int MinRange = 50;
 	private String robotKey;
@@ -25,12 +22,13 @@ public class MoveTo implements ITick, IAction, ISave, Serializable {
 
 	}
 
-	public MoveTo(String robotKey) {
-		this(robotKey, new Vec2(0, 0));
+	public MoveTo(String robotKey, ComponentRobot robot) {
+		this(robotKey, robot, new Vec2(0, 0));
 	}
 
-	public MoveTo(String robotKey, Vec2 firstPlace) {
+	public MoveTo(String robotKey, ComponentRobot robot, Vec2 firstPlace) {
 		this.robotKey = robotKey;
+		this.robot = robot;
 		this.position.set(firstPlace);
 	}
 

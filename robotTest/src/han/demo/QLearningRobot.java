@@ -43,7 +43,7 @@ import robocode.robotinterfaces.IBasicEvents;
 public class QLearningRobot extends ComponentRobot {
 	MemoryTargetPosition memory = new MemoryTargetPosition(this);
 	// Object radarMovement = new RadarMovement(this);
-	Serializable radarMovement = new JustScan(this);
+	Serializable radarMovement = new JustScan(null, this);
 	SimpleFireControl simpleFireControl = new SimpleFireControl(this, memory);
 	Serializable ramFireControl = new RamFireControl(this);
 	Serializable ramMovement = new RamMovement(this);
@@ -119,6 +119,10 @@ public class QLearningRobot extends ComponentRobot {
 		private static final long serialVersionUID = 156257709440961271L;
 		private final List<Bullet> bullets = QLearningRobot.this.simpleFireControl.bullets;
 		private float MutateRate = 0.2f;
+
+		public Control() {
+			super(null);
+		}
 
 		@Override
 		public void onInputStream(ObjectInputStream ois) throws IOException {

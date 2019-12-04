@@ -7,12 +7,12 @@ import java.util.List;
 public class ComponentList extends ComponentsBasicAdapter implements Serializable {
 	private static final long serialVersionUID = 7373097744376595809L;
 	private List<Serializable> coms;
-
+/*
 	@SuppressWarnings("unused")
 	protected ComponentList() {
-		System.out.println("ComponentList");
+		
 	}
-
+*/
 	public ComponentList(Object ignore) {
 		coms = new LinkedList<>();
 	}

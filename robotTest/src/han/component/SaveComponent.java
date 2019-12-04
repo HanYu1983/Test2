@@ -25,7 +25,7 @@ public abstract class SaveComponent implements IFileEvents, IBattleEvents {
 
 	protected abstract Serializable onNew();
 
-	protected abstract void onLoad(Object obj);
+	protected abstract Serializable onLoad(Serializable obj);
 
 	private Serializable saveObj;
 
@@ -38,8 +38,9 @@ public abstract class SaveComponent implements IFileEvents, IBattleEvents {
 		try {
 			Serializable obj = (Serializable) ois.readObject();
 			this.saveObj = obj;
-			onLoad(this.saveObj);
+			this.saveObj = onLoad(this.saveObj);
 		} catch (Exception e) {
+			e.printStackTrace();
 			Serializable obj = onNew();
 			this.saveObj = obj;
 		}
