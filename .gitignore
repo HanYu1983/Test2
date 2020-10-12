@@ -8,7 +8,6 @@ UnityPackageManager/
 YouAreMyDiamond/build/contracts/
 YouAreMyDiamond2/build/contracts/
 node_modules
-package-lock.json
 cache/
 private/
 pkg/
@@ -16,3 +15,5 @@ Build/
 obj/
 bin/
 build/
+Pending/ClojureRN/reactDev/
+.shadow-cljs

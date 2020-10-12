@@ -1,0 +1,13 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies
+ [[reagent "0.9.1"]]
+
+ :builds
+ {:app
+  {:target :react-native
+   :init-fn core/main
+   :output-dir "../reactDev/app"
+   :js-options {:js-package-dirs ["../reactDev/node_modules"]}}}}
