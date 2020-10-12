@@ -8,19 +8,6 @@
 
 (defonce splash-img (js/require "../assets/shadow-cljs.png"))
 
-(def styles
-  ^js (-> {:container
-           {:flex 1
-            :backgroundColor "#fff"
-            :alignItems "center"
-            :justifyContent "center"}
-           :title
-           {:fontWeight "bold"
-            :fontSize 24
-            :color "blue"}}
-          (clj->js)
-          (rn/StyleSheet.create)))
-
 (def model (r/atom {:count 0}))
 (def input (rxjs/Subject.))
 
@@ -41,14 +28,20 @@
    [:> rn/Text {} (str name "-" (:count @model))]])
 
 (defn root []
-  [:> rn/View {:style (.-container styles)}
-   [:> rn/Text {:style (.-title styles)} "Hello! wow !!"]
-   (count-view "wow")
-   (count-view "gan!")
+  [:> rn/View {:style {:flex 1}}
+   [:> rn/ScrollView nil
+    (map (fn [data]
+           ; 使用[count-view ...]建構component, 而不是使用(count-view ...)
+           ; 使用metadata ^{:key id} 給予id 
+           ; https://reagent-project.github.io/
+           ^{:key (:id data)} [count-view (:title data)])
+         [{:id "1" :title "wow"}
+          {:id "2" :title "gan"}
+          {:id "3" :title "kan"}])]
    [:> rn/Image {:source splash-img :style {:width 200 :height 200}}]])
 
 (defn start
-  {:dev/after-load true}
+  ;{:dev/after-load true}
   []
   (render-root "reactDev" (r/as-element [root])))
 
