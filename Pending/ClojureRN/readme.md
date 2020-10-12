@@ -3,6 +3,8 @@
 ## 建立react-native 專案
 1. npm i react-native -g
 1. react-native init reactDev
+1. cd reactDev
+1. npm i create-react-class
 
 ## 編譯cljs到react-native
 1. npm i shadow-cljs -g
