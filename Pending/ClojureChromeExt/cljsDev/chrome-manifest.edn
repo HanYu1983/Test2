@@ -1,0 +1,23 @@
+{:name "Getting Started Example"
+ :version "1.0"
+ :description "Build an Extension!"
+ :manifest-version 2
+ :shadow/outputs {:browser {:output-type :chrome/single-file
+                            :init-fn browser/main}
+                  :background {:output-type :chrome/single-file
+                               :init-fn background/main}
+                  :showK-chart {:output-type :chrome/single-file
+                                :init-fn showK-chart/main}}
+
+ :background {:scripts ["out/background.js"]
+              :persistent false}
+
+ :browser-action {:default-title "hello world"
+                  :default-popup "browser.html"}
+
+ ; https://stackoverflow.com/questions/49979397/chrome-says-my-content-script-isnt-utf-8
+ :content_scripts [{:matches ["https://goodinfo.tw/StockInfo/ShowK_Chart.asp*"]
+                    :js ["out/showK-chart.js"]}]
+
+ :content-security-policy ["script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com https://code.jquery.com;"
+                           "object-src 'self'"]}

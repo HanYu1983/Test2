@@ -1,0 +1,12 @@
+{"description":"Build an Extension!",
+ "content_scripts":
+ [{"matches":["https://goodinfo.tw/StockInfo/ShowK_Chart.asp*"],
+   "js":["out/showK-chart.js"]}],
+ "browser_action":
+ {"default_title":"hello world", "default_popup":"browser.html"},
+ "name":"Getting Started Example",
+ "background":{"scripts":["out/background.js"], "persistent":false},
+ "manifest_version":2,
+ "content_security_policy":
+ "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com https://code.jquery.com; object-src 'self'",
+ "version":"1.0"}

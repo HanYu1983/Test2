@@ -1,0 +1,13 @@
+;; https://github.com/thheller/shadow-cljs/blob/master/shadow-cljs.edn
+{:source-paths
+ ["src"]
+
+ :dependencies
+ [[reagent "0.9.1"]]
+
+ :builds
+ {:app {:target :chrome-extension
+        :compiler-options {:closure-output-charset "us-ascii"
+                           :source-map-inline true}
+        :manifest-file "./chrome-manifest.edn"
+        :extension-dir "../chromeExtDev"}}}
