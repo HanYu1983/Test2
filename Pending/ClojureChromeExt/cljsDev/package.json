@@ -4,7 +4,8 @@
   "private": true,
   "dependencies": {
     "react": "16.9.0",
-    "react-dom": "16.9.0"
+    "react-dom": "16.9.0",
+    "rxjs": "^6.6.3"
   },
   "scripts": {
     "install": "npm i shadow-cljs -g",

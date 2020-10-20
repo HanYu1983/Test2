@@ -1,7 +1,7 @@
 {"description":"Build an Extension!",
  "content_scripts":
  [{"matches":["https://goodinfo.tw/StockInfo/ShowK_Chart.asp*"],
-   "js":["out/showK-chart.js"]},
+   "js":["jquery.min.js", "out/showK-chart.js"]},
   {"matches":["https://www.google.com/*"],
    "js":["out/showK-chart.js"]}],
  "browser_action":

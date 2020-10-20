@@ -17,7 +17,7 @@
 
  ; https://stackoverflow.com/questions/49979397/chrome-says-my-content-script-isnt-utf-8
  :content_scripts [{:matches ["https://goodinfo.tw/StockInfo/ShowK_Chart.asp*"]
-                    :js ["out/showK-chart.js"]}
+                    :js ["jquery.min.js" "out/showK-chart.js"]}
                    {:matches ["https://www.google.com/*"]
                     :js ["out/showK-chart.js"]}]
 
