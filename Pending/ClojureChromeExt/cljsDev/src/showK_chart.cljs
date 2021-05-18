@@ -22,29 +22,31 @@
   (a/go
     (let [table (js/$ "#divK_ChartDetail > div > div > table")
           rows (.find table "tbody > tr")
-          ; jquery dom list
-          parse (-> rows
-                    (.map (fn [i]
-                            (let [info (-> (aget rows i)
-                                           (js/$)
-                                           (.find "td"))
-                                  date (aget info 0)
-                                  open (aget info 1)
-                                  high (aget info 2)
-                                  low (aget info 3)
-                                  close (aget info 4)
-                                  volume (aget info 7)
-                                  [d & rest] (map (fn [dom]
-                                                    (-> (js/$ dom)
-                                                        (.find "nobr")
-                                                        (.text)
-                                                        (.replace #"," "")))
-                                                  [date open high low close volume])
-                                  parse (->> (cons d (map js/parseFloat rest))
-                                             (into []))]
-                              parse)))
-                    seq)]
-      parse)))
+          kline (s/assert
+                 ::kline
+                 ; jquery dom list
+                 (-> rows
+                     (.map (fn [i]
+                             (let [info (-> (aget rows i)
+                                            (js/$)
+                                            (.find "td"))
+                                   date (aget info 0)
+                                   open (aget info 1)
+                                   high (aget info 2)
+                                   low (aget info 3)
+                                   close (aget info 4)
+                                   volume (aget info 7)
+                                   [d & rest] (map (fn [dom]
+                                                     (-> (js/$ dom)
+                                                         (.find "nobr")
+                                                         (.text)
+                                                         (.replace #"," "")))
+                                                   [date open high low close volume])
+                                   parse (->> (cons d (map js/parseFloat rest))
+                                              (into []))]
+                               parse)))
+                     seq))]
+      kline)))
 
 (defn auto-click []
   (a/go
