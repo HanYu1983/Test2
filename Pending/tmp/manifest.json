@@ -1,0 +1,24 @@
+{
+    "name": "Tmp",
+    "version": "1.0",
+    "description": "Build an Extension!",
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com https://code.jquery.com; object-src 'self'",
+    "permissions": ["storage","activeTab","declarativeContent","tabs","downloads"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.mykomon.com/*"],
+            "js": [
+                "jquery.min.js",
+                "home.js"
+            ]
+        }
+    ],
+    "manifest_version": 2
+}
