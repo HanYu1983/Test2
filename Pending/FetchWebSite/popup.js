@@ -19,7 +19,14 @@ window.onload = function () {
   });
 
   document.getElementById('download').addEventListener('click', function () {
-    const html = $("#log").html()
+    const links = $(document).find("link")
+    for (let i = 0; i < links.length; ++i) {
+      const href = $(links[i]).attr("href")
+      const filename = href.substring(href.lastIndexOf('/') + 1);
+      $(links[i]).attr("href", filename)
+    }
+
+    const html = document.documentElement.innerHTML
     var blob = new Blob([html], { type: "text/html" });
     var url = URL.createObjectURL(blob);
     // =========== 以下的方法無法命名檔名 ========= // 
@@ -37,7 +44,7 @@ window.onload = function () {
     document.body.appendChild(a);
     a.style = "display: none";
     a.href = url;
-    a.download = "xxx.html";
+    a.download = `${window.location.origin}.html`;
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove()
