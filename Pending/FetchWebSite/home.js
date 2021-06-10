@@ -1,24 +1,22 @@
-// 將路徑改為相對路徑
-// {
-//     const as = $("a")
-//     for (let i = 0; i < as.length; ++i) {
-//         $(as[i]).attr("href", "." + $(as[i]).attr("href"))
-//     }
-// }
-// 
+// get all css
 {
     const links = $(document).find("link")
     for (let i = 0; i < links.length; ++i) {
         const href = $(links[i]).attr("href")
-        const filename = href.substring(href.lastIndexOf('/') + 1);
-        chrome.extension.sendMessage({ cmd: 'onCssLink', info: { downloadUrl: window.location.origin + href, filename: filename } })
-        $(links[i]).attr("href", window.location.origin + href)
+        chrome.extension.sendMessage({ cmd: 'onCssLink', info: { url: window.location.origin + href } })
     }
 }
-
-// 如是首頁
-// 打開所有連結
-// if (window.location.toString() == 'https://www.mykomon.com/app/homeAo') 
+// get all js
+{
+    const links = $(document).find("script")
+    for (let i = 0; i < links.length; ++i) {
+        const href = $(links[i]).attr("src")
+        if (href) {
+            chrome.extension.sendMessage({ cmd: 'onScriptSrc', info: { url: window.location.origin + href } })
+        }
+    }
+}
+// get all link
 {
     const aLinks = $("a")
     const urls = []
@@ -63,36 +61,39 @@
         if (url.indexOf("logout") != -1) {
             return false
         }
+        if (url.indexOf("http") != -1) {
+            return false
+        }
+        if (url.indexOf("viewDaily") != -1) {
+            return false
+        }
+        if (url.indexOf("daily.do") != -1) {
+            return false
+        }
+        if (url.indexOf("www.mykomon.comviewitem") != -1) {
+            return false
+        }
         return true
     }).reduce((acc, c) => {
         acc[c] = true
         return acc
     }, {})
-    console.log("urls:", urlSet);
-
-    (async () => {
-        let i = 0;
-        for (const url in urlSet) {
-            if (++i == 10) {
-                break
-            }
-            await new Promise((res) => {
-                setTimeout(() => {
-                    chrome.extension.sendMessage({ cmd: 'onLink', info: window.location.origin + url })
-                    res()
-                }, 3000)
-            })
+    let i = 0;
+    for (const url in urlSet) {
+        if (++i == 5) {
+            break
         }
-    })()
+        chrome.extension.sendMessage({ cmd: 'onLink', info: window.location.origin + url })
+    }
 }
-
+// 等js跑一下
 setTimeout(() => {
-    const key = window.location.toString()
-    const model = {}
-    model[key] = document.documentElement.innerHTML
-    chrome.storage.local.set(model, () => {
-        console.log("fetched:" + window.location.toString())
+    chrome.extension.sendMessage({
+        cmd: 'onFetch', info: {
+            url: window.location.toString(),
+            content: document.documentElement.innerHTML
+        }
     })
-}, 3000)
+}, 1000)
 
 
