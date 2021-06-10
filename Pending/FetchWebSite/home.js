@@ -6,13 +6,14 @@
         chrome.extension.sendMessage({ cmd: 'onCssLink', info: { url: window.location.origin + href } })
     }
 }
+
 // get all js
 {
     const links = $(document).find("script")
     for (let i = 0; i < links.length; ++i) {
         const href = $(links[i]).attr("src")
         if (href) {
-            chrome.extension.sendMessage({ cmd: 'onScriptSrc', info: { url: window.location.origin + href } })
+            //chrome.extension.sendMessage({ cmd: 'onScriptSrc', info: { url: window.location.origin + href } })
         }
     }
 }
@@ -83,10 +84,11 @@
         if (++i == 5) {
             break
         }
-        chrome.extension.sendMessage({ cmd: 'onLink', info: window.location.origin + url })
+        //chrome.extension.sendMessage({ cmd: 'onLink', info: { url: window.location.origin + url } })
     }
 }
-// 等js跑一下
+
+// get this page
 setTimeout(() => {
     chrome.extension.sendMessage({
         cmd: 'onFetch', info: {
@@ -94,6 +96,6 @@ setTimeout(() => {
             content: document.documentElement.innerHTML
         }
     })
-}, 1000)
+}, 500)
 
 

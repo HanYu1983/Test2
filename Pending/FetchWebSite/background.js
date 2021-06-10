@@ -1,6 +1,11 @@
 
-{
+function delay(t) {
+  return new Promise(res => {
+    setTimeout(res, t)
+  })
+}
 
+{
   const taskPool = [];
   (async () => {
     while (true) {
@@ -14,29 +19,15 @@
         console.log("====")
         console.log(e)
       }
-      await new Promise(res => {
-        setTimeout(res, 2000)
-      })
+      await delay(100)
     }
   })()
   function addTask(task) {
     taskPool.push(task)
   }
 
-  let currentTab = null
-  chrome.tabs.query({ currentWindow: true, active: true }, function (tab) {
-    if (tab == null) {
-      return
-    }
-    currentTab = tab
-  });
-
   const openedUrlPool = {}
   chrome.extension.onMessage.addListener(function (obj) {
-    if (currentTab == null) {
-      console.log("currentTab not init")
-      return
-    }
     const { cmd, info } = obj
     console.log(cmd)
     switch (cmd) {
@@ -74,22 +65,6 @@
         }
         break
       case "onLink":
-        {
-          const url = info
-          if (openedUrlPool[url]) {
-            console.log("already open:", url)
-            return
-          }
-          openedUrlPool[url] = true
-          addTask(() => {
-            return new Promise(res => {
-              console.log("change tab:", url)
-              chrome.tabs.update(currentTab.id, { url: url });
-              res()
-            })
-          })
-        }
-        break
       case "onScriptSrc":
       case "onCssLink":
         {
@@ -99,17 +74,24 @@
             return
           }
           openedUrlPool[url] = true
-          addTask(() => {
-            return new Promise(res => {
-              console.log("change tab:", url)
+          addTask(async () => {
+            console.log("change tab:", url)
+            let formatUrl = url
+            // 只有css,js要做
+            if (cmd != "onLink") {
               const p = url.indexOf("?")
-              let formatUrl = url
               if (p != -1) {
                 formatUrl = formatUrl.substr(0, p)
               }
-              chrome.tabs.update(currentTab.id, { url: formatUrl });
-              res()
+            }
+            const tab = await new Promise(res => {
+              // 必須使用callback的形式才能取到tab
+              chrome.tabs.create({ url: formatUrl }, tab => {
+                res(tab)
+              });
             })
+            await delay(1000)
+            await chrome.tabs.remove(tab.id)
           })
         }
         break
