@@ -1,5 +1,11 @@
+const config = {
+    fetchCss: true,
+    fetchJs: false,
+    fetchLink: false
+}
+
 // get all css
-{
+if (config.fetchCss) {
     const links = $(document).find("link")
     for (let i = 0; i < links.length; ++i) {
         const href = $(links[i]).attr("href")
@@ -7,18 +13,20 @@
     }
 }
 
+
 // get all js
-{
+if (config.fetchJs) {
     const links = $(document).find("script")
     for (let i = 0; i < links.length; ++i) {
         const href = $(links[i]).attr("src")
         if (href) {
-            //chrome.extension.sendMessage({ cmd: 'onScriptSrc', info: { url: window.location.origin + href } })
+            chrome.extension.sendMessage({ cmd: 'onScriptSrc', info: { url: window.location.origin + href } })
         }
     }
 }
+
 // get all link
-{
+if (config.fetchLink) {
     const aLinks = $("a")
     const urls = []
     for (let i = 0; i < aLinks.length; ++i) {
@@ -47,9 +55,9 @@
         if (url.indexOf("logout") != -1) {
             return false
         }
-        if (url.indexOf("viewNews") != -1) {
-            return false
-        }
+        // if (url.indexOf("viewNews") != -1) {
+        //     return false
+        // }
         // if (url == '/app/homeAo') {
         //     return false
         // }
@@ -91,7 +99,7 @@ setTimeout(() => {
         if ($(aLinks[i]).attr("href") == null) {
             continue
         }
-        $(aLinks[i]).attr("href", $(aLinks[i]).attr("href").replace(/\?/g, "_") + ".html")
+        $(aLinks[i]).attr("href", encodeURIComponent($(aLinks[i]).attr("href")) + ".html")
     }
     chrome.extension.sendMessage({
         cmd: 'onFetch', info: {
@@ -99,6 +107,6 @@ setTimeout(() => {
             content: copy.html()
         }
     })
-}, 3000)
+}, 7000)
 
 
