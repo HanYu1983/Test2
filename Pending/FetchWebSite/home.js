@@ -47,13 +47,13 @@
         if (url.indexOf("logout") != -1) {
             return false
         }
+        if (url.indexOf("viewNews") != -1) {
+            return false
+        }
         // if (url == '/app/homeAo') {
         //     return false
         // }
         // if (url == '/app/home') {
-        //     return false
-        // }
-        // if (url.indexOf("viewNews") != -1) {
         //     return false
         // }
         // if (url.indexOf("viewTokushu") != -1) {
