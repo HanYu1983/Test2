@@ -13,6 +13,7 @@ function delay(t) {
       try {
         if (taskPool.length) {
           const task = taskPool.pop()
+          // 這裡不能用異步，因為大量的呼叫會讓網站負荷不了
           await task()
         }
       } catch (e) {
@@ -90,7 +91,7 @@ function delay(t) {
                 res(tab)
               });
             })
-            await delay(1000)
+            await delay(5000)
             await chrome.tabs.remove(tab.id)
           })
         }
